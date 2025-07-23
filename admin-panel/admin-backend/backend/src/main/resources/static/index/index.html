@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z+ Secure Access</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animations.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+</head>
+<body>
+    <div class="container fade-in-up" id="container">
+        <!-- REGISTRATION FORM -->
+        <div class="form-container sign-up-container">
+            <form id="registerForm" novalidate>
+                <h1 class="form-title">Create Account</h1>
+                <div class="social-container fade-in">
+                    <a href="#" class="social hover-effect"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social hover-effect"><i class="fab fa-google-plus-g"></i></a>
+                    <a href="#" class="social hover-effect"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your email for registration</span>
+                
+                <div class="user-type-selector fade-in">
+                    <label class="type-option hover-effect">
+                        <input type="radio" name="userType" value="EMPLOYEE" checked>
+                        <div class="user-type-tile">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Employee</span>
+                        </div>
+                    </label>
+                    <label>
+                        <input type="radio" name="userType" value="CLIENT">
+                        <div class="user-type-tile">
+                            <i class="fas fa-user"></i>
+                            <span>Client</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div id="registerErrorMessage" class="error-message"></div>
+                <div id="registerSuccessMessage" class="success-message"></div>
+                <input type="text" name="firstName" placeholder="First Name" required />
+                <input type="text" name="lastName" placeholder="Last Name" required />
+                <input type="email" name="email" placeholder="Email" required />
+                <input type="tel" name="phone" placeholder="Phone Number" required />
+                <select name="department" required>
+                    <option value="">Select Department</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Sales">Sales</option>
+                    <option value="Human Resources">Human Resources</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Operations">Operations</option>
+                    <option value="IT">IT</option>
+                    <option value="Customer Service">Customer Service</option>
+                    <option value="Research & Development">Research & Development</option>
+                    <option value="Legal">Legal</option>
+                    <option value="Administration">Administration</option>
+                </select>
+                <input type="text" name="selfId" placeholder="Self ID (e.g., ZP001)" pattern="^ZP[0-9]{3,}$" title="Self ID must start with 'ZP' followed by at least 3 digits" required />
+                <input type="text" name="username" placeholder="Username" required />
+                <input type="password" name="password" placeholder="Password" required />
+                <button type="submit">Sign Up</button>
+            </form>
+        </div>
+
+        <!-- LOGIN FORM -->
+        <div class="form-container sign-in-container">
+            <form id="loginForm" novalidate>
+                <h1 class="form-title">Sign in</h1>
+                <div class="social-container dashboard-card">
+                    <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
+                    <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+                <span>or use your account</span>
+
+                <!-- User Type Selector for Login -->
+                <div class="user-type-selector">
+                    <label>
+                        <input type="radio" name="userType" value="ADMIN" checked>
+                        <div class="user-type-tile">
+                            <i class="fas fa-user-shield"></i>
+                            <span>Admin</span>
+                        </div>
+                    </label>
+                    <label>
+                        <input type="radio" name="userType" value="EMPLOYEE">
+                        <div class="user-type-tile">
+                            <i class="fas fa-user-tie"></i>
+                            <span>Employee</span>
+                        </div>
+                    </label>
+                    <label>
+                        <input type="radio" name="userType" value="CLIENT">
+                        <div class="user-type-tile">
+                            <i class="fas fa-user"></i>
+                            <span>Client</span>
+                        </div>
+                    </label>
+                </div>
+
+                 <div id="loginErrorMessage" class="error-message"></div>
+                <input type="text" name="selfId" placeholder="Self ID" required />
+                                <div class="password-input">
+                    <input type="password" id="passwordInput" name="password" placeholder="Password" required>
+                    <span class="password-toggle" onclick="togglePasswordVisibility()">
+                        <i id="passwordToggleIcon" class="fas fa-eye"></i>
+                    </span>
+                </div>
+                <a href="#">Forgot your password?</a>
+                <button type="submit">Sign In</button>
+            </form>
+        </div>
+
+        <!-- OVERLAY PANELS -->
+        <div class="overlay-container">
+            <div class="overlay">
+                <div class="overlay-panel overlay-left">
+                    <h1>Welcome Back!</h1>
+                    <p>To keep connected with us please login with your personal info</p>
+                    <button class="ghost" id="signIn">Sign In</button>
+                </div>
+                <div class="overlay-panel overlay-right">
+                    <h1>Hello, Friend!</h1>
+                    <p>Enter your personal details and start your journey with us</p>
+                    <button class="ghost" id="signUp">Sign Up</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js?v=20250723-5"></script>
+</body>
+</html>

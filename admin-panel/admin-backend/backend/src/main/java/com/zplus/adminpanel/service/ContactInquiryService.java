@@ -1,0 +1,205 @@
+package com.zplus.adminpanel.service;
+
+import com.zplus.adminpanel.dto.ContactInquiryRequest;
+import com.zplus.adminpanel.entity.ContactInquiry;
+import com.zplus.adminpanel.entity.ContactStatus;
+import com.zplus.adminpanel.repository.ContactInquiryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.NoSuchElementException;
+
+/**
+ * Service class for handling contact inquiry business logic
+ */
+@Service
+@Transactional
+public class ContactInquiryService {
+
+    private final ContactInquiryRepository contactInquiryRepository;
+
+    public ContactInquiryService(ContactInquiryRepository contactInquiryRepository) {
+        this.contactInquiryRepository = contactInquiryRepository;
+    }
+
+    /**
+     * Save a new contact inquiry
+     */
+    public ContactInquiry saveContactInquiry(ContactInquiryRequest request) {
+        ContactInquiry inquiry = new ContactInquiry();
+        inquiry.setFullName(request.getFullName());
+        inquiry.setEmail(request.getEmail());
+        inquiry.setMessage(request.getMessage());
+        inquiry.setStatus(ContactStatus.NEW);
+        inquiry.setCreatedAt(LocalDateTime.now());
+        inquiry.setUpdatedAt(LocalDateTime.now());
+        
+        return contactInquiryRepository.save(inquiry);
+    }
+
+    /**
+     * Get all contact inquiries based on the provided status, search term, and pagination
+     */
+    public Page<ContactInquiry> getAllInquiries(ContactStatus status, String searchTerm, Pageable pageable) {
+        return contactInquiryRepository.findWithFilters(status, searchTerm, pageable);
+    }
+
+    /**
+     * Get a contact inquiry by ID
+     */
+    public ContactInquiry getInquiryById(Long id) {
+        return contactInquiryRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Contact inquiry not found with id: " + id));
+    }
+
+    /**
+     * Update inquiry status
+     */
+    public ContactInquiry updateInquiryStatus(Long id, ContactStatus status, String notes) {
+        ContactInquiry inquiry = getInquiryById(id);
+        inquiry.setStatus(status);
+        if (notes != null) {
+            inquiry.setNotes(notes);
+        }
+        inquiry.setUpdatedAt(LocalDateTime.now());
+        return contactInquiryRepository.save(inquiry);
+    }
+
+    /**
+     * Assign inquiry to a team member
+     */
+    public ContactInquiry assignInquiry(Long id, String assignedTo) {
+        ContactInquiry inquiry = getInquiryById(id);
+        inquiry.setAssignedTo(assignedTo);
+        inquiry.setUpdatedAt(LocalDateTime.now());
+        return contactInquiryRepository.save(inquiry);
+    }
+
+    /**
+     * Add notes to inquiry
+     */
+    public ContactInquiry addNotes(Long id, String notes) {
+        ContactInquiry inquiry = getInquiryById(id);
+        inquiry.setNotes(notes);
+        inquiry.setUpdatedAt(LocalDateTime.now());
+        return contactInquiryRepository.save(inquiry);
+    }
+
+    /**
+     * Mark inquiry as responded
+     */
+    public ContactInquiry markAsResponded(Long id, String responseNotes) {
+        ContactInquiry inquiry = getInquiryById(id);
+        inquiry.setStatus(ContactStatus.CLOSED);
+        inquiry.setResponseNotes(responseNotes);
+        inquiry.setUpdatedAt(LocalDateTime.now());
+        return contactInquiryRepository.save(inquiry);
+    }
+
+    /**
+     * Share contact inquiry with project ID or email
+     */
+    public ContactInquiry shareInquiry(Long id, String sharedWith, String shareNotes) {
+        ContactInquiry inquiry = getInquiryById(id);
+        if (inquiry == null) {
+            throw new NoSuchElementException("Contact inquiry not found with id: " + id);
+        }
+        
+        // Set sharing information
+        inquiry.setSharedWith(sharedWith);
+        inquiry.setSharedAt(LocalDateTime.now());
+        inquiry.setShareNotes(shareNotes);
+        inquiry.setUpdatedAt(LocalDateTime.now());
+        
+        // You can add logic here to determine who is sharing based on authentication context
+        // For now, we'll set it as "system" or get it from security context
+        inquiry.setSharedBy("admin"); // This should ideally come from the authenticated user
+        
+        return contactInquiryRepository.save(inquiry);
+    }
+
+    /**
+     * Get inquiries by status
+     */
+    public List<ContactInquiry> getInquiriesByStatus(ContactStatus status) {
+        return contactInquiryRepository.findByStatus(status);
+    }
+
+    /**
+     * Get inquiries by email
+     */
+    public List<ContactInquiry> getInquiriesByEmail(String email) {
+        return contactInquiryRepository.findByEmail(email);
+    }
+
+    /**
+     * Get inquiries by date range
+     */
+    public List<ContactInquiry> getInquiriesByDateRange(LocalDateTime start, LocalDateTime end) {
+        return contactInquiryRepository.findByCreatedAtBetween(start, end);
+    }
+
+    /**
+     * Get inquiry statistics
+     */
+    public Map<String, Object> getInquiryStatistics() {
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("total", contactInquiryRepository.count());
+        stats.put("byStatus", contactInquiryRepository.getStatusCounts());
+        return stats;
+    }
+
+    /**
+     * Get recent inquiries
+     */
+    public List<ContactInquiry> getRecentInquiries(int days) {
+        LocalDateTime since = LocalDateTime.now().minusDays(days);
+        return contactInquiryRepository.findRecentInquiries(since);
+    }
+
+    /**
+     * Get unassigned inquiries
+     */
+    public List<ContactInquiry> getUnassignedInquiries() {
+        return contactInquiryRepository.findUnassignedInquiries();
+    }
+
+    /**
+     * Get high priority inquiries
+     */
+    public List<ContactInquiry> getHighPriorityInquiries() {
+        LocalDateTime cutoff = LocalDateTime.now().minusHours(24);
+        return contactInquiryRepository.findHighPriorityInquiries(cutoff);
+    }
+
+    /**
+     * Delete inquiry
+     */
+    public boolean deleteInquiry(Long id) {
+        if (contactInquiryRepository.existsById(id)) {
+            contactInquiryRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Get latest contact inquiry
+     */
+    public ContactInquiry getLatestContactInquiry() {
+        return contactInquiryRepository.findTopByOrderByCreatedAtDesc();
+    }
+
+    /**
+     * Get all contact inquiries
+     */
+    public List<ContactInquiry> getAllContactInquiries() {
+        return contactInquiryRepository.findAll();
+    }
+}

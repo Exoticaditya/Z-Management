@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z+ Employee Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1><i class="fas fa-user-tie"></i> Employee Dashboard</h1>
+            <p class="subtitle">Welcome to your Z+ workspace</p>
+        </div>
+
+        <div class="user-info">
+            <h3><i class="fas fa-user-circle"></i> Your Profile Information</h3>
+            <div class="user-details">
+                <div class="detail-item">
+                    <div class="label">Employee ID</div>
+                    <div class="value" id="employee-id">Loading...</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Full Name</div>
+                    <div class="value" id="employee-name">Loading...</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">User Type</div>
+                    <div class="value" id="user-type">Employee</div>
+                </div>
+                <div class="detail-item">
+                    <div class="label">Status</div>
+                    <div class="value">
+                        <span class="status-badge status-active" id="employee-status">Active</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="action-card" onclick="showNotification('Profile management coming soon!', 'info')">
+                <i class="fas fa-user-edit"></i>
+                <h4>Update Profile</h4>
+                <p>Manage your personal information and settings</p>
+            </button>
+
+            <button class="action-card" onclick="showNotification('Task management coming soon!', 'info')">
+                <i class="fas fa-tasks"></i>
+                <h4>My Tasks</h4>
+                <p>View and manage your assigned tasks</p>
+            </button>
+
+            <button class="action-card" onclick="showNotification('Time tracking coming soon!', 'info')">
+                <i class="fas fa-clock"></i>
+                <h4>Time Tracking</h4>
+                <p>Log your work hours and activities</p>
+            </button>
+
+            <button class="action-card" onclick="showNotification('Reports coming soon!', 'info')">
+                <i class="fas fa-chart-bar"></i>
+                <h4>Reports</h4>
+                <p>View your performance and activity reports</p>
+            </button>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <div id="notification-container"></div>
+    
+    <script src="employee-script.js"></script>
+</body>
+</html>

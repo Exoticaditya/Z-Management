@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z+ Admin Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/admin-style.css">
+    <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+    <div id="notification-container"></div>
+
+    <div id="login-form-container"></div>
+
+    <div class="admin-dashboard" style="display: none;">
+        <header class="admin-header">
+            <div class="header-left">
+                <!-- Make logo clickable -->
+                <button class="logo-button" onclick="loadContent('dashboard')" title="Go to Dashboard">
+                    <i class="fas fa-shield-alt"></i>
+                    <span class="logo-text">Z+ ADMIN PANEL</span>
+                </button>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <img src="/admin/images/default-avatar.png" alt="Admin" class="user-avatar">
+                    <div class="user-details">
+                        <span class="user-name">System Administrator</span>
+                        <span class="user-role">System Administrator</span>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-icon" title="Notifications">
+                        <i class="fas fa-bell"></i>
+                    </button>
+                    <button class="btn btn-icon" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="btn btn-icon" onclick="logout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <nav class="main-navbar">
+            <div class="navbar-container">
+                <div class="nav-item">
+                    <a href="#" class="nav-link" onclick="loadContent('dashboard')">
+                        <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <button class="nav-link" data-target="registration-menu">
+                        <i class="fas fa-clipboard-list"></i><span>Registrations</span><i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="registration-menu">
+                        <a href="#" class="dropdown-item" onclick="loadContent('all-registrations')">All Registrations</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('pending-registrations')">Pending Review</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('approved-registrations')">Approved</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('rejected-registrations')">Rejected</a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <button class="nav-link" data-target="contact-menu">
+                        <i class="fas fa-envelope"></i><span>Contact Inquiries</span><i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="contact-menu">
+                        <a href="#" class="dropdown-item" onclick="loadContent('all-contacts')">All Inquiries</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('pending-contacts')">Pending</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('resolved-contacts')">Resolved</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('contact-statistics')">Statistics</a>
+                    </div>
+                </div>
+                <div class="nav-item">
+                    <button class="nav-link" data-target="games-menu">
+                        <i class="fas fa-gamepad"></i><span>Games</span><i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu" id="games-menu">
+                        <a href="#" class="dropdown-item" onclick="loadContent('games-overview')">Games Overview</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('tic-tac-toe')">Tic Tac Toe</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('memory-game')">Memory Game</a>
+                        <a href="#" class="dropdown-item" onclick="loadContent('snake-game')">Snake Game</a>
+                    </div>
+                </div>
+                </div>
+        </nav>
+
+        <main class="main-content">
+            <div class="content-header">
+                <h2 id="contentTitle">Dashboard Overview</h2>
+                <div class="content-actions">
+                    <button class="btn btn-secondary" id="backButton" style="display: none;">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshData()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="content-body" id="contentBody">
+                </div>
+        </main>
+        
+        <!-- Back Button -->
+        <button class="btn btn-secondary" id="backButton" style="position: fixed; top: 20px; left: 20px; z-index: 1000; display: none;">
+            <i class="fas fa-arrow-left"></i> Back
+        </button>
+    </div>
+
+    <script src="js/admin-script.js"></script>
+    <script src="js/animations.js"></script>
+</body>
+</html>

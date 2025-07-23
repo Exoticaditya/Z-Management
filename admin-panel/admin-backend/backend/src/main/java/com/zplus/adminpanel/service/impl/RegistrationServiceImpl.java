@@ -1,0 +1,72 @@
+package com.zplus.adminpanel.service.impl;
+
+import com.zplus.adminpanel.entity.Registration;
+import com.zplus.adminpanel.entity.RegistrationStatus;
+import com.zplus.adminpanel.exception.ResourceNotFoundException;
+import com.zplus.adminpanel.repository.RegistrationRepository;
+import com.zplus.adminpanel.service.RegistrationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@Transactional
+public class RegistrationServiceImpl implements RegistrationService {
+    
+    @Autowired
+    private RegistrationRepository registrationRepository;
+    
+    @Override
+    public List<Registration> getAllRegistrations() {
+        return registrationRepository.findAll();
+    }
+    
+    @Override
+    public List<Registration> getPendingRegistrations() {
+        return registrationRepository.findByStatus(RegistrationStatus.PENDING);
+    }
+
+    @Override
+    public List<Registration> getApprovedRegistrations() {
+        return registrationRepository.findByStatus(RegistrationStatus.APPROVED);
+    }
+
+    @Override
+    public List<Registration> getRejectedRegistrations() {
+        return registrationRepository.findByStatus(RegistrationStatus.REJECTED);
+    }
+
+    @Override
+    public Registration approveRegistration(Long id) {
+        Registration registration = registrationRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+            
+        registration.setStatus(RegistrationStatus.APPROVED);
+        registration.setUpdatedAt(LocalDateTime.now());
+        return registrationRepository.save(registration);
+    }
+
+    @Override
+    public Registration rejectRegistration(Long id, String reason) {
+        Registration registration = registrationRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+            
+        registration.setStatus(RegistrationStatus.REJECTED);
+        registration.setRejectionReason(reason);
+        registration.setUpdatedAt(LocalDateTime.now());
+        return registrationRepository.save(registration);
+    }
+
+    @Override
+    public Registration shareRegistration(Long id, String sharedWith) {
+        Registration registration = registrationRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+            
+        registration.setSharedWith(sharedWith);
+        registration.setUpdatedAt(LocalDateTime.now());
+        return registrationRepository.save(registration);
+    }
+}
