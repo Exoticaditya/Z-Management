@@ -11,43 +11,49 @@ let currentTask = null;
 
 // Initialize dashboard
 document.addEventListener('DOMContentLoaded', function() {
-    checkAuthentication();
-    loadEmployeeData();
-    showSection('dashboard');
-    initializeEventListeners();
-    updateLastUpdated();
-    setInterval(updateLastUpdated, 60000);
+    // Add a small delay to ensure localStorage is ready
+    setTimeout(() => {
+        checkAuthentication();
+        loadEmployeeData();
+        showSection('dashboard');
+        initializeEventListeners();
+        updateLastUpdated();
+        setInterval(updateLastUpdated, 60000);
+    }, 100);
 });
 
 // Check authentication
 function checkAuthentication() {
-    const employeeToken = localStorage.getItem('employeeToken');
-    if (!employeeToken) {
-        window.location.href = '../login.html';
-        return;
+    const token = localStorage.getItem('token');
+    const userString = localStorage.getItem('zplusUser');
+    
+    console.log('Auth check - token:', !!token);
+    console.log('Auth check - userString:', userString);
+    
+    let user = {};
+    try {
+        user = JSON.parse(userString || '{}');
+    } catch (e) {
+        console.error('Error parsing user data:', e);
+        user = {};
     }
     
-    // Validate token with backend
-    fetch(`${API_BASE_URL}/employees/validate-token`, {
-        headers: {
-            'Authorization': `Bearer ${employeeToken}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Invalid token');
-        }
-        return response.json();
-    })
-    .then(data => {
-        currentEmployee = data;
-        updateUserInfo();
-    })
-    .catch(error => {
-        console.error('Authentication failed:', error);
-        localStorage.removeItem('employeeToken');
-        window.location.href = '../login.html';
-    });
+    console.log('Auth check - user:', user);
+    console.log('Auth check - userType:', user.userType);
+    
+    if (!token || !user.userType || user.userType !== 'EMPLOYEE') {
+        console.log('No valid employee authentication found, redirecting to login');
+        // Clear invalid data
+        localStorage.removeItem('zplusUser');
+        localStorage.removeItem('token');
+        window.location.href = '/index/index.html';
+        return false;
+    }
+    
+    // Set current employee data
+    currentEmployee = user;
+    updateUserInfo();
+    console.log('Employee Dashboard initialized successfully');
 }
 
 // Show specific section and update navigation
@@ -118,9 +124,11 @@ function logout() {
         // Clear any stored authentication data
         localStorage.removeItem('employeeToken');
         localStorage.removeItem('employeeData');
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
         
         // Redirect to login page
-        window.location.href = 'login.html';
+        window.location.href = '/admin/index.html';
     }
 }
 
@@ -407,23 +415,23 @@ function updateNotificationCount() {
 
 // Load employee data
 function loadEmployeeData() {
-    // Load stored employee data or use defaults
-    const employeeData = JSON.parse(localStorage.getItem('employeeData') || '{}');
+    // Load stored user data from login
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
     
-    // Set default values if no stored data
+    // Set default values based on user data or defaults
     const defaults = {
-        name: 'Sarah Johnson',
-        employeeId: 'EMP-2024-089',
-        email: 'sarah.johnson@company.com',
-        phone: '+1 (555) 987-6543',
+        name: user.name || 'Employee User',
+        employeeId: user.selfId || 'EMP-001',
+        email: user.email || 'employee@company.com',
+        phone: user.phone || '+1 (555) 987-6543',
         department: 'Technology',
-        position: 'Senior Developer',
+        position: 'Employee',
         emergencyContact: '+1 (555) 123-0000',
-        skills: 'JavaScript, Python, React, Node.js'
+        skills: 'Contact Management, Customer Service'
     };
     
-    // Merge defaults with stored data
-    const data = { ...defaults, ...employeeData };
+    // Use user data instead of undefined employeeData
+    const data = { ...defaults, ...user };
     
     // Update header
     document.getElementById('userName').textContent = data.name;
@@ -709,18 +717,69 @@ function updateDashboardStats(stats) {
 
 // Load my tasks
 function loadMyTasks() {
-    const employeeId = localStorage.getItem('employeeId');
-    if (!employeeId) return;
+    if (!currentEmployee || !currentEmployee.selfId) {
+        console.error('No employee data found');
+        displayTasks([]);
+        return;
+    }
     
-    fetch(`${API_BASE_URL}/employees/${employeeId}/tasks`)
-        .then(response => response.json())
+    // Get assigned contact inquiries for this employee
+    fetch(`${API_BASE_URL}/contact/assigned/${currentEmployee.selfId}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
-            displayTasks(data);
+            console.log('Loaded assigned contact inquiries:', data);
+            // Convert contact inquiries to task format
+            const tasks = data.map(inquiry => ({
+                id: inquiry.id,
+                title: `Contact Inquiry #${inquiry.id} - ${inquiry.fullName}`,
+                description: `${inquiry.businessChallenge || inquiry.message || 'Contact from ' + inquiry.organization}`,
+                status: mapContactStatusToTaskStatus(inquiry.status),
+                priority: 'High', // Default priority
+                dueDate: new Date(Date.now() + 7*24*60*60*1000).toISOString(), // 7 days from now
+                progress: getProgressFromStatus(inquiry.status),
+                type: 'Contact Inquiry',
+                email: inquiry.email,
+                phone: inquiry.phone,
+                organization: inquiry.organization
+            }));
+            displayTasks(tasks);
         })
         .catch(error => {
-            console.error('Error loading tasks:', error);
-            displayTasks(getMockTasks());
+            console.error('Error loading assigned contact inquiries:', error);
+            displayTasks([]);
         });
+}
+
+// Helper function to map contact status to task status
+function mapContactStatusToTaskStatus(contactStatus) {
+    switch(contactStatus) {
+        case 'NEW': return 'Pending';
+        case 'IN_PROGRESS': return 'In Progress';
+        case 'CLOSED': return 'Completed';
+        case 'PENDING': return 'Pending';
+        default: return 'Pending';
+    }
+}
+
+// Helper function to get progress percentage from status
+function getProgressFromStatus(status) {
+    switch(status) {
+        case 'NEW': return 0;
+        case 'PENDING': return 0;
+        case 'IN_PROGRESS': return 50;
+        case 'CLOSED': return 100;
+        default: return 0;
+    }
 }
 
 // Display tasks

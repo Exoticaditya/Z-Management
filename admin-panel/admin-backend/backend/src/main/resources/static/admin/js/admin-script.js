@@ -50,16 +50,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 } else {
                     console.log('[ADMIN DEBUG] User is not ADMIN, userType is:', userData.userType);
-                    // Redirect non-admin users to appropriate dashboard
-                    if (userData.userType === 'EMPLOYEE') {
-                        window.location.href = '/employee-dashboard/index.html';
-                        return;
-                    } else if (userData.userType === 'CLIENT') {
-                        window.location.href = '/client/index.html';
-                        return;
-                    } else {
-                        console.log('[ADMIN DEBUG] Unknown user type, treating as unauthorized');
-                    }
+                    // Clear authentication and show login form for non-admin users
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    
+                    // Show error message instead of redirecting
+                    showLoginForm();
+                    showErrorMessage('Access denied. Admin privileges required.');
+                    return;
                 }
             } catch (e) {
                 console.error('[ADMIN DEBUG] Failed to parse user data:', e);
@@ -95,6 +93,23 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
     }
 
+    function showErrorMessage(message) {
+        const existingError = document.querySelector('.error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.style.cssText = 'background: #ff4444; color: white; padding: 10px; margin: 10px 0; border-radius: 4px; text-align: center;';
+        errorDiv.textContent = message;
+        
+        const loginBox = document.querySelector('.login-box');
+        if (loginBox) {
+            loginBox.insertBefore(errorDiv, loginBox.querySelector('form'));
+        }
+    }
+
     async function handleLogin(e) {
         e.preventDefault();
         const username = document.getElementById('username').value;
@@ -121,9 +136,70 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initialize navigation history and load dashboard content
         navigationHistory = ['dashboard'];
         loadContent('dashboard', true);
+        
+        // Start auto-refresh for notifications
+        startAutoRefresh();
+    }
+
+    // Auto-refresh functionality for new registrations and contacts
+    let refreshInterval = null;
+    let lastRegistrationCount = 0;
+    let lastContactCount = 0;
+
+    function startAutoRefresh() {
+        // Check for new data every 30 seconds
+        refreshInterval = setInterval(async () => {
+            try {
+                // Check for new pending registrations
+                const registrations = await apiFetch('/registrations/pending');
+                const currentRegCount = registrations ? registrations.length : 0;
+                
+                if (currentRegCount > lastRegistrationCount && lastRegistrationCount > 0) {
+                    const newCount = currentRegCount - lastRegistrationCount;
+                    showNotification(`${newCount} new registration(s) pending approval!`, 'info');
+                }
+                lastRegistrationCount = currentRegCount;
+
+                // Check for new pending contacts
+                const contacts = await apiFetch('/contact/status/PENDING');
+                const currentContactCount = contacts ? contacts.length : 0;
+                
+                if (currentContactCount > lastContactCount && lastContactCount > 0) {
+                    const newCount = currentContactCount - lastContactCount;
+                    showNotification(`${newCount} new contact inquiry(s) received!`, 'info');
+                }
+                lastContactCount = currentContactCount;
+
+            } catch (error) {
+                console.error('Auto-refresh error:', error);
+            }
+        }, 30000); // 30 seconds
+        
+        // Initialize counts
+        initializeCounts();
+    }
+
+    async function initializeCounts() {
+        try {
+            const registrations = await apiFetch('/registrations/pending');
+            lastRegistrationCount = registrations ? registrations.length : 0;
+            
+            const contacts = await apiFetch('/contact/status/PENDING');
+            lastContactCount = contacts ? contacts.length : 0;
+        } catch (error) {
+            console.error('Error initializing counts:', error);
+        }
+    }
+
+    function stopAutoRefresh() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
     }
 
     window.logout = () => {
+        stopAutoRefresh(); // Stop the auto-refresh timer
         localStorage.removeItem('token'); // Changed from 'jwtToken' to 'token'
         localStorage.removeItem('zplusUser'); // Also remove user data
         window.location.href = '/index/index.html'; // Redirect to main login
@@ -593,7 +669,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </button>
                             </div>
                         </div>
-                        ${renderContactInquiriesTable(data, type === 'pending')}
+                        ${renderContactInquiriesTable(data, type === 'pending' || type === 'all')}
                     </div>
                 `;
             } catch (error) {
@@ -810,7 +886,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const status = inquiry.status || 'PENDING';
             const statusDisplay = typeof status === 'object' ? (status.displayName || status.name || status) : status;
             const createdDate = inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleDateString() : '-';
-            const sharedInfo = inquiry.sharedWith ? `Shared with: ${inquiry.sharedWith}` : '-';
+            const assignedTo = inquiry.assignedTo || 'Unassigned';
             
             return `
                 <tr>
@@ -821,10 +897,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${inquiry.message ? inquiry.message.substring(0, 50) + '...' : '-'}</td>
                     <td><span class="badge ${getContactStatusClass(statusDisplay)}">${statusDisplay}</span></td>
                     <td>${createdDate}</td>
-                    <td>${sharedInfo}</td>
+                    <td>${assignedTo}</td>
                     <td>
                         ${showActions ? `
                             <button class="btn btn-sm btn-primary" onclick="viewContactInquiry(${inquiry.id})" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-secondary" onclick="assignContactInquiry(${inquiry.id})" title="Assign to Employee"><i class="fas fa-user-plus"></i></button>
                             <button class="btn btn-sm btn-success" onclick="resolveContactInquiry(${inquiry.id})" title="Mark Resolved"><i class="fas fa-check"></i></button>
                             <button class="btn btn-sm btn-info" onclick="replyToInquiry(${inquiry.id})" title="Reply"><i class="fas fa-reply"></i></button>
                             <button class="btn btn-sm btn-warning" onclick="shareContactInquiry(${inquiry.id})" title="Share"><i class="fas fa-share"></i></button>
@@ -852,7 +929,7 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
         }
         
-        return `<table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Subject</th><th>Message Preview</th><th>Status</th><th>Date</th><th>Shared Info</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+        return `<table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Subject</th><th>Message Preview</th><th>Status</th><th>Date</th><th>Assigned To</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
     }
 
     function loadTicTacToe(container) {
@@ -1314,6 +1391,39 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error('Error sharing contact inquiry:', error);
                 showNotification(`Error sharing contact inquiry: ${error.message}`, 'error');
+            }
+        }
+    };
+
+    window.assignContactInquiry = async (id) => {
+        const assignedTo = prompt("Enter employee Self ID (e.g., ZP002) to assign this inquiry to:");
+        if (assignedTo && assignedTo.trim()) {
+            try {
+                const response = await apiFetch(`/contact/${id}/assign?assignedTo=${encodeURIComponent(assignedTo.trim())}`, {
+                    method: 'PUT'
+                });
+                
+                if (response) {
+                    showNotification(`Contact inquiry #${id} assigned successfully to ${assignedTo}`, 'success');
+                    // Create and show detailed notification
+                    showDetailedNotification({
+                        type: 'success',
+                        title: 'Contact Inquiry Assigned',
+                        message: `Contact inquiry #${id} has been assigned to ${assignedTo}`,
+                        details: {
+                            'Inquiry ID': id,
+                            'Assigned To': assignedTo,
+                            'Assigned At': new Date().toLocaleString(),
+                            'Status': 'Active Assignment'
+                        }
+                    });
+                    refreshData();
+                } else {
+                    showNotification(`Failed to assign contact inquiry #${id}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error assigning contact inquiry:', error);
+                showNotification(`Error assigning contact inquiry: ${error.message}`, 'error');
             }
         }
     };

@@ -1,0 +1,1128 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+    background: #4CAF50; /* Primary Green Accent */
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #388E3C; /* Darker Green on hover */
+}
+
+
+/* Basic Reset & Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif; /* Body font */
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f8f8; /* Light background */
+    -webkit-font-smoothing: antialiased; /* Better font rendering */
+    scroll-behavior: smooth; /* Smooth scrolling for anchor links */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+a {
+    text-decoration: none;
+    color: #4CAF50; /* Primary Green Accent for links */
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #388E3C; /* Darker Green Accent on hover */
+}
+
+ul {
+    list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif; /* Heading font */
+    color: #222;
+}
+
+/* --- Header --- */
+.main-header {
+    background: linear-gradient(to right, #ffffff, #E8F5E9); /* White to very light green gradient */
+    border-bottom: 1px solid #eee;
+    padding: 15px 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* More pronounced shadow */
+    position: sticky; /* Make header sticky */
+    top: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* On desktop, default flex order is fine: Logo, Nav, Header Actions */
+}
+
+.logo {
+    order: 2; /* Default order for desktop/tablet */
+}
+
+.logo a {
+    font-size: 32px; /* Larger logo */
+    font-weight: 800; /* Extra bold logo */
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between logo image and text */
+}
+
+.company-logo-img {
+    height: 40px; /* Adjust height as needed */
+    width: auto; /* Maintain aspect ratio */
+    border-radius: 5px; /* Slightly rounded corners for logo image */
+}
+
+.logo-accent {
+    color: #4CAF50; /* Primary Green Accent for part of the logo */
+    margin-left: 5px;
+}
+
+/* --- Main Navigation (Desktop) --- */
+.main-nav {
+    order: 3; /* Default order for desktop/tablet */
+}
+.main-nav .nav-list {
+    display: flex;
+    gap: 30px; /* More space between main nav items */
+}
+
+.main-nav .nav-list li a {
+    display: block;
+    padding: 10px 0;
+    color: #555;
+    font-weight: 600;
+    font-size: 16px; /* Slightly larger font */
+    position: relative;
+    transition: color 0.3s ease;
+    white-space: nowrap; /* Keep menu items on one line */
+}
+
+.main-nav .nav-list li a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -5px; /* Position slightly below text */
+    width: 0;
+    height: 4px; /* Thicker underline accent */
+    background-color: #4CAF50; /* Primary Green for underline */
+    border-radius: 2px;
+    transition: width 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smoother animation */
+}
+
+.main-nav .nav-list li a:hover {
+    color: #388E3C; /* Darker Green Accent on hover */
+}
+
+.main-nav .nav-list li a:hover::after {
+    width: 100%;
+}
+
+/* Dropdown Menu Styling (Main Nav) */
+.main-header .dropdown {
+    position: relative;
+}
+
+.main-header .dropdown-content {
+    display: none; /* Hidden by default */
+    position: absolute;
+    background-color: #fff;
+    min-width: 280px; /* Wider dropdown */
+    box-shadow: 0px 10px 25px 0px rgba(0,0,0,0.2); /* Even more shadow */
+    z-index: 1000;
+    padding: 15px 0;
+    border-top: 5px solid #4CAF50; /* Primary Green Accent border */
+    border-radius: 0 0 10px 10px; /* More rounded bottom corners */
+    animation: slideInDown 0.3s ease-out forwards; /* Slide in animation */
+    transform-origin: top;
+}
+
+@keyframes slideInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.main-header .dropdown-content a {
+    color: #444;
+    padding: 14px 30px; /* More padding */
+    text-decoration: none;
+    display: block;
+    font-size: 15px;
+    transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+}
+
+.main-header .dropdown-content a:hover {
+    background-color: #e8f5e9; /* Light green background on hover */
+    color: #388E3C; /* Darker Green on hover */
+    padding-left: 35px; /* Slight indent on hover */
+}
+
+.main-header .dropdown:hover .dropdown-content {
+    display: block; /* Show on hover */
+}
+
+.main-header .dropdown .fa-caret-down {
+    margin-left: 8px;
+    font-size: 13px;
+    transition: transform 0.3s ease;
+}
+
+.main-header .dropdown:hover .fa-caret-down,
+.main-header .dropdown .fa-caret-down.rotate-up { /* For JS toggle on mobile */
+    transform: rotate(180deg);
+}
+
+/* Header Actions (Search & Toggles) */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 25px; /* More space */
+    order: 4; /* Default order for desktop/tablet */
+}
+
+.search-icon {
+    font-size: 22px; /* Larger search icon */
+    color: #555;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.search-icon:hover {
+    color: #388E3C; /* Darker Green Accent on hover */
+    transform: scale(1.1);
+}
+
+/* New Slidebar Toggle (Desktop/Tablet Only) */
+.slidebar-toggle {
+    display: block; /* Visible by default on desktop, hidden later by media query */
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.slidebar-toggle:hover {
+    color: #4CAF50; /* Primary Green Accent */
+    transform: scale(1.1);
+}
+
+/* Mobile Menu Toggle (Mobile Only) */
+.menu-toggle {
+    display: none; /* Hidden on desktop, visible later by media query */
+    font-size: 28px; /* Larger hamburger icon */
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+    order: 1; /* Default order for desktop/tablet (will be overridden on mobile) */
+}
+
+.menu-toggle:hover {
+    color: #4CAF50; /* Primary Green Accent */
+    transform: scale(1.1);
+}
+
+/* --- Slide Sidebar (NOW FROM LEFT) --- */
+.slide-sidebar {
+    position: fixed;
+    top: 0;
+    left: -320px; /* Start off-screen to the left */
+    width: 320px; /* Fixed width for sidebar */
+    height: 100vh;
+    background-color: #1a2327; /* Very dark background */
+    box-shadow: 8px 0 25px rgba(0,0,0,0.3); /* Shadow on the right side */
+    z-index: 1100; /* Higher z-index than header */
+    transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smooth slide animation */
+    overflow-y: auto; /* Enable scrolling for content */
+    padding-bottom: 30px; /* Padding at bottom for scroll content */
+}
+
+.slide-sidebar.active {
+    left: 0; /* Slide in from left */
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between; /* Space out title and close button */
+    align-items: center;
+    padding: 20px 25px;
+    background-color: #263238; /* Slightly lighter header for sidebar */
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h3 {
+    color: #4CAF50; /* Primary Green Accent for sidebar title */
+    font-size: 1.5em;
+    font-weight: 700;
+}
+
+.sidebar-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+    color: #388E3C; /* Darker Green Accent on hover */
+    transform: rotate(-90deg); /* Rotate opposite to reflect left-side close */
+}
+
+.sidebar-nav-list {
+    padding-top: 20px;
+}
+
+.sidebar-nav-list li a {
+    display: flex; /* Use flex for icon alignment */
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    color: #e0e0e0; /* Light text for dark background */
+    font-size: 1em;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255,255,255,0.08); /* Subtle separator */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sidebar-nav-list li a:hover {
+    background-color: #263238; /* Lighter background on hover */
+    color: #4CAF50; /* Primary Green Accent on hover */
+    padding-left: 30px; /* Slight indent on hover for primary items */
+}
+
+.sidebar-nav-list li:last-child a {
+    border-bottom: none;
+}
+
+.sidebar-nav-list .fa-caret-right {
+    margin-left: 10px;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar-nav-list .dropdown.active .fa-caret-right, /* For JS toggled state */
+.sidebar-nav-list li a:hover .fa-caret-right { /* For hover effect */
+    transform: rotate(90deg); /* Rotate to indicate expansion */
+    color: #4CAF50; /* Ensure caret also changes color on hover */
+}
+
+.sidebar-dropdown-content {
+    display: none; /* Hidden by default */
+    background-color: #263238; /* Darker background for sub-items */
+    padding: 5px 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar-dropdown-content a {
+    padding: 12px 35px; /* Indent sub-items */
+    color: #b0bec5; /* Lighter text for sub-items */
+    font-size: 0.9em;
+    font-weight: 400;
+    transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+}
+
+.sidebar-dropdown-content a:hover {
+    background-color: #37474f; /* Even darker hover for sub-items */
+    color: #4CAF50; /* Primary Green Accent on hover */
+    padding-left: 40px; /* Deeper indent on hover */
+}
+
+
+/* --- Hero Section --- */
+.hero-section {
+    /* Updated gradient: White to a vibrant green, with opacity */
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(76, 175, 80, 0.9)), url('https://images.unsplash.com/photo-1549923746-c503144a8618?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w1NjcxOTd8MHwxfHNlYXJjaHw3MHx8YnVzaW5lc3MlMjBtYW5hZ2VtZW50fGVufDB8fHx8MTcwMTg4NjQ1NHww&ixlib=rb-4.0.3&q=80&w=1080') no-repeat center center/cover;
+    background-attachment: fixed; /* Parallax effect */
+    color: #222; /* Dark text for light background */
+    text-align: center;
+    padding: 150px 0; /* More vertical padding */
+    margin-bottom: 80px; /* More space below hero */
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-content h1 {
+    font-size: 4.8em; /* Even larger heading */
+    margin-bottom: 30px;
+    line-height: 1.1;
+    font-weight: 800; /* Extra bold */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1); /* Subtle shadow */
+}
+
+.hero-content p {
+    font-size: 1.4em; /* Larger paragraph */
+    max-width: 950px;
+    margin: 0 auto 50px;
+    font-weight: 400;
+    color: #444; /* Darker text for readability */
+}
+
+.hero-buttons .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px; /* More space between text and icon */
+    padding: 18px 35px; /* More generous padding */
+    border-radius: 10px; /* Slightly more rounded */
+    font-weight: 700;
+    font-size: 1.2em; /* Larger text */
+    margin: 0 15px;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #4CAF50, #388E3C); /* Green gradient */
+    color: #fff;
+    border: none; /* No border for primary */
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #388E3C, #2E7D32); /* Darker green gradient on hover */
+    transform: translateY(-5px); /* More lift effect */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #222; /* Dark text for white button */
+    border: 3px solid #222; /* Dark border */
+}
+
+.btn-secondary:hover {
+    background-color: rgba(0, 0, 0, 0.1); /* Slight dark overlay on hover */
+    color: #222;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
+
+.btn-outline {
+    background-color: transparent;
+    color: #4CAF50; /* Primary Green Accent */
+    border: 2px solid #4CAF50; /* Primary Green Accent */
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.05em;
+    transition: all 0.3s ease;
+    margin-top: 40px; /* More space */
+    display: inline-block;
+}
+
+.btn-outline:hover {
+    background-color: #4CAF50;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.btn-primary-outline { /* Primary-colored outline button (using primary green) */
+    background-color: transparent;
+    color: #4CAF50; /* Primary Green Accent */
+    border: 2px solid #4CAF50; /* Primary Green Accent */
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1.05em;
+    transition: all 0.3s ease;
+    margin-top: 40px;
+    display: inline-block;
+}
+
+.btn-primary-outline:hover {
+    background-color: #4CAF50;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* --- Section Styling --- */
+.section-placeholder {
+    padding: 90px 0; /* More padding */
+    text-align: center;
+    margin-bottom: 80px;
+    background-color: #fff;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1); /* Deeper shadow */
+    border-radius: 15px; /* More rounded corners */
+}
+
+.grey-bg {
+    background-color: #f0f4f7; /* Light grey for alternating sections */
+}
+
+.section-title {
+    font-size: 3.8em; /* Larger section titles */
+    margin-bottom: 50px;
+    color: #222;
+    position: relative;
+    padding-bottom: 20px;
+    font-weight: 700;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 100px; /* Longer accent line */
+    height: 5px; /* Thicker accent line */
+    background-color: #4CAF50; /* Primary Green Accent */
+    border-radius: 3px;
+}
+
+.section-placeholder p {
+    font-size: 1.2em; /* Slightly larger text */
+    max-width: 950px;
+    margin: 0 auto 30px;
+    color: #555;
+}
+
+/* Service Grid */
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Slightly larger min-width */
+    gap: 50px; /* Larger gap */
+    margin-top: 60px;
+    text-align: left;
+}
+
+.service-item {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 15px; /* More rounded corners */
+    padding: 35px; /* More padding */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Deeper shadow */
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); /* Smoother transition */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.service-item:hover {
+    transform: translateY(-15px); /* More pronounced lift */
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); /* Even deeper shadow on hover */
+}
+
+.service-icon {
+    font-size: 4em; /* Larger icons */
+    color: #4CAF50; /* Primary Green Accent */
+    margin-bottom: 25px;
+    border: 3px solid #4CAF50; /* Border around icon */
+    border-radius: 50%;
+    padding: 15px;
+    background-color: #e8f5e9; /* Light background for icon */
+}
+
+.service-icon-small { /* For sector icons */
+    font-size: 2.5em;
+    color: #388E3C; /* Darker green for small icons */
+    margin-bottom: 15px;
+}
+
+
+.service-item h3 {
+    font-size: 1.8em; /* Larger heading */
+    color: #222;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.service-item p {
+    font-size: 1.05em;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 0;
+}
+
+/* News Grid */
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); /* Larger min-width for news items */
+    gap: 40px; /* More gap */
+    margin-top: 60px;
+}
+
+.news-item {
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.news-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.news-image-wrapper {
+    overflow: hidden;
+    height: 250px; /* Taller image area */
+}
+
+.news-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.news-item:hover img {
+    transform: scale(1.08); /* More pronounced zoom effect */
+}
+
+.news-content-area {
+    padding: 25px; /* More padding */
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.news-item h3 {
+    font-size: 1.6em; /* Larger heading */
+    color: #222;
+    margin-bottom: 12px;
+    line-height: 1.3;
+    font-weight: 700;
+}
+
+.news-item .news-date {
+    font-size: 0.95em;
+    color: #888;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.news-item .news-date .fas {
+    color: #4CAF50; /* Primary Green Accent */
+}
+
+.news-item p {
+    font-size: 1em;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    flex-grow: 1;
+}
+
+.news-item .read-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #4CAF50; /* Primary Green Accent */
+    font-weight: 700;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.news-item .read-more:hover {
+    border-color: #388E3C; /* Darker Green Accent */
+    color: #388E3C;
+}
+
+/* Client & Startup Grids */
+.client-logo-grid, .startup-logo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.client-logo-item, .startup-logo-item {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+}
+
+.client-logo-item:hover, .startup-logo-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.client-logo-item img, .startup-logo-item img {
+    max-width: 100%;
+    height: auto;
+    max-height: 80px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.client-logo-item h4, .startup-logo-item h4 {
+    font-size: 1.2em;
+    color: #333;
+    font-weight: 600;
+}
+
+
+/* --- Footer --- */
+.main-footer {
+    background-color: #1a2327; /* Very dark, almost black for a premium feel */
+    color: #e0e0e0;
+    padding: 80px 0 40px; /* More padding */
+    font-size: 0.95em;
+}
+
+.footer-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 50px; /* Larger gap */
+    margin-bottom: 60px;
+}
+
+.footer-col {
+    flex: 1;
+    min-width: 280px; /* Minimum width for columns */
+}
+
+.footer-col h3 {
+    color: #4CAF50; /* Primary Green Accent for footer headings */
+    font-size: 1.7em; /* Larger footer headings */
+    margin-bottom: 30px;
+    position: relative;
+    padding-bottom: 12px;
+    font-weight: 700;
+}
+
+.footer-col h3::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 60px; /* Longer accent line */
+    height: 4px; /* Thicker accent line */
+    background-color: #388E3C; /* Darker Green Accent */
+}
+
+.footer-col p, .footer-col ul li {
+    margin-bottom: 15px;
+    color: #b0bec5; /* Lighter grey for text */
+}
+
+.footer-col ul {
+    padding: 0;
+}
+
+.footer-col ul li a {
+    color: #b0bec5;
+    transition: color 0.3s ease;
+}
+
+.footer-col ul li a:hover {
+    color: #4CAF50; /* Primary Green Accent on hover */
+}
+
+.footer-col p .fas {
+    margin-right: 12px;
+    color: #4CAF50; /* Primary Green Accent */
+}
+
+.social-links {
+    margin-top: 30px;
+    display: flex;
+    gap: 18px;
+}
+
+.social-links a {
+    background-color: #263238; /* Darker background for social icons */
+    color: #fff;
+    font-size: 1.4em;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.social-links a:hover {
+    background-color: #4CAF50; /* Primary Green Accent */
+    transform: translateY(-5px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 40px;
+    border-top: 1px solid #263238;
+    font-size: 0.85em;
+    color: #78909c;
+}
+
+
+/* --- Responsive Design --- */
+
+/* Desktop & Large Tablet */
+@media (min-width: 901px) {
+    /* Hide mobile-only menu items on desktop */
+    .main-nav .mobile-only-item {
+        display: none;
+    }
+    /* Ensure the mobile toggle is hidden on desktop */
+    .menu-toggle {
+        display: none;
+    }
+    /* Default order for desktop/tablet */
+    .logo { order: 1; } /* Logo first */
+    .main-nav { order: 2; } /* Main navigation second */
+    .header-actions { order: 3; } /* Header actions last (search and slidebar toggle) */
+
+    /* The .slidebar-toggle is inside .header-actions, so it remains on the right */
+}
+
+
+/* Tablet and smaller desktops */
+@media (max-width: 1024px) {
+    .main-nav .nav-list {
+        gap: 20px;
+    }
+    .main-nav .nav-list li a {
+        font-size: 15px;
+    }
+    .dropdown-content {
+        min-width: 220px;
+    }
+    .dropdown-content a {
+        padding: 12px 25px;
+    }
+
+    .hero-content h1 {
+        font-size: 3.8em;
+    }
+    .hero-content p {
+        font-size: 1.2em;
+    }
+    .hero-buttons .btn {
+        padding: 15px 30px;
+        font-size: 1.1em;
+    }
+    .section-title {
+        font-size: 3.2em;
+    }
+    .service-grid, .news-grid {
+        gap: 35px;
+    }
+    .service-item h3 {
+        font-size: 1.7em;
+    }
+    .service-icon {
+        font-size: 3.5em;
+    }
+    .news-item h3 {
+        font-size: 1.4em;
+    }
+    .news-image-wrapper {
+        height: 220px;
+    }
+    .client-logo-grid, .startup-logo-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    /* For tablet, ensure menu-toggle is still hidden */
+    .menu-toggle {
+        display: none;
+    }
+}
+
+/* Mobile (large phones to small tablets) */
+@media (max-width: 900px) {
+    /* Header content layout for mobile */
+    .header-content {
+        justify-content: space-between;
+        align-items: center;
+        /* Default flex direction is row, which is good. */
+        /* We use `order` to rearrange items. */
+    }
+
+    .logo { order: 2; } /* Logo in the center */
+    .menu-toggle { order: 1; display: block; } /* Hamburger icon on the left */
+    .header-actions { order: 3; } /* Search and slidebar toggle remain on the right (if slidebar is active for some reason) */
+
+    /* Main Navigation (Hamburger Menu) */
+    .main-nav {
+        display: none; /* Hidden by default, toggled by JS */
+        flex-direction: column;
+        width: 100%;
+        background-color: #fff;
+        position: absolute;
+        top: 80px; /* Below header */
+        left: 0;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        padding-bottom: 20px;
+        animation: slideDown 0.3s forwards;
+        overflow-y: auto; /* Enable scrolling for many menu items */
+        max-height: calc(100vh - 80px); /* Limit height to viewport */
+        order: unset; /* Remove order property for stacking below header */
+    }
+
+    .main-nav.active {
+        display: flex; /* Show when active */
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .main-nav .nav-list {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 0;
+    }
+
+    .main-nav .nav-list li {
+        width: 90%;
+        border-bottom: 1px solid #eee;
+        text-align: center;
+    }
+    .main-nav .nav-list li:last-child {
+        border-bottom: none;
+    }
+
+    .main-nav .nav-list li a {
+        padding: 18px 0;
+        font-size: 17px;
+        width: 100%;
+    }
+
+    .main-nav .nav-list li a::after { /* Remove underline on mobile */
+        display: none;
+    }
+
+    .main-nav .dropdown-content {
+        position: static; /* Stack dropdown content below parent */
+        width: 100%;
+        box-shadow: none;
+        border-top: none;
+        background-color: #f7f7f7; /* Lighter background for nested dropdowns */
+        border-radius: 0;
+        animation: none; /* Disable animation for static display */
+        padding: 0; /* Remove top/bottom padding */
+    }
+
+    .main-nav .dropdown-content a {
+        padding: 12px 40px; /* Indent dropdown items more */
+        font-size: 15px;
+        color: #555;
+    }
+
+    .main-nav .dropdown-content a:hover {
+        background-color: #e6e6e6; /* Lighter hover for nested */
+        padding-left: 45px;
+    }
+
+    .main-nav .dropdown:hover .dropdown-content { /* Disable hover effect for dropdowns on mobile */
+        display: none;
+    }
+
+    /* Hide slidebar toggle and slidebar itself on mobile, or handle it explicitly */
+    .slidebar-toggle {
+        display: none; /* Keep hidden on mobile, as the main menu is used */
+    }
+    .slide-sidebar {
+        display: block; /* Keep block so JS can toggle 'active' class for its position */
+        /* It still slides from left due to `left: -320px;` and `.active` class */
+    }
+
+    .hero-section {
+        padding: 100px 0;
+    }
+    .hero-content h1 {
+        font-size: 3em;
+    }
+    .hero-content p {
+        font-size: 1.1em;
+    }
+    .hero-buttons {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .hero-buttons .btn {
+        width: 90%;
+        max-width: 350px;
+        margin: 0;
+    }
+    .section-placeholder {
+        padding: 60px 0;
+    }
+    .section-title {
+        font-size: 2.5em;
+    }
+    .service-grid, .news-grid {
+        grid-template-columns: 1fr; /* Single column layout */
+        max-width: 450px; /* Limit width of items */
+        margin-left: auto;
+        margin-right: auto;
+        gap: 30px;
+    }
+    .service-item {
+        padding: 30px;
+    }
+    .service-icon {
+        font-size: 3em;
+    }
+    .service-item h3 {
+        font-size: 1.6em;
+    }
+    .news-image-wrapper {
+        height: 280px; /* Taller for single column view */
+    }
+    .news-item h3 {
+        font-size: 1.5em;
+    }
+    .footer-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 40px;
+    }
+    .footer-col {
+        width: 100%;
+    }
+    .footer-col h3::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    .social-links {
+        justify-content: center;
+    }
+}
+
+/* Mobile (small phones) */
+@media (max-width: 480px) {
+    .logo a {
+        font-size: 26px;
+    }
+    .menu-toggle {
+        font-size: 26px;
+    }
+    .hero-section {
+        padding: 80px 0;
+    }
+    .hero-content h1 {
+        font-size: 2.5em;
+    }
+    .hero-content p {
+        font-size: 1em;
+    }
+    .hero-buttons .btn {
+        font-size: 1em;
+        padding: 12px 25px;
+    }
+    .section-title {
+        font-size: 2em;
+    }
+    .section-placeholder p {
+        font-size: 0.95em;
+    }
+    .service-item {
+        padding: 25px;
+    }
+    .service-icon {
+        font-size: 2.8em;
+        padding: 12px;
+    }
+    .service-item h3 {
+        font-size: 1.4em;
+    }
+    .news-image-wrapper {
+        height: 200px;
+    }
+    .footer-col h3 {
+        font-size: 1.5em;
+    }
+}
+
+/* Admin Panel Specific Styles */
+.content-section {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.registrations-grid, .inquiries-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.registration-card, .inquiry-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #27ae60;
+}
+
+.card-actions {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.card-actions button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.card-actions button:first-child {
+    background: #27ae60;
+    color: white;
+}
+
+.card-actions button:last-child {
+    background: #e74c3c;
+    color: white;
+}

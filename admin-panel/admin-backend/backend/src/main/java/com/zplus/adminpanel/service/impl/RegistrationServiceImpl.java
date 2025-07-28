@@ -46,6 +46,20 @@ public class RegistrationServiceImpl implements RegistrationService {
             
         registration.setStatus(RegistrationStatus.APPROVED);
         registration.setUpdatedAt(LocalDateTime.now());
+        registration.setApprovedAt(LocalDateTime.now());
+        registration.setApprovedBy("System Administrator");
+        
+        // Set default values for required fields if they are null or empty
+        if (registration.getReason() == null || registration.getReason().trim().isEmpty()) {
+            registration.setReason("Approved for " + registration.getDepartment() + " department access");
+        }
+        if (registration.getSupervisor() == null || registration.getSupervisor().trim().isEmpty()) {
+            registration.setSupervisor("Department Manager");
+        }
+        if (registration.getProjectId() == null || registration.getProjectId().trim().isEmpty()) {
+            registration.setProjectId("ZP-2024-" + String.format("%03d", id));
+        }
+        
         return registrationRepository.save(registration);
     }
 

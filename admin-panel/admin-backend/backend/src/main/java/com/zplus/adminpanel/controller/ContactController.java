@@ -363,6 +363,17 @@ public class ContactController {
     }
 
     /**
+     * Get inquiries assigned to a specific employee
+     */
+    @GetMapping("/assigned/{assignedTo}")
+    public ResponseEntity<List<ContactInquiry>> getInquiriesAssignedTo(@PathVariable String assignedTo) {
+        logger.info("Fetching contact inquiries assigned to: {}", assignedTo);
+        
+        List<ContactInquiry> inquiries = contactInquiryService.getInquiriesAssignedTo(assignedTo);
+        return ResponseEntity.ok(inquiries);
+    }
+
+    /**
      * Health check endpoint
      */
     @GetMapping("/health")

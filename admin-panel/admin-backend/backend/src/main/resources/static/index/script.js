@@ -194,7 +194,7 @@ async function handleLogin(event) {
         const dashboardUrls = {
             'ADMIN': '/admin/index.html',
             'EMPLOYEE': '/employee-dashboard/index.html',
-            'CLIENT': '/client/index.html'
+            'CLIENT': '/client/client-dashboard.html'
         };
         
         const path = dashboardUrls[effectiveUserType];
@@ -343,7 +343,7 @@ function redirectToDashboard(userType) {
     const dashboardPaths = {
         'ADMIN': '/admin/index.html',
         'EMPLOYEE': '/employee-dashboard/index.html',
-        'CLIENT': '/client/index.html'
+        'CLIENT': '/client/client-dashboard.html'
     };
     
     const path = dashboardPaths[userType];

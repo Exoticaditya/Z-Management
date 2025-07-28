@@ -92,7 +92,6 @@ public class ContactInquiry {
     private String hearAbout;
 
     @Column(name = "message", nullable = true, columnDefinition = "TEXT")
-    @NotBlank(message = "Message is required")
     private String message;
 
     @Column(name = "status", nullable = false)

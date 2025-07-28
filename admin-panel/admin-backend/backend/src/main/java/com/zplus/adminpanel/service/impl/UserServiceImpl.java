@@ -81,6 +81,11 @@ public class UserServiceImpl implements UserService {
             newRegistration.setCreatedAt(LocalDateTime.now());
             newRegistration.setUpdatedAt(LocalDateTime.now());
             
+            // Set default values for required fields
+            newRegistration.setReason("Access required for " + request.getDepartment() + " department");
+            newRegistration.setSupervisor("To be assigned");
+            newRegistration.setProjectId("TBD-" + request.getSelfId());
+            
             // Save to registrations table
             registrationRepository.save(newRegistration);
             

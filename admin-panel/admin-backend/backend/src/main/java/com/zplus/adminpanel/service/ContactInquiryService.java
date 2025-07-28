@@ -202,4 +202,11 @@ public class ContactInquiryService {
     public List<ContactInquiry> getAllContactInquiries() {
         return contactInquiryRepository.findAll();
     }
+
+    /**
+     * Get contact inquiries assigned to a specific employee
+     */
+    public List<ContactInquiry> getInquiriesAssignedTo(String assignedTo) {
+        return contactInquiryRepository.findByAssignedTo(assignedTo);
+    }
 }
