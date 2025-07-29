@@ -25,6 +25,21 @@ logs/
 hs_err_pid*.log
 replay_pid*.log
 
+# Build and deployment artifacts
+build.log
+*.bat
+*.sh
+deployment-temp/
+*-upload/
+*-deployment/
+
+# Temporary documentation
+*-GUIDE.md
+*-CHECKLIST.md
+*-OPTIONS.md
+TEMP-*.md
+COPY-PASTE-*.md
+
 # Temporary files
 *.tmp
 *.temp
