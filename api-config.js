@@ -6,7 +6,7 @@
 // Configuration object
 const API_CONFIG = {
     // Railway Production URL (replace with your actual Railway URL)
-    PRODUCTION_URL: 'https://z-management-production.railway.app',
+    PRODUCTION_URL: 'https://i1corir7.up.railway.app',
     
     // Local development URL
     DEVELOPMENT_URL: 'http://localhost:8080',
