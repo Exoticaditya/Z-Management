@@ -1,35 +1,6 @@
 package com.zplus.adminpanel;
 
-import     @EventListener(ApplicationReadyEvent.class)
-    public void onApplicationReady() {
-        String port = environment.getProperty("server.port", "8080");
-        String profile = String.join(",", environment.getActiveProfiles());
-        String databaseUrl = environment.getProperty("spring.datasource.url", "Not configured");
-        
-        logger.info("🚀 Z+ Admin Panel Backend started successfully!");
-        logger.info("📊 Server Port: {}", port);
-        logger.info("🔧 Active Profile: {}", profile);
-        logger.info("💾 Database URL: {}", maskPassword(databaseUrl));
-        logger.info("🌐 Health Check: http://localhost:{}/", port);
-        
-        // Log environment variables for debugging
-        String rawDatabaseUrl = System.getenv("DATABASE_URL");
-        if (rawDatabaseUrl != null) {
-            logger.info("✅ DATABASE_URL environment variable is set");
-            logger.info("🔗 Raw DATABASE_URL format: {}", maskPassword(rawDatabaseUrl));
-        } else {
-            logger.error("❌ DATABASE_URL environment variable is NOT set!");
-            logger.error("🔧 Available environment variables: {}", 
-                System.getenv().keySet().stream()
-                    .filter(key -> key.contains("PG") || key.contains("DATABASE"))
-                    .toList());
-        }
-    }
-    
-    private String maskPassword(String url) {
-        if (url == null) return "null";
-        return url.replaceAll(":[^:@]+@", ":***@");
-    }ramework.boot.SpringApplication;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
@@ -71,11 +42,26 @@ public class ZplusAdminPanelApplication {
     public void onApplicationReady() {
         String port = environment.getProperty("server.port", "8080");
         String profile = String.join(",", environment.getActiveProfiles());
+        String databaseUrl = environment.getProperty("spring.datasource.url", "Not configured");
         
         logger.info("🚀 Z+ Admin Panel Backend started successfully!");
         logger.info("📊 Server Port: {}", port);
-        logger.info("� Active Profile: {}", profile);
-        logger.info("💾 Database URL: {}", environment.getProperty("spring.datasource.url", "Not configured"));
+        logger.info("🔧 Active Profile: {}", profile);
+        logger.info("💾 Database URL: {}", maskPassword(databaseUrl));
         logger.info("🌐 Health Check: http://localhost:{}/", port);
+        
+        // Log environment variables for debugging
+        String rawDatabaseUrl = System.getenv("DATABASE_URL");
+        if (rawDatabaseUrl != null) {
+            logger.info("✅ DATABASE_URL environment variable is set");
+            logger.info("🔗 Raw DATABASE_URL format: {}", maskPassword(rawDatabaseUrl));
+        } else {
+            logger.error("❌ DATABASE_URL environment variable is NOT set!");
+        }
+    }
+    
+    private String maskPassword(String url) {
+        if (url == null) return "null";
+        return url.replaceAll(":[^:@]+@", ":***@");
     }
 }
