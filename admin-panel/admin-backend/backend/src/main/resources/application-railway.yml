@@ -1,5 +1,12 @@
 server:
   port: ${PORT:8080}
+  # Ensure server starts quickly
+  servlet:
+    context-path: /
+  # Reduce startup time
+  tomcat:
+    connection-timeout: 20000
+    keep-alive-timeout: 60000
 
 spring:
   application:
@@ -20,9 +27,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: false
+        '[format_sql]': false
         jdbc:
-          time_zone: UTC
+          '[time_zone]': UTC
 
 # Management endpoints for health checks
 management:
