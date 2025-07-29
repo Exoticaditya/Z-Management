@@ -1,0 +1,13 @@
+# Railway Nixpacks Configuration
+[build]
+  provider = "java"
+
+[build.env]
+  JAVA_VERSION = "17"
+  MAVEN_OPTS = "-Xmx1024m"
+
+[start]
+  cmd = "cd admin-panel/admin-backend/backend && java -Xmx512m -jar target/admin-panel-backend-1.0.0.jar"
+
+[build.buildCommand]
+  cmd = "cd admin-panel/admin-backend/backend && mvn clean package -DskipTests -q"
