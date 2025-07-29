@@ -33,19 +33,24 @@ public class RailwayDatabaseConfig {
                 
                 String host = dbUri.getHost();
                 int port = dbUri.getPort();
-                String database = dbUri.getPath().substring(1); // Remove leading '/'
+                String originalDatabase = dbUri.getPath().substring(1); // Remove leading '/'
                 String userInfo = dbUri.getUserInfo();
                 String[] userParts = userInfo.split(":");
                 String username = userParts[0];
                 String password = userParts[1];
                 
-                // Construct JDBC URL
-                String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", host, port, database);
+                // IMPORTANT: Use zplus_admin_panel database instead of default 'railway'
+                String targetDatabase = "zplus_admin_panel";
+                
+                // Construct JDBC URL with correct database
+                String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", host, port, targetDatabase);
                 
                 System.out.println("🔧 Configuring Railway PostgreSQL DataSource");
                 System.out.println("Host: " + host + ":" + port);
-                System.out.println("Database: " + database);
+                System.out.println("Original Database: " + originalDatabase);
+                System.out.println("Target Database: " + targetDatabase);
                 System.out.println("Username: " + username);
+                System.out.println("JDBC URL: " + jdbcUrl);
                 
                 // Create HikariCP configuration
                 HikariConfig config = new HikariConfig();
@@ -70,7 +75,7 @@ public class RailwayDatabaseConfig {
                 config.addDataSourceProperty("ssl", "true");
                 config.addDataSourceProperty("sslmode", "require");
                 
-                System.out.println("✅ Railway DataSource configured successfully");
+                System.out.println("✅ Railway DataSource configured successfully for zplus_admin_panel");
                 return new HikariDataSource(config);
                 
             } catch (Exception e) {
