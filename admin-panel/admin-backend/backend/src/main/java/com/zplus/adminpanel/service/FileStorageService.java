@@ -41,7 +41,6 @@ public class FileStorageService {
                              @Value("${app.frontend-url:http://localhost:8080}") String frontendUrl) {
         
         // Determine the actual upload directory
-        Path actualUploadPath;
         String actualUploadDir = uploadDir;
         
         // For Railway deployment, use a writable temporary directory
@@ -50,8 +49,10 @@ public class FileStorageService {
             logger.info("Railway environment detected, using /tmp/uploads for file storage");
         }
         
+        // Initialize upload path - try primary location first
+        Path actualUploadPath = Paths.get(actualUploadDir).toAbsolutePath().normalize();
+        
         try {
-            actualUploadPath = Paths.get(actualUploadDir).toAbsolutePath().normalize();
             Files.createDirectories(actualUploadPath);
             logger.info("Upload directory created at: {}", actualUploadPath);
             
