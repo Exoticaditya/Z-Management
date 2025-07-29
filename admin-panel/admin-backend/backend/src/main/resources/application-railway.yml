@@ -6,7 +6,7 @@ spring:
     name: zplus-admin-panel
   
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/zplus_db}
+    url: ${DATABASE_URL:jdbc:postgresql://gondola.proxy.rlwy.net:51397/zplus_admin_panel}
     driver-class-name: org.postgresql.Driver
     # Remove username/password - should be in DATABASE_URL
     hikari:
@@ -19,8 +19,8 @@ spring:
   
   jpa:
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
