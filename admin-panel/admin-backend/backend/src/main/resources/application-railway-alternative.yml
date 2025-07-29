@@ -1,19 +1,21 @@
+# Alternative Railway Configuration with Multiple Database URL Formats
+
 server:
   port: ${PORT:8080}
-  servlet:
-    context-path: /
-  tomcat:
-    connection-timeout: 20000
-    keep-alive-timeout: 60000
 
 spring:
   application:
     name: zplus-admin-panel
   
+  # Try multiple Railway PostgreSQL variable formats
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/zplus_db}
+    # Railway might provide different variable names
+    url: ${DATABASE_URL:${POSTGRES_URL:${DB_URL:jdbc:postgresql://localhost:5432/zplus_db}}}
     driver-class-name: org.postgresql.Driver
-    # Add connection validation and timeout settings
+    username: ${POSTGRES_USER:${PGUSER:postgres}}
+    password: ${POSTGRES_PASSWORD:${PGPASSWORD:password}}
+    
+    # Connection pool settings optimized for Railway
     hikari:
       maximum-pool-size: 3
       minimum-idle: 1
@@ -22,7 +24,9 @@ spring:
       max-lifetime: 1200000
       validation-timeout: 5000
       leak-detection-threshold: 60000
+      connection-test-query: SELECT 1
   
+  # JPA Configuration
   jpa:
     hibernate:
       ddl-auto: update
@@ -35,16 +39,20 @@ spring:
           time_zone: UTC
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+# Health check endpoints
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,env
   endpoint:
     health:
       show-details: always
 
+# Logging
 logging:
   level:
-    root: ${LOGGING_LEVEL_ROOT:INFO}
-    com.zplus: INFO
+    root: INFO
+    com.zplus: DEBUG
+    org.springframework.boot.autoconfigure: DEBUG
+    org.hibernate.SQL: DEBUG
