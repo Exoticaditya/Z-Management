@@ -4,8 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "cd admin-panel/admin-backend/backend && java -Xmx512m -jar target/admin-panel-backend-1.0.0.jar",
-    "healthcheckPath": "/api/health",
+    "startCommand": "cd admin-panel/admin-backend/backend && java -Xmx512m -Dserver.port=$PORT -jar target/admin-panel-backend-1.0.0.jar",
+    "healthcheckPath": "/",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ON_FAILURE"
   }

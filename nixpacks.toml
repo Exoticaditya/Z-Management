@@ -1,13 +1,13 @@
 # Railway Nixpacks Configuration
-[build]
-  provider = "java"
+[variables]
+JAVA_VERSION = "17"
+MAVEN_OPTS = "-Xmx1024m"
 
-[build.env]
-  JAVA_VERSION = "17"
-  MAVEN_OPTS = "-Xmx1024m"
+[phases.build]
+cmds = [
+  "cd admin-panel/admin-backend/backend",
+  "mvn clean package -DskipTests -q"
+]
 
-[start]
-  cmd = "cd admin-panel/admin-backend/backend && java -Xmx512m -jar target/admin-panel-backend-1.0.0.jar"
-
-[build.buildCommand]
-  cmd = "cd admin-panel/admin-backend/backend && mvn clean package -DskipTests -q"
+[phases.start]
+cmd = "cd admin-panel/admin-backend/backend && java -Xmx512m -Dserver.port=$PORT -jar target/admin-panel-backend-1.0.0.jar"
