@@ -58,11 +58,38 @@ public class ZplusAdminPanelApplication {
     private static void fixDatabaseUrl() {
         String databaseUrl = System.getenv("DATABASE_URL");
         if (databaseUrl != null && databaseUrl.startsWith("postgresql://")) {
-            String fixedUrl = "jdbc:" + databaseUrl;
-            System.setProperty("spring.datasource.url", fixedUrl);
-            System.out.println("🔧 Fixed DATABASE_URL format for Spring Boot");
-            System.out.println("Original: " + databaseUrl.replaceAll(":[^:@]+@", ":***@"));
-            System.out.println("Fixed: " + fixedUrl.replaceAll(":[^:@]+@", ":***@"));
+            try {
+                // Parse the DATABASE_URL
+                String fixedUrl = "jdbc:" + databaseUrl;
+                
+                // Extract components for debugging
+                String[] parts = databaseUrl.replace("postgresql://", "").split("[@:/]");
+                if (parts.length >= 4) {
+                    String user = parts[0];
+                    String host = parts.length > 2 ? parts[2] : "unknown";
+                    String port = parts.length > 3 ? parts[3] : "5432";
+                    String database = parts.length > 4 ? parts[4] : "railway";
+                    
+                    System.setProperty("spring.datasource.url", fixedUrl);
+                    System.setProperty("SPRING_DATASOURCE_URL", fixedUrl);
+                    
+                    System.out.println("🔧 Fixed DATABASE_URL format for Spring Boot");
+                    System.out.println("Host: " + host + ":" + port);
+                    System.out.println("Database: " + database);
+                    System.out.println("User: " + user);
+                    System.out.println("Fixed URL set as system property");
+                } else {
+                    System.err.println("❌ Could not parse DATABASE_URL format: " + databaseUrl.replaceAll(":[^:@]+@", ":***@"));
+                }
+            } catch (Exception e) {
+                System.err.println("❌ Error processing DATABASE_URL: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("⚠️  No DATABASE_URL found or not in postgresql:// format");
+            if (databaseUrl != null) {
+                System.out.println("DATABASE_URL: " + databaseUrl.replaceAll(":[^:@]+@", ":***@"));
+            }
         }
     }
     
