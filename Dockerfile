@@ -31,10 +31,10 @@ RUN addgroup -g 1001 -S spring && \
 USER spring
 
 # Expose port
-EXPOSE 8080
+EXPOSE $PORT
 
 # Set Spring profile for Railway
 ENV SPRING_PROFILES_ACTIVE=railway
 
-# Run the application with Railway port configuration
-CMD ["java", "-Xmx512m", "-Dserver.port=${PORT:-8080}", "-jar", "app.jar"]
+# Run the application with proper port binding
+CMD ["sh", "-c", "java -Xmx512m -Dserver.port=${PORT:-8080} -Djava.security.egd=file:/dev/./urandom -jar app.jar"]
