@@ -31,6 +31,15 @@ public class ZplusAdminPanelApplication {
 
     public static void main(String[] args) {
         try {
+            // Log environment variables before starting
+            System.out.println("🔍 Environment Check:");
+            System.out.println("PORT: " + System.getenv("PORT"));
+            System.out.println("DATABASE_URL present: " + (System.getenv("DATABASE_URL") != null));
+            if (System.getenv("DATABASE_URL") != null) {
+                String dbUrl = System.getenv("DATABASE_URL");
+                System.out.println("DATABASE_URL format: " + dbUrl.replaceAll(":[^:@]+@", ":***@"));
+            }
+            
             SpringApplication.run(ZplusAdminPanelApplication.class, args);
         } catch (Exception e) {
             logger.error("❌ Failed to start Z+ Admin Panel Backend", e);

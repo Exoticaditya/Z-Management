@@ -1,10 +1,5 @@
 server:
   port: ${PORT:8080}
-  servlet:
-    context-path: /
-  tomcat:
-    connection-timeout: 20000
-    keep-alive-timeout: 60000
 
 spring:
   application:
@@ -13,38 +8,35 @@ spring:
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/zplus_db}
     driver-class-name: org.postgresql.Driver
-    # Add connection validation and timeout settings
+    # Remove username/password - should be in DATABASE_URL
     hikari:
-      maximum-pool-size: 3
+      maximum-pool-size: 2
       minimum-idle: 1
-      connection-timeout: 20000
+      connection-timeout: 30000
+      validation-timeout: 5000
       idle-timeout: 300000
       max-lifetime: 1200000
-      validation-timeout: 5000
-      leak-detection-threshold: 60000
   
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        jdbc:
-          time_zone: UTC
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
+# Simplified management endpoints
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health
   endpoint:
     health:
       show-details: always
 
 logging:
   level:
-    root: ${LOGGING_LEVEL_ROOT:INFO}
-    com.zplus: INFO
+    root: INFO
+    com.zplus: DEBUG
