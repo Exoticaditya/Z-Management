@@ -6,7 +6,7 @@ spring:
     name: zplus-admin-panel
   
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://gondola.proxy.rlwy.net:51397/zplus_admin_panel}
+    # URL will be set programmatically from fixed DATABASE_URL
     driver-class-name: org.postgresql.Driver
     # Remove username/password - should be in DATABASE_URL
     hikari:

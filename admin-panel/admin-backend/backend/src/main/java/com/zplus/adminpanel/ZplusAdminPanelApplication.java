@@ -31,6 +31,9 @@ public class ZplusAdminPanelApplication {
 
     public static void main(String[] args) {
         try {
+            // Fix Railway DATABASE_URL format
+            fixDatabaseUrl();
+            
             // Log environment variables before starting
             System.out.println("🔍 Environment Check:");
             System.out.println("PORT: " + System.getenv("PORT"));
@@ -44,6 +47,22 @@ public class ZplusAdminPanelApplication {
         } catch (Exception e) {
             logger.error("❌ Failed to start Z+ Admin Panel Backend", e);
             System.exit(1);
+        }
+    }
+    
+    /**
+     * Fix Railway DATABASE_URL format for Spring Boot compatibility
+     * Railway: postgresql://user:pass@host:port/db
+     * Spring: jdbc:postgresql://user:pass@host:port/db
+     */
+    private static void fixDatabaseUrl() {
+        String databaseUrl = System.getenv("DATABASE_URL");
+        if (databaseUrl != null && databaseUrl.startsWith("postgresql://")) {
+            String fixedUrl = "jdbc:" + databaseUrl;
+            System.setProperty("spring.datasource.url", fixedUrl);
+            System.out.println("🔧 Fixed DATABASE_URL format for Spring Boot");
+            System.out.println("Original: " + databaseUrl.replaceAll(":[^:@]+@", ":***@"));
+            System.out.println("Fixed: " + fixedUrl.replaceAll(":[^:@]+@", ":***@"));
         }
     }
     
