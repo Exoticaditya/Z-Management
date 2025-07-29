@@ -28,7 +28,20 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/contact")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:8080", "http://127.0.0.1:5507","http://127.0.0.1:5508", "http://localhost:5506", "http://127.0.0.1:3000", "file://"})
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "http://localhost:3001", 
+    "http://localhost:8080", 
+    "http://127.0.0.1:5507",
+    "http://127.0.0.1:5508", 
+    "http://localhost:5506", 
+    "http://127.0.0.1:3000", 
+    "https://zpluse.com",
+    "https://www.zpluse.com",
+    "http://zpluse.com",
+    "http://www.zpluse.com",
+    "file://"
+})
 public class ContactController {
 
     private static final Logger logger = LoggerFactory.getLogger(ContactController.class);

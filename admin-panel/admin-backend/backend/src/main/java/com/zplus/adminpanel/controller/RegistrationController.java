@@ -16,7 +16,11 @@ import java.util.List;
     "http://localhost:8080",
     "http://127.0.0.1:5509",
     "http://127.0.0.1:5508",
-    "http://127.0.0.1:5507"
+    "http://127.0.0.1:5507",
+    "https://zpluse.com",
+    "https://www.zpluse.com",
+    "http://zpluse.com",
+    "http://www.zpluse.com"
 })
 public class RegistrationController {
 

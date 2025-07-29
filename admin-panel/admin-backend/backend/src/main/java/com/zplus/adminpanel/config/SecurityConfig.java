@@ -80,7 +80,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5500", "http://localhost:5500", "http://localhost:8080"));
+        configuration.setAllowedOrigins(List.of(
+            "http://127.0.0.1:5500", 
+            "http://localhost:5500", 
+            "http://localhost:8080",
+            "https://zpluse.com",
+            "https://www.zpluse.com",
+            "http://zpluse.com",
+            "http://www.zpluse.com"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);

@@ -27,7 +27,16 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/projects")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:5506", "http://localhost:8080", "http://127.0.0.1:5507"})
+@CrossOrigin(origins = {
+    "http://localhost:3000", 
+    "http://localhost:5506", 
+    "http://localhost:8080", 
+    "http://127.0.0.1:5507",
+    "https://zpluse.com",
+    "https://www.zpluse.com",
+    "http://zpluse.com",
+    "http://www.zpluse.com"
+})
 public class ProjectController {
 
     private static final Logger logger = LoggerFactory.getLogger(ProjectController.class);
