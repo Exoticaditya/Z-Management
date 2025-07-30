@@ -1,10 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Use the global API configuration instead of hardcoded localhost
-    const API_BASE_URL = window.API_CONFIG ? window.API_CONFIG.getApiUrl() : 'https://i1corir7.up.railway.app/api';
-    
-    console.log('[ADMIN DEBUG] Using API URL:', API_BASE_URL);
-    console.log('[ADMIN DEBUG] Current hostname:', window.location.hostname);
-    
+    const API_BASE_URL = 'http://localhost:8080/api';
     const adminDashboard = document.querySelector('.admin-dashboard');
     const contentTitle = document.getElementById('contentTitle');
     const contentBody = document.getElementById('contentBody');

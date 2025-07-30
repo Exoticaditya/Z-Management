@@ -40,46 +40,40 @@ public class FileStorageService {
     public FileStorageService(@Value("${app.upload-dir:./uploads}") String uploadDir,
                              @Value("${app.frontend-url:http://localhost:8080}") String frontendUrl) {
         
-        // Determine the actual upload directory
-        String actualUploadDir = uploadDir;
-        
         // For Railway deployment, use a writable temporary directory
+        String actualUploadDir = uploadDir;
         if (System.getenv("RAILWAY_ENVIRONMENT") != null || System.getenv("PORT") != null) {
             actualUploadDir = "/tmp/uploads";
             logger.info("Railway environment detected, using /tmp/uploads for file storage");
         }
         
-        // Initialize upload path - try primary location first
-        Path actualUploadPath = Paths.get(actualUploadDir).toAbsolutePath().normalize();
+        this.uploadPath = Paths.get(actualUploadDir).toAbsolutePath().normalize();
+        this.baseUrl = frontendUrl + "/api/files/";
         
         try {
-            Files.createDirectories(actualUploadPath);
-            logger.info("Upload directory created at: {}", actualUploadPath);
+            Files.createDirectories(this.uploadPath);
+            logger.info("Upload directory created at: {}", this.uploadPath);
             
             // Test write permissions
-            Path testFile = actualUploadPath.resolve("test-write.tmp");
+            Path testFile = this.uploadPath.resolve("test-write.tmp");
             Files.write(testFile, "test".getBytes());
             Files.deleteIfExists(testFile);
-            logger.info("Upload directory is writable: {}", actualUploadPath);
+            logger.info("Upload directory is writable: {}", this.uploadPath);
             
         } catch (IOException ex) {
-            logger.error("Could not create upload directory: {}, trying fallback", actualUploadPath, ex);
+            logger.error("Could not create upload directory: {}", this.uploadPath, ex);
             
             // Fallback to system temp directory
             try {
                 String tempDir = System.getProperty("java.io.tmpdir");
-                actualUploadPath = Paths.get(tempDir, "zplus-uploads").toAbsolutePath().normalize();
-                Files.createDirectories(actualUploadPath);
-                logger.warn("Using fallback upload directory: {}", actualUploadPath);
+                this.uploadPath = Paths.get(tempDir, "zplus-uploads").toAbsolutePath().normalize();
+                Files.createDirectories(this.uploadPath);
+                logger.warn("Using fallback upload directory: {}", this.uploadPath);
             } catch (IOException fallbackEx) {
                 logger.error("Could not create fallback upload directory", fallbackEx);
                 throw new RuntimeException("Could not create upload directory!", fallbackEx);
             }
         }
-        
-        // Assign to final fields
-        this.uploadPath = actualUploadPath;
-        this.baseUrl = frontendUrl + "/api/files/";
     }
 
     /**
