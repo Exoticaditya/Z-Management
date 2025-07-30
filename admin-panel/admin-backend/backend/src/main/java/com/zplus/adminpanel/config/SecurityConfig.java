@@ -48,6 +48,7 @@ public class SecurityConfig {
                 .requestMatchers("/", "/*.html", "/*.ico", "/*.png", "/css/**", "/js/**", "/asset/**").permitAll() // Allow static assets
                 .requestMatchers("/admin/**", "/client/**", "/employee/**", "/index/**").permitAll() // Allow access to all dashboard and login static files
                 .requestMatchers("/employee-dashboard/**", "/client-dashboard/**").permitAll() // Allow access to dashboard folders
+                .requestMatchers("/api/contact").permitAll() // <-- Add this line
                 
                 // --- PROTECTED ENDPOINTS ---
                 .anyRequest().authenticated() // All other requests must be authenticated
