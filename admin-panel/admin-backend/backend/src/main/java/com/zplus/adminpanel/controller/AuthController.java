@@ -15,6 +15,15 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = {
+    "http://localhost:5500",
+    "http://127.0.0.1:5500", 
+    "http://localhost:8080",
+    "https://zpluse.com",
+    "https://www.zpluse.com",
+    "http://zpluse.com",
+    "http://www.zpluse.com"
+})
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
