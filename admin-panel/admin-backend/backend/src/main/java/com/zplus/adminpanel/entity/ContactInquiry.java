@@ -68,7 +68,7 @@ public class ContactInquiry {
     @Size(max = 50, message = "Project timeline must not exceed 50 characters")
     private String projectTimeline;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     @CollectionTable(name = "contact_service_interests", 
                      joinColumns = @JoinColumn(name = "contact_inquiry_id"))
     @Column(name = "service_interest")
