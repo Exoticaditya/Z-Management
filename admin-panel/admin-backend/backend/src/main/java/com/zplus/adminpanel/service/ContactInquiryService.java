@@ -21,6 +21,30 @@ import java.util.NoSuchElementException;
 @Service
 @Transactional
 public class ContactInquiryService {
+    /**
+     * Get all contact inquiries as DTOs with initialized serviceInterests
+     */
+    public List<ContactInquiryDTO> getAllContactInquiryDTOs() {
+        List<ContactInquiry> inquiries = getAllContactInquiries();
+        return inquiries.stream().map(inquiry -> {
+            ContactInquiryDTO dto = new ContactInquiryDTO();
+            dto.setId(inquiry.getId());
+            dto.setFullName(inquiry.getFullName());
+            dto.setEmail(inquiry.getEmail());
+            dto.setMessage(inquiry.getMessage());
+            dto.setCreatedAt(inquiry.getCreatedAt());
+            dto.setStatus(inquiry.getStatus() != null ? inquiry.getStatus().name() : null);
+            // Initialize serviceInterests safely
+            if (inquiry.getServiceInterests() != null) {
+                dto.setServiceInterests(
+                    new java.util.ArrayList<>(inquiry.getServiceInterests().stream().map(Object::toString).toList())
+                );
+            } else {
+                dto.setServiceInterests(java.util.Collections.emptyList());
+            }
+            return dto;
+        }).toList();
+    }
 
     private final ContactInquiryRepository contactInquiryRepository;
 

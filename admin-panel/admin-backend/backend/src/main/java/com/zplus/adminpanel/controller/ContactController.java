@@ -362,25 +362,7 @@ public class ContactController {
      */
     @GetMapping("/inquiries")
     public ResponseEntity<List<ContactInquiryDTO>> getAllContactInquiries() {
-        List<ContactInquiry> inquiries = contactInquiryService.getAllContactInquiries();
-        List<ContactInquiryDTO> dtos = inquiries.stream().map(inquiry -> {
-            ContactInquiryDTO dto = new ContactInquiryDTO();
-            dto.setId(inquiry.getId());
-            dto.setFullName(inquiry.getFullName());
-            dto.setEmail(inquiry.getEmail());
-            dto.setMessage(inquiry.getMessage());
-            dto.setCreatedAt(inquiry.getCreatedAt());
-            dto.setStatus(inquiry.getStatus() != null ? inquiry.getStatus().name() : null);
-            // Map serviceInterests to List<String> if not null
-            if (inquiry.getServiceInterests() != null) {
-                dto.setServiceInterests(
-                    inquiry.getServiceInterests().stream()
-                        .map(Object::toString)
-                        .toList()
-                );
-            }
-            return dto;
-        }).toList();
+        List<ContactInquiryDTO> dtos = contactInquiryService.getAllContactInquiryDTOs();
         return ResponseEntity.ok(dtos);
     }
 
