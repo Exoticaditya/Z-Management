@@ -78,7 +78,11 @@ async function makeApiCall(endpoint, options = {}) {
     }
 }
 
-// Export for use in other scripts
+// Example usage for contact form submission
+// Old: fetch(url, options)
+// Now: makeApiCall('contact', { method: 'POST', body: JSON.stringify(data) })
+
+// Export makeApiCall if not already
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { API_CONFIG, API_BASE_URL, makeApiCall };
 }
