@@ -59,6 +59,9 @@ public interface ContactInquiryRepository extends JpaRepository<ContactInquiry, 
     long countByStatus(ContactStatus status);
     
     ContactInquiry findTopByOrderByCreatedAtDesc();
+    
+    // Get top 5 recent contact inquiries
+    List<ContactInquiry> findTop5ByOrderByCreatedAtDesc();
 
     // Custom queries
     @Query("SELECT cs FROM ContactInquiry cs WHERE " +

@@ -75,7 +75,16 @@ public class UserServiceImpl implements UserService {
             newRegistration.setSelfId(request.getSelfId());
             // Remove username field - not needed for registrations
             newRegistration.setPassword(passwordEncoder.encode(request.getPassword())); // Hash password
-            newRegistration.setUserType(UserType.EMPLOYEE); // or from request if you have userType selection
+            
+            // Set user type from request
+            try {
+                UserType userType = UserType.valueOf(request.getUserType().toUpperCase());
+                newRegistration.setUserType(userType);
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid user type: {}, defaulting to CLIENT", request.getUserType());
+                newRegistration.setUserType(UserType.CLIENT);
+            }
+            
             newRegistration.setStatus(RegistrationStatus.PENDING);
             newRegistration.setIsActive(true);
             newRegistration.setCreatedAt(LocalDateTime.now());

@@ -40,4 +40,7 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     
     // Get latest registration
     Registration findTopByOrderByCreatedAtDesc();
+    
+    // Get top 5 recent registrations
+    List<Registration> findTop5ByOrderByCreatedAtDesc();
 }
