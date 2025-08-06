@@ -91,7 +91,7 @@ public class ContactInquiryRequest {
         return "ContactInquiryRequest{" +
                 "fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
-                ", message='" + message + '\'' +
+                ", businessChallenge='" + businessChallenge + '\'' +
                 '}';
     }
 }
