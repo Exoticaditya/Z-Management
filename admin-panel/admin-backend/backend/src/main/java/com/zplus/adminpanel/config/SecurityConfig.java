@@ -117,6 +117,6 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-            .requestMatchers("/api/contact", "/api/contact/**", "/api/registrations", "/api/registrations/**");
+            .requestMatchers("/api/contact", "/api/contact/**", "/api/registrations", "/api/registrations/**", "/public/**");
     }
 }
