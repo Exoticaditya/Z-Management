@@ -255,6 +255,8 @@
             color: #388E3C;
         }
     </style>
+    <!-- Add API config script -->
+    <script src="api-config.js"></script>
 </head>
 
 <body>
@@ -454,7 +456,7 @@
                 };
 
                 try {
-                    const response = await fetch('https://zplus-admin-panel-production.up.railway.app/api/contact', {
+                    const response = await fetch(API_CONFIG.getApiUrl('contact'), {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(formData)
