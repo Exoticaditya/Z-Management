@@ -49,8 +49,8 @@ public class SecurityConfig {
                 .requestMatchers("/", "/*.html", "/*.ico", "/*.png", "/css/**", "/js/**", "/asset/**").permitAll() // Allow static assets
                 .requestMatchers("/admin/**", "/client/**", "/employee/**", "/index/**").permitAll() // Allow access to all dashboard and login static files
                 .requestMatchers("/employee-dashboard/**", "/client-dashboard/**").permitAll() // Allow access to dashboard folders
-                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/contact").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/contact/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/contact/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll() // Allow registration submissions
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
 
@@ -87,16 +87,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(
-            "https://zpluse.com",
-            "https://www.zpluse.com",
-            "http://zpluse.com",
-            "http://www.zpluse.com",
-            "http://127.0.0.1:5500",
-            "http://localhost:5500",
-            "http://localhost:8080",
-            "https://z-management-production.up.railway.app" // <-- Add this line
-        ));
+        // Allow all origins for CORS
+        configuration.setAllowedOriginPatterns(List.of("*"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
         configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
