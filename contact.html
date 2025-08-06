@@ -456,18 +456,42 @@
                 };
 
                 try {
-                    const response = await fetch(API_CONFIG.getApiUrl('contact'), {
+                    // Debug: Check if API_CONFIG is loaded
+                    if (typeof API_CONFIG === 'undefined') {
+                        console.error('API_CONFIG is not defined - api-config.js may not be loaded');
+                        // Fallback to hardcoded URL
+                        var apiUrl = 'https://z-management-production.up.railway.app/api/contact';
+                    } else {
+                        var apiUrl = API_CONFIG.getApiUrl('contact');
+                    }
+                    
+                    console.log('Submitting to:', apiUrl);
+                    console.log('Form data:', formData);
+                    
+                    const response = await fetch(apiUrl, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
                         body: JSON.stringify(formData)
                     });
+                    
+                    console.log('Response status:', response.status);
+                    console.log('Response headers:', response.headers);
+                    
                     if (!response.ok) {
-                        throw new Error('Form submission failed.');
+                        const errorText = await response.text();
+                        console.error('Error response:', errorText);
+                        throw new Error(`Form submission failed with status ${response.status}`);
                     }
+                    
+                    const result = await response.json();
+                    console.log('Success response:', result);
                     showFormSuccess('Thank you! Your inquiry has been submitted successfully.');
                 } catch (err) {
                     console.error('Submission error:', err);
-                    showFormError('Failed to submit form. Please try again.');
+                    showFormError(`Failed to submit form: ${err.message}`);
                 }
             });
 

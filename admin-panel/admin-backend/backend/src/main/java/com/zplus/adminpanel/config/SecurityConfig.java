@@ -39,6 +39,19 @@ public class SecurityConfig {
     private CustomerUserDetailsService customerUserDetailsService;
 
     @Bean
+    @org.springframework.core.annotation.Order(1)
+    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/api/contact/**", "/api/registrations/**")
+            .cors(withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+
+    @Bean
+    @org.springframework.core.annotation.Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(withDefaults())
@@ -49,10 +62,6 @@ public class SecurityConfig {
                 .requestMatchers("/", "/*.html", "/*.ico", "/*.png", "/css/**", "/js/**", "/asset/**").permitAll() // Allow static assets
                 .requestMatchers("/admin/**", "/client/**", "/employee/**", "/index/**").permitAll() // Allow access to all dashboard and login static files
                 .requestMatchers("/employee-dashboard/**", "/client-dashboard/**").permitAll() // Allow access to dashboard folders
-                // Allow contact form submissions and retrievals
-                .requestMatchers(HttpMethod.POST, "/api/contact", "/api/contact/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/contact", "/api/contact/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll() // Allow registration submissions
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
 
                 // --- PROTECTED ENDPOINTS ---
