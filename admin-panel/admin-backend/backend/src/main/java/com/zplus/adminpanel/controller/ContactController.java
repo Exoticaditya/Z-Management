@@ -85,7 +85,6 @@ public class ContactController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
-    @PreAuthorize("permitAll()")
 
     /**
      * Get all contact inquiries with pagination
@@ -110,7 +109,6 @@ public class ContactController {
         
         return ResponseEntity.ok(inquiries);
     }
-    @PreAuthorize("permitAll()")
 
     /**
      * Get a specific contact inquiry by ID

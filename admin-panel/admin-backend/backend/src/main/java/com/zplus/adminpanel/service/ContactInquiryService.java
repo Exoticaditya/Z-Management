@@ -1,6 +1,7 @@
 package com.zplus.adminpanel.service;
 
 import com.zplus.adminpanel.dto.ContactInquiryRequest;
+import com.zplus.adminpanel.dto.ContactInquiryDTO;
 import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;
 import com.zplus.adminpanel.repository.ContactInquiryRepository;
@@ -71,7 +72,7 @@ public class ContactInquiryService {
         inquiry.setBusinessChallenge(request.getBusinessChallenge());
         inquiry.setContactMethod(request.getContactMethod());
         inquiry.setPreferredTime(request.getPreferredTime());
-        inquiry.setHowHeard(request.getHowHeard());
+        inquiry.setHearAbout(request.getHowHeard());
         inquiry.setStatus(ContactStatus.NEW);
         inquiry.setCreatedAt(LocalDateTime.now());
         inquiry.setUpdatedAt(LocalDateTime.now());
