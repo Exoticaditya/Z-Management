@@ -26,6 +26,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 
 @Configuration
 @EnableWebSecurity
@@ -49,8 +50,9 @@ public class SecurityConfig {
                 .requestMatchers("/", "/*.html", "/*.ico", "/*.png", "/css/**", "/js/**", "/asset/**").permitAll() // Allow static assets
                 .requestMatchers("/admin/**", "/client/**", "/employee/**", "/index/**").permitAll() // Allow access to all dashboard and login static files
                 .requestMatchers("/employee-dashboard/**", "/client-dashboard/**").permitAll() // Allow access to dashboard folders
-                .requestMatchers(HttpMethod.POST, "/api/contact/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/contact/**").permitAll()
+                // Allow contact form submissions and retrievals
+                .requestMatchers(HttpMethod.POST, "/api/contact", "/api/contact/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/contact", "/api/contact/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll() // Allow registration submissions
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
 
@@ -97,5 +99,28 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
+    }
+    
+    /**
+     * Separate security chain that permits all requests to contact endpoints without authentication.
+     */
+    @Bean
+    @org.springframework.core.annotation.Order(1)
+    public SecurityFilterChain contactSecurityChain(HttpSecurity http) throws Exception {
+        http
+            .securityMatcher("/api/contact", "/api/contact/**")
+            .cors(withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().permitAll()
+            );
+        return http.build();
+    }
+    /**
+     * Completely ignore security filters for contact endpoint to allow public access
+     */
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().requestMatchers("/api/contact", "/api/contact/**");
     }
 }

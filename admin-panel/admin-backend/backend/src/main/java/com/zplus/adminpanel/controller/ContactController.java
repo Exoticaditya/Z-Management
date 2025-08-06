@@ -28,6 +28,7 @@ import java.util.Map;
  * Controller for handling contact form submissions and inquiry management
  */
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/contact")
 public class ContactController {
 
@@ -72,6 +73,7 @@ public class ContactController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+    @PreAuthorize("permitAll()")
 
     /**
      * Get all contact inquiries with pagination
@@ -96,6 +98,7 @@ public class ContactController {
         
         return ResponseEntity.ok(inquiries);
     }
+    @PreAuthorize("permitAll()")
 
     /**
      * Get a specific contact inquiry by ID
@@ -385,4 +388,4 @@ public class ContactController {
         
         return ResponseEntity.ok(response);
     }
-} 
+}
