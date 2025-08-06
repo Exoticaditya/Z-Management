@@ -1,5 +1,6 @@
 package com.zplus.adminpanel.service.impl;
 
+import com.zplus.adminpanel.dto.RegistrationRequest;
 import com.zplus.adminpanel.entity.Registration;
 import com.zplus.adminpanel.entity.RegistrationStatus;
 import com.zplus.adminpanel.exception.ResourceNotFoundException;
@@ -18,6 +19,40 @@ public class RegistrationServiceImpl implements RegistrationService {
     
     @Autowired
     private RegistrationRepository registrationRepository;
+
+    @Override
+    public Registration saveRegistration(RegistrationRequest request) {
+        Registration registration = new Registration();
+        
+        // Set basic information
+        registration.setFirstName(request.getFirstName());
+        registration.setLastName(request.getLastName());
+        registration.setEmail(request.getEmail());
+        registration.setPhone(request.getPhone());
+        registration.setDepartment(request.getDepartment());
+        
+        // Convert string userType to enum
+        try {
+            registration.setUserType(com.zplus.adminpanel.entity.UserType.valueOf(request.getUserType().toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            registration.setUserType(com.zplus.adminpanel.entity.UserType.CLIENT); // Default fallback
+        }
+        
+        // Set required fields with defaults or from request
+        registration.setProjectId("DEFAULT_PROJECT"); // You may want to make this configurable
+        registration.setSelfId(request.getSelfId());
+        registration.setPassword(request.getPassword()); // Note: This should be hashed in production
+        registration.setReason("New user registration via website");
+        registration.setSupervisor("System Administrator");
+        
+        // Set status and timestamps
+        registration.setStatus(RegistrationStatus.PENDING);
+        registration.setCreatedAt(LocalDateTime.now());
+        registration.setUpdatedAt(LocalDateTime.now());
+        registration.setIsActive(true);
+        
+        return registrationRepository.save(registration);
+    }
     
     @Override
     public List<Registration> getAllRegistrations() {

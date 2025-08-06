@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const API_BASE_URL = 'http://localhost:8080/api';
+    // Use dynamic API base URL if available, fallback to Railway production
+    const API_BASE_URL = (window.API_BASE_URL || window.apiConfig?.API_BASE_URL || 'https://z-management-production.up.railway.app/api');
     const adminDashboard = document.querySelector('.admin-dashboard');
     const contentTitle = document.getElementById('contentTitle');
     const contentBody = document.getElementById('contentBody');
@@ -211,180 +212,25 @@ document.addEventListener('DOMContentLoaded', function() {
     async function apiFetch(endpoint, options = {}) {
         const token = localStorage.getItem('token'); // Changed from 'jwtToken' to 'token'
         const headers = { 'Content-Type': 'application/json', ...options.headers };
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-        
+        if (token) headers['Authorization'] = `Bearer ${token}`;
         const url = `${API_BASE_URL}${endpoint}`;
-        console.log('[ADMIN DEBUG] API request:', { url, headers, options });
-        
         const response = await fetch(url, { ...options, headers });
-        console.log('[ADMIN DEBUG] API response:', { status: response.status, statusText: response.statusText });
-        
         if (response.status === 401 || response.status === 403) {
-            console.log('[ADMIN DEBUG] Authentication failed, logging out');
             logout();
             throw new Error('Session expired. Please log in again.');
         }
         if (!response.ok) {
             const errorText = await response.text();
-            console.log('[ADMIN DEBUG] API error response:', errorText);
             throw new Error(errorText || `HTTP error! Status: ${response.status}`);
         }
         const contentType = response.headers.get("content-type");
-        const result = (contentType && contentType.includes("application/json")) ? await response.json() : null;
-        console.log('[ADMIN DEBUG] API result:', result);
-        return result;
+        return (contentType && contentType.includes("application/json")) ? await response.json() : null;
     }
 
-    // Add this function if it doesn't exist
-    function loadContent(section, skipHistory = false) {
-        console.log('[ADMIN DEBUG] Loading content section:', section);
-        
-        // Check authentication before loading content
-        const token = localStorage.getItem('token');
-        const user = localStorage.getItem('zplusUser');
-        
-        if (!token || !user) {
-            console.log('[ADMIN DEBUG] Missing auth data, redirecting to login');
-            window.location.href = '/index/index.html';
-            return;
-        }
-        
-        try {
-            const userData = JSON.parse(user);
-            if (userData.userType !== 'ADMIN' && userData.userType !== 'admin') {
-                console.log('[ADMIN DEBUG] User is not admin, redirecting');
-                window.location.href = '/index/index.html';
-                return;
-            }
-        } catch (e) {
-            console.log('[ADMIN DEBUG] Invalid user data, redirecting to login');
-            window.location.href = '/index/index.html';
-            return;
-        }
-        
-        // Update navigation history
-        if (!skipHistory) {
-            navigationHistory.push(section);
-        }
-        
-        // Update active navigation
-        updateActiveNav(section);
-        
-        // Update content title and show back button if needed
-        const titles = {
-            'dashboard': 'Dashboard Overview',
-            'pending-registrations': 'Pending Registrations',
-            'all-registrations': 'All Registrations',
-            'approved-registrations': 'Approved Registrations',
-            'rejected-registrations': 'Rejected Registrations',
-            'all-contacts': 'All Contact Inquiries',
-            'pending-contacts': 'Pending Contact Inquiries',
-            'resolved-contacts': 'Resolved Contact Inquiries',
-            'contact-statistics': 'Contact Statistics',
-            'games-overview': 'Games Overview',
-            'tic-tac-toe': 'Tic Tac Toe Game',
-            'memory-game': 'Memory Game',
-            'snake-game': 'Snake Game'
-        };
-        
-        if (contentTitle) {
-            contentTitle.textContent = titles[section] || 'Admin Panel';
-        }
-        
-        // Show/hide back button
-        if (backButton) {
-            backButton.style.display = section === 'dashboard' ? 'none' : 'inline-flex';
-        }
-        
-        // Load the appropriate content
-        switch (section) {
-            case 'dashboard':
-                loadDashboardOverview(contentBody);
-                break;
-            case 'pending-registrations':
-                createRegistrationLoader('pending')(contentBody);
-                break;
-            case 'all-registrations':
-                createRegistrationLoader('all')(contentBody);
-                break;
-            case 'approved-registrations':
-                createRegistrationLoader('approved')(contentBody);
-                break;
-            case 'rejected-registrations':
-                createRegistrationLoader('rejected')(contentBody);
-                break;
-            // Contact Inquiries
-            case 'all-contacts':
-                createContactLoader('all')(contentBody);
-                break;
-            case 'pending-contacts':
-                createContactLoader('pending')(contentBody);
-                break;
-            case 'resolved-contacts':
-                createContactLoader('resolved')(contentBody);
-                break;
-            case 'contact-statistics':
-                loadContactStatistics(contentBody);
-                break;
-            // Games
-            case 'games-overview':
-                loadGamesOverview(contentBody);
-                break;
-            case 'tic-tac-toe':
-                loadTicTacToe(contentBody);
-                break;
-            case 'memory-game':
-                loadMemoryGame(contentBody);
-                break;
-            case 'snake-game':
-                loadSnakeGame(contentBody);
-                break;
-            default:
-                loadDashboardOverview(contentBody);
-        }
-    }
+    // ...existing code for dashboard event listeners, content loading, etc...
 
-    // Make loadContent globally available
-    window.loadContent = loadContent;
-
-    // Add updateActiveNav function if it doesn't exist
-    function updateActiveNav(section) {
-        // Remove active class from all nav items
-        document.querySelectorAll('.nav-link, .dropdown-item').forEach(item => {
-            item.classList.remove('active');
-        });
-        
-        // Add active class to current section
-        const activeItem = document.querySelector(`[onclick*="'${section}'"]`);
-        if (activeItem) {
-            activeItem.classList.add('active');
-        }
-    }
-
-    // =================================================================
-    // 3. EVENT LISTENERS & NAVIGATION
-    // =================================================================
-    function setupDashboardEventListeners() {
-        document.querySelector('.main-navbar').addEventListener('click', (e) => {
-            const link = e.target.closest('.nav-link, .dropdown-item');
-            if (!link) return;
-
-            const targetId = link.dataset.target;
-            if (targetId) {
-                e.preventDefault();
-                toggleDropdown(link, targetId);
-                return;
-            }
-
-            const onclickAttr = link.getAttribute('onclick');
-            if (onclickAttr && onclickAttr.includes("loadContent")) {
-                e.preventDefault();
-                const section = onclickAttr.match(/'([^']+)'/)[1];
-                loadContent(section);
-                // Close other dropdowns if a direct link is clicked
-                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+    checkAuth();
+});
                     const button = document.querySelector(`[data-target="${menu.id}"]`);
                     if(button && !button.contains(link)) {
                         menu.classList.remove('show');
@@ -592,6 +438,160 @@ document.addEventListener('DOMContentLoaded', function() {
                             <button onclick="refreshData()" class="btn btn-primary">
                                 <i class="fas fa-retry"></i> Try Again
                             </button>
+                            <button onclick="loadContent('dashboard')" class="btn btn-secondary">
+                                <i class="fas fa-home"></i> Back to Dashboard
+                            </button>
+                        </div>
+                        <details class="error-details">
+                            <summary>Technical Details</summary>
+                            <p><strong>Endpoint:</strong> ${endpoint}</p>
+                            <p><strong>Error:</strong> ${error.message}</p>
+                            <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+                        </details>
+                    </div>
+                `;
+            }
+        };
+    }
+    
+    function loadGenericContent(container, section) {
+        container.innerHTML = `<div class="placeholder-content"><h3>Under Construction</h3><p>The '${getSectionDisplayName(section)}' section is not yet implemented.</p></div>`;
+    }
+
+    // =================================================================
+    // CONTACT INQUIRY LOADERS
+    // =================================================================
+    function createContactLoader(type) {
+        return async (container) => {
+            try {
+                // Show loading state first
+                container.innerHTML = `
+                    <div class="loading-container">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </div>
+                        <p>Loading ${type} contact inquiries...</p>
+                    </div>
+                `;
+
+                let endpoint;
+                if (type === 'all') {
+                    endpoint = '/contact/inquiries'; // Use the simpler endpoint that returns List<ContactInquiry>
+                } else if (type === 'pending') {
+                    endpoint = '/contact/status/PENDING';
+                } else if (type === 'resolved') {
+                    endpoint = '/contact/status/RESOLVED';
+                } else {
+                    endpoint = `/contact/status/${type.toUpperCase()}`;
+                }
+
+                console.log(`[ADMIN DEBUG] Fetching ${type} contact inquiries from ${endpoint}`);
+                const response = await apiFetch(endpoint);
+                console.log(`[ADMIN DEBUG] Received ${type} contact inquiries response:`, response);
+                
+                // Handle paginated response from Spring Data
+                let data;
+                if (response && response.content && Array.isArray(response.content)) {
+                    // Spring Data Page response
+                    data = response.content;
+                    console.log(`[ADMIN DEBUG] Extracted content from paginated response:`, data);
+                } else if (response && Array.isArray(response)) {
+                    // Direct array response
+                    data = response;
+                } else {
+                    throw new Error('Invalid data format received from server');
+                }
+
+                container.innerHTML = `
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3><i class="fas fa-envelope"></i> ${getSectionDisplayName(type + '-contacts')}</h3>
+                            <div class="table-actions">
+                                <button onclick="refreshData()" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-sync-alt"></i> Refresh
+                                </button>
+                                <button onclick="exportData()" class="btn btn-success btn-sm">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                        ${renderContactInquiriesTable(data, type === 'pending' || type === 'all')}
+                    </div>
+                `;
+            } catch (error) {
+                console.error(`[ADMIN DEBUG] Failed to load ${type} contact inquiries:`, error);
+                container.innerHTML = `
+                    <div class="error-container">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3>Unable to Load ${getSectionDisplayName(type + '-contacts')}</h3>
+                        <p class="error-message">${error.message}</p>
+                        <div class="error-actions">
+                            <button onclick="refreshData()" class="btn btn-primary">
+                                <i class="fas fa-retry"></i> Try Again
+                            </button>
+                            <button onclick="loadContent('dashboard')" class="btn btn-secondary">
+                                <i class="fas fa-home"></i> Back to Dashboard
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+    }
+
+    function loadContactStatistics(container) {
+        container.innerHTML = `
+            <div class="dashboard-overview">
+                <div class="welcome-section">
+                    <h2><i class="fas fa-chart-bar"></i> Contact Inquiry Statistics</h2>
+                    <p class="welcome-text">Overview of contact form submissions and inquiry trends.</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card stat-info">
+                        <div class="stat-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Total Inquiries</h3>
+                            <p>All time contact submissions</p>
+                            <button onclick="loadContent('all-contacts')" class="btn btn-outline">
+                                View All <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-warning">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Pending Inquiries</h3>
+                            <p>Awaiting response or action</p>
+                            <button onclick="loadContent('pending-contacts')" class="btn btn-outline">
+                                View Pending <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-success">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>Resolved Inquiries</h3>
+                            <p>Successfully handled contacts</p>
+                            <button onclick="loadContent('resolved-contacts')" class="btn btn-outline">
+                                View Resolved <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card stat-primary">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-day"></i>
                             <button onclick="loadContent('dashboard')" class="btn btn-secondary">
                                 <i class="fas fa-home"></i> Back to Dashboard
                             </button>

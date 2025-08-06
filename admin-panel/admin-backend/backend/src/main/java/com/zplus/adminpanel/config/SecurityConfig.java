@@ -51,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers("/employee-dashboard/**", "/client-dashboard/**").permitAll() // Allow access to dashboard folders
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/contact").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll() // Allow registration submissions
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
 
                 // --- PROTECTED ENDPOINTS ---
                 .anyRequest().authenticated() // All other requests must be authenticated

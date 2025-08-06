@@ -1,12 +1,20 @@
 package com.zplus.adminpanel.controller;
 
+import com.zplus.adminpanel.dto.RegistrationRequest;
 import com.zplus.adminpanel.entity.Registration;
 import com.zplus.adminpanel.service.RegistrationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.validation.Valid;
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/registrations")
@@ -24,8 +32,45 @@ import java.util.List;
 })
 public class RegistrationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(RegistrationController.class);
+
     @Autowired
     private RegistrationService registrationService;
+
+    /**
+     * Submit a new registration
+     */
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> submitRegistration(
+            @Valid @RequestBody RegistrationRequest request) {
+        
+        logger.info("Received registration request from: {}", request.getEmail());
+        
+        try {
+            Registration registration = registrationService.saveRegistration(request);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Registration submitted successfully! Your application is under review.");
+            response.put("registrationId", registration.getId());
+            response.put("timestamp", LocalDateTime.now());
+            response.put("status", "PENDING");
+            
+            logger.info("Registration created successfully with ID: {}", registration.getId());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            logger.error("Error creating registration: {}", e.getMessage(), e);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "Sorry, there was an error processing your registration. Please try again.");
+            response.put("error", e.getMessage());
+            
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
 
     @GetMapping
     public ResponseEntity<List<Registration>> getAllRegistrations() {

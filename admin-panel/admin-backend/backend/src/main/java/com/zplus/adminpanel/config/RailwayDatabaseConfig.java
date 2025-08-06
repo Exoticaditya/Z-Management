@@ -39,8 +39,8 @@ public class RailwayDatabaseConfig {
                 String username = userParts[0];
                 String password = userParts[1];
                 
-                // IMPORTANT: Use zplus_admin_panel database instead of default 'railway'
-                String targetDatabase = "zplus_admin_panel";
+                // Use the original database from Railway URL (don't override)
+                String targetDatabase = originalDatabase.isEmpty() ? "railway" : originalDatabase;
                 
                 // Construct JDBC URL with correct database
                 String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s", host, port, targetDatabase);
@@ -60,22 +60,24 @@ public class RailwayDatabaseConfig {
                 config.setDriverClassName("org.postgresql.Driver");
                 
                 // Railway-optimized settings
-                config.setMaximumPoolSize(3);
-                config.setMinimumIdle(1);
-                config.setConnectionTimeout(20000);
-                config.setValidationTimeout(5000);
-                config.setIdleTimeout(300000);
-                config.setMaxLifetime(600000);
+                config.setMaximumPoolSize(5);
+                config.setMinimumIdle(2);
+                config.setConnectionTimeout(30000);
+                config.setValidationTimeout(10000);
+                config.setIdleTimeout(600000);
+                config.setMaxLifetime(1800000);
                 config.setLeakDetectionThreshold(60000);
                 
                 // Connection properties
-                config.addDataSourceProperty("socketTimeout", "30");
-                config.addDataSourceProperty("loginTimeout", "30");
-                config.addDataSourceProperty("connectTimeout", "30");
+                config.addDataSourceProperty("socketTimeout", "60");
+                config.addDataSourceProperty("loginTimeout", "60");
+                config.addDataSourceProperty("connectTimeout", "60");
                 config.addDataSourceProperty("ssl", "true");
                 config.addDataSourceProperty("sslmode", "require");
+                config.addDataSourceProperty("prepareThreshold", "0");
+                config.addDataSourceProperty("reWriteBatchedInserts", "true");
                 
-                System.out.println("✅ Railway DataSource configured successfully for zplus_admin_panel");
+                System.out.println("✅ Railway DataSource configured successfully for " + targetDatabase);
                 return new HikariDataSource(config);
                 
             } catch (Exception e) {

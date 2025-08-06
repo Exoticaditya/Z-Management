@@ -1,9 +1,12 @@
 package com.zplus.adminpanel.service;
 
+import com.zplus.adminpanel.dto.RegistrationRequest;
 import com.zplus.adminpanel.entity.Registration;
 import java.util.List;
 
 public interface RegistrationService {
+    Registration saveRegistration(RegistrationRequest request);
+    
     List<Registration> getAllRegistrations();
     
     List<Registration> getPendingRegistrations();

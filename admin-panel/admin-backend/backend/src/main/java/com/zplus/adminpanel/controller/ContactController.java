@@ -1,5 +1,6 @@
 package com.zplus.adminpanel.controller;
 
+import com.zplus.adminpanel.dto.ContactInquiryDTO;
 import com.zplus.adminpanel.dto.ContactInquiryRequest;
 import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;

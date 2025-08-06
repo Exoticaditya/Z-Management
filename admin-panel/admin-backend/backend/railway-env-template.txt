@@ -1,0 +1,27 @@
+# Railway Environment Variables Configuration
+# Copy these values to your Railway project environment variables
+
+# Application Profile
+SPRING_PROFILES_ACTIVE=railway
+
+# Database Configuration (Railway will auto-populate DATABASE_URL)
+# DATABASE_URL will be automatically provided by Railway PostgreSQL
+
+# JWT Configuration
+JWT_SECRET=Bqe5Zevcwc4pCjuxviUf5bhHeYHVCbF9/pvgLM4vQ84=
+JWT_EXPIRATION=86400000
+
+# Email Configuration
+MAIL_USERNAME=adityamalik5763@gmail.com
+MAIL_PASSWORD=bsys ifpg gpof dfcm
+MAIL_FROM=adityamalik5763@gmail.com
+ADMIN_EMAIL=adityamalik2206950100018@gmail.com
+
+# Frontend URL
+FRONTEND_URL=https://zpluse.com
+
+# Upload Directory
+UPLOAD_DIR=/tmp/uploads
+
+# Application Settings
+PORT=8080
