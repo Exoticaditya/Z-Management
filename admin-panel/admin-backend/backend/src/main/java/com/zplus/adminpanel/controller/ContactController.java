@@ -41,6 +41,18 @@ public class ContactController {
     private RegistrationService registrationService;
 
     /**
+     * Simple test endpoint to verify public access
+     */
+    @GetMapping("/test")
+    public ResponseEntity<Map<String, Object>> testEndpoint() {
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "Contact endpoint is working");
+        response.put("timestamp", LocalDateTime.now());
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Submit a new contact inquiry
      */
     @PostMapping
