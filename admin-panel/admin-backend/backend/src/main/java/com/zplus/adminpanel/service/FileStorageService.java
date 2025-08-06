@@ -26,7 +26,7 @@ public class FileStorageService {
 
     private static final Logger logger = LoggerFactory.getLogger(FileStorageService.class);
     
-    private final Path uploadPath;
+    private Path uploadPath;
     private final String baseUrl;
     
     // Allowed image types
