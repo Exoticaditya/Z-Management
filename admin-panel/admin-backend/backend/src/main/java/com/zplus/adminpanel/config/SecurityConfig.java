@@ -26,7 +26,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 
 @Configuration
 @EnableWebSecurity
@@ -62,8 +61,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
-            .and().headers().frameOptions().disable()
-            .and().httpBasic();  // temporarily enable basic auth logging
+            .headers(headers -> headers.frameOptions().disable())
+            .httpBasic(withDefaults());  // temporarily enable basic auth logging
 
         return http.build();
     }
@@ -99,28 +98,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
-    }
-    
-    /**
-     * Separate security chain that permits all requests to contact endpoints without authentication.
-     */
-    @Bean
-    @org.springframework.core.annotation.Order(1)
-    public SecurityFilterChain contactSecurityChain(HttpSecurity http) throws Exception {
-        http
-            .securityMatcher("/api/contact", "/api/contact/**")
-            .cors(withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            );
-        return http.build();
-    }
-    /**
-     * Completely ignore security filters for contact endpoint to allow public access
-     */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/api/contact", "/api/contact/**");
     }
 }
