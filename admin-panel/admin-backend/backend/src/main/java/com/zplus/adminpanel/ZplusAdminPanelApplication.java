@@ -46,8 +46,6 @@ public class ZplusAdminPanelApplication {
             System.exit(1);
         }
     }
-    }
-    
     
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
