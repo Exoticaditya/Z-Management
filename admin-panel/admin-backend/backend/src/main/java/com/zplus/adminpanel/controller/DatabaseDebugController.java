@@ -117,8 +117,22 @@ public class DatabaseDebugController {
         Map<String, Object> result = new HashMap<>();
         
         try (Connection connection = dataSource.getConnection()) {
+            // First, check if the table already exists
+            DatabaseMetaData metaData = connection.getMetaData();
+            ResultSet existingTable = metaData.getTables(null, null, "users", new String[]{"TABLE"});
+            boolean tableExists = existingTable.next();
+            
+            if (tableExists) {
+                result.put("status", "already_exists");
+                result.put("message", "Users table already exists");
+                return ResponseEntity.ok(result);
+            }
+            
+            // Set autocommit to true to ensure the transaction is committed
+            connection.setAutoCommit(true);
+            
             String createTableSQL = """
-                CREATE TABLE IF NOT EXISTS users (
+                CREATE TABLE users (
                     id BIGSERIAL PRIMARY KEY,
                     self_id VARCHAR(255) UNIQUE NOT NULL,
                     username VARCHAR(255),
@@ -147,10 +161,48 @@ public class DatabaseDebugController {
                 )
                 """;
             
-            connection.createStatement().execute(createTableSQL);
+            int updateResult = connection.createStatement().executeUpdate(createTableSQL);
+            
+            // Verify table was created
+            ResultSet newTable = metaData.getTables(null, null, "users", new String[]{"TABLE"});
+            boolean nowExists = newTable.next();
             
             result.put("status", "success");
             result.put("message", "Users table created successfully");
+            result.put("updateResult", updateResult);
+            result.put("tableNowExists", nowExists);
+            result.put("autoCommit", connection.getAutoCommit());
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("message", e.getMessage());
+            result.put("error", e.getClass().getSimpleName());
+            e.printStackTrace(); // This will show in Railway logs
+        }
+        
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/insert-test-user")
+    public ResponseEntity<Map<String, Object>> insertTestUser() {
+        Map<String, Object> result = new HashMap<>();
+        
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(true);
+            
+            String insertSQL = """
+                INSERT INTO users (self_id, username, first_name, last_name, email, password_hash, user_type, is_active)
+                VALUES ('admin', 'admin', 'Admin', 'User', 'admin@zplus.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.', 'ADMIN', true)
+                ON CONFLICT (self_id) DO UPDATE SET
+                    username = EXCLUDED.username,
+                    updated_at = CURRENT_TIMESTAMP
+                """;
+            
+            int rowsAffected = connection.createStatement().executeUpdate(insertSQL);
+            
+            result.put("status", "success");
+            result.put("message", "Test user inserted/updated successfully");
+            result.put("rowsAffected", rowsAffected);
             
         } catch (Exception e) {
             result.put("status", "error");

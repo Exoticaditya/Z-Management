@@ -1,8 +1,6 @@
 package com.zplus.adminpanel.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.type.SqlTypes;
-import org.hibernate.annotations.JdbcTypeCode;
 import java.time.LocalDateTime;
 
 @Entity
@@ -40,13 +38,11 @@ public class User {
     private String projectId;
     
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false, columnDefinition = "user_type")
+    @Column(nullable = false)
     private UserType userType;
     
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(nullable = false, columnDefinition = "registration_status")
+    @Column(nullable = false)
     private RegistrationStatus status;
     
     @Column
