@@ -12,8 +12,8 @@ import java.net.URI;
 /**
  * Database configuration for Railway deployment
  */
-@Configuration
-@Profile("railway")
+// @Configuration
+@Profile("railway-disabled")  // Temporarily disabled
 public class RailwayDatabaseConfig {
 
     @Bean

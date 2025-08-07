@@ -166,6 +166,7 @@ public class PublicContactController {
             long count = contactInquiryService.countAllInquiries();
             response.put("database_connection", "SUCCESS");
             response.put("inquiry_count", count);
+            
         } catch (Exception e) {
             response.put("database_connection", "FAILED");
             response.put("connection_error", e.getMessage());
