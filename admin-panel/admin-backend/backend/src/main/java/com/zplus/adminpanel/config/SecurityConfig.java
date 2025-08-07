@@ -33,11 +33,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthFilter jwtAuthFilter;
+    private final JwtAuthFilter jwtAuthFilter;
+    private final CustomerUserDetailsService customerUserDetailsService;
 
-    @Autowired
-    private CustomerUserDetailsService customerUserDetailsService;
+    public SecurityConfig(JwtAuthFilter jwtAuthFilter, CustomerUserDetailsService customerUserDetailsService) {
+        this.jwtAuthFilter = jwtAuthFilter;
+        this.customerUserDetailsService = customerUserDetailsService;
+    }
 
     @Bean
     @org.springframework.core.annotation.Order(1)

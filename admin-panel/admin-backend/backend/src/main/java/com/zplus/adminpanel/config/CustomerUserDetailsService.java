@@ -2,7 +2,6 @@ package com.zplus.adminpanel.config;
 
 import com.zplus.adminpanel.entity.User;
 import com.zplus.adminpanel.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,8 +11,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class CustomerUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public CustomerUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String selfId) throws UsernameNotFoundException {

@@ -28,7 +28,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
@@ -37,8 +37,10 @@ spring:
           time_zone: UTC
         connection:
           provider_disables_autocommit: false
+        temp:
+          use_jdbc_metadata_defaults: false
     open-in-view: false
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
   
   sql:
     init:

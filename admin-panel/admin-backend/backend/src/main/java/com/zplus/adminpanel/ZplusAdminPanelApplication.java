@@ -31,17 +31,14 @@ public class ZplusAdminPanelApplication {
 
     public static void main(String[] args) {
         try {
-            // Fix Railway DATABASE_URL format
-            fixDatabaseUrl();
-            
-            // Log environment variables before starting
+            // Log environment check
             System.out.println("🔍 Environment Check:");
             System.out.println("PORT: " + System.getenv("PORT"));
-            System.out.println("DATABASE_URL present: " + (System.getenv("DATABASE_URL") != null));
-            if (System.getenv("DATABASE_URL") != null) {
-                String dbUrl = System.getenv("DATABASE_URL");
-                System.out.println("DATABASE_URL format: " + dbUrl.replaceAll(":[^:@]+@", ":***@"));
-            }
+            System.out.println("SPRING_PROFILES_ACTIVE: " + System.getenv("SPRING_PROFILES_ACTIVE"));
+            System.out.println("PGHOST: " + System.getenv("PGHOST"));
+            System.out.println("PGPORT: " + System.getenv("PGPORT"));
+            System.out.println("PGDATABASE: " + System.getenv("PGDATABASE"));
+            System.out.println("PGUSER: " + System.getenv("PGUSER"));
             
             SpringApplication.run(ZplusAdminPanelApplication.class, args);
         } catch (Exception e) {
@@ -49,49 +46,8 @@ public class ZplusAdminPanelApplication {
             System.exit(1);
         }
     }
-    
-    /**
-     * Fix Railway DATABASE_URL format for Spring Boot compatibility
-     * Railway: postgresql://user:pass@host:port/db
-     * Spring: jdbc:postgresql://user:pass@host:port/db
-     */
-    private static void fixDatabaseUrl() {
-        String databaseUrl = System.getenv("DATABASE_URL");
-        if (databaseUrl != null && databaseUrl.startsWith("postgresql://")) {
-            try {
-                // Parse the DATABASE_URL
-                String fixedUrl = "jdbc:" + databaseUrl;
-                
-                // Extract components for debugging
-                String[] parts = databaseUrl.replace("postgresql://", "").split("[@:/]");
-                if (parts.length >= 4) {
-                    String user = parts[0];
-                    String host = parts.length > 2 ? parts[2] : "unknown";
-                    String port = parts.length > 3 ? parts[3] : "5432";
-                    String database = parts.length > 4 ? parts[4] : "railway";
-                    
-                    System.setProperty("spring.datasource.url", fixedUrl);
-                    System.setProperty("SPRING_DATASOURCE_URL", fixedUrl);
-                    
-                    System.out.println("🔧 Fixed DATABASE_URL format for Spring Boot");
-                    System.out.println("Host: " + host + ":" + port);
-                    System.out.println("Database: " + database);
-                    System.out.println("User: " + user);
-                    System.out.println("Fixed URL set as system property");
-                } else {
-                    System.err.println("❌ Could not parse DATABASE_URL format: " + databaseUrl.replaceAll(":[^:@]+@", ":***@"));
-                }
-            } catch (Exception e) {
-                System.err.println("❌ Error processing DATABASE_URL: " + e.getMessage());
-                e.printStackTrace();
-            }
-        } else {
-            System.out.println("⚠️  No DATABASE_URL found or not in postgresql:// format");
-            if (databaseUrl != null) {
-                System.out.println("DATABASE_URL: " + databaseUrl.replaceAll(":[^:@]+@", ":***@"));
-            }
-        }
     }
+    
     
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
@@ -104,15 +60,6 @@ public class ZplusAdminPanelApplication {
         logger.info("🔧 Active Profile: {}", profile);
         logger.info("💾 Database URL: {}", maskPassword(databaseUrl));
         logger.info("🌐 Health Check: http://localhost:{}/", port);
-        
-        // Log environment variables for debugging
-        String rawDatabaseUrl = System.getenv("DATABASE_URL");
-        if (rawDatabaseUrl != null) {
-            logger.info("✅ DATABASE_URL environment variable is set");
-            logger.info("🔗 Raw DATABASE_URL format: {}", maskPassword(rawDatabaseUrl));
-        } else {
-            logger.error("❌ DATABASE_URL environment variable is NOT set!");
-        }
     }
     
     private String maskPassword(String url) {
