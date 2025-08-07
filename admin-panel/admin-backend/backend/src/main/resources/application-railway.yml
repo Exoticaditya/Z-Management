@@ -12,7 +12,7 @@ spring:
   
   datasource:
     # Use individual properties to avoid DATABASE_URL parsing issues
-    url: jdbc:postgresql://gondola.proxy.rlwy.net:51397/railway
+    url: jdbc:postgresql://gondola.proxy.rlwy.net:51397/railway?currentSchema=public
     username: postgres
     password: ocHfgptFatbBzfKxgNMmBMGQgZqIyGYc
     driver-class-name: org.postgresql.Driver
