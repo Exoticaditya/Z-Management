@@ -11,17 +11,17 @@ spring:
     name: zplus-admin-panel
   
   datasource:
-    # Railway provides DATABASE_URL automatically
-    url: ${DATABASE_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://gondola.proxy.rlwy.net:51397/zplus_admin_panel}}
+    # Railway provides DATABASE_URL - handle both internal and external URLs
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/railway}
     driver-class-name: org.postgresql.Driver
     # Username and password are included in DATABASE_URL
     hikari:
-      maximum-pool-size: 3
-      minimum-idle: 1
-      connection-timeout: 20000
+      maximum-pool-size: 5
+      minimum-idle: 2
+      connection-timeout: 30000
       validation-timeout: 5000
-      idle-timeout: 300000
-      max-lifetime: 600000
+      idle-timeout: 600000
+      max-lifetime: 1800000
       leak-detection-threshold: 60000
   
   jpa:
