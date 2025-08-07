@@ -4,8 +4,8 @@
 
 ### 1. Test Railway URL Directly
 ```bash
-curl -X GET https://i1corir7.up.railway.app/
-curl -X GET https://i1corir7.up.railway.app/api/health
+curl -X GET https://z-management-production.up.railway.app/
+curl -X GET https://z-management-production.up.railway.app/api/health
 ```
 
 ### 2. Check Railway Logs

@@ -5,6 +5,8 @@ import com.zplus.adminpanel.dto.ContactInquiryDTO;
 import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;
 import com.zplus.adminpanel.repository.ContactInquiryRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,8 @@ import java.util.NoSuchElementException;
 @Service
 @Transactional
 public class ContactInquiryService {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ContactInquiryService.class);
     /**
      * Get all contact inquiries as DTOs with initialized serviceInterests
      */
@@ -57,6 +61,8 @@ public class ContactInquiryService {
      * Save a new contact inquiry
      */
     public ContactInquiry saveContactInquiry(ContactInquiryRequest request) {
+        logger.info("Starting to save contact inquiry for email: {}", request.getEmail());
+        
         ContactInquiry inquiry = new ContactInquiry();
         inquiry.setFullName(request.getFullName());
         inquiry.setEmail(request.getEmail());
@@ -77,7 +83,24 @@ public class ContactInquiryService {
         inquiry.setCreatedAt(LocalDateTime.now());
         inquiry.setUpdatedAt(LocalDateTime.now());
         
-        return contactInquiryRepository.save(inquiry);
+        logger.info("About to save inquiry to database for: {}", inquiry.getEmail());
+        
+        try {
+            ContactInquiry savedInquiry = contactInquiryRepository.save(inquiry);
+            logger.info("Successfully saved contact inquiry with ID: {} for email: {}", 
+                       savedInquiry.getId(), savedInquiry.getEmail());
+            return savedInquiry;
+        } catch (Exception e) {
+            logger.error("Failed to save contact inquiry for email: {}", request.getEmail(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * Count all contact inquiries for testing
+     */
+    public long countAllInquiries() {
+        return contactInquiryRepository.count();
     }
 
     /**

@@ -37,6 +37,17 @@ public class PublicContactController {
         response.put("status", "success");
         response.put("message", "Public contact endpoint is working");
         response.put("timestamp", LocalDateTime.now());
+        
+        // Test database connection
+        try {
+            long count = contactInquiryService.countAllInquiries();
+            response.put("database_status", "connected");
+            response.put("total_inquiries", count);
+        } catch (Exception e) {
+            response.put("database_status", "error");
+            response.put("database_error", e.getMessage());
+        }
+        
         logger.info("Test endpoint accessed successfully");
         return ResponseEntity.ok(response);
     }

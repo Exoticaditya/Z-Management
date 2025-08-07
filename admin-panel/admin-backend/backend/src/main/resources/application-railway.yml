@@ -11,10 +11,10 @@ spring:
     name: zplus-admin-panel
   
   datasource:
-    # Railway DATABASE_URL will be converted programmatically
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://gondola.proxy.rlwy.net:51397/zplus_admin_panel}
+    # Railway provides DATABASE_URL automatically
+    url: ${DATABASE_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://gondola.proxy.rlwy.net:51397/zplus_admin_panel}}
     driver-class-name: org.postgresql.Driver
-    # Username and password will be extracted from DATABASE_URL
+    # Username and password are included in DATABASE_URL
     hikari:
       maximum-pool-size: 3
       minimum-idle: 1
@@ -27,7 +27,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: false
+    show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
@@ -39,6 +39,17 @@ spring:
     open-in-view: false
     defer-datasource-initialization: true
 
+# Enable logging for debugging
+logging:
+  level:
+    root: INFO
+    '[com.zplus.adminpanel]': DEBUG
+    '[org.springframework.security]': INFO
+    '[org.hibernate.SQL]': DEBUG
+    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
+    '[org.springframework.jdbc]': DEBUG
+    '[org.springframework.transaction]': DEBUG
+
 # Simplified management endpoints
 management:
   endpoints:
@@ -48,8 +59,3 @@ management:
   endpoint:
     health:
       show-details: always
-
-logging:
-  level:
-    root: INFO
-    com.zplus: DEBUG
