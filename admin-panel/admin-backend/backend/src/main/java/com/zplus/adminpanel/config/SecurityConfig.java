@@ -45,7 +45,7 @@ public class SecurityConfig {
     @org.springframework.core.annotation.Order(1)
     public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-            .securityMatcher("/api/contact/**", "/api/registrations/**", "/api/debug/**")
+            .securityMatcher("/api/contact/**", "/api/registrations/**", "/api/debug/**", "/api/migration/**")
             .cors(withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
@@ -119,6 +119,6 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-            .requestMatchers("/", "/api/health", "/health/**", "/api/contact", "/api/contact/**", "/api/registrations", "/api/registrations/**", "/api/debug/**", "/public/**");
+            .requestMatchers("/", "/api/health", "/health/**", "/api/contact", "/api/contact/**", "/api/registrations", "/api/registrations/**", "/api/debug/**", "/api/migration/**", "/public/**");
     }
 }
