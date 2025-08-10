@@ -25,8 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -260,5 +259,123 @@ public class UserServiceImpl implements UserService {
         tempUser.setSupervisor(registration.getSupervisor());
         
         return new UserDTO(tempUser);
+    }
+
+    @Override
+    public List<Map<String, Object>> getRecentActivity() {
+        try {
+            List<Map<String, Object>> activity = new java.util.ArrayList<>();
+            
+            // Get recent registrations
+            List<Registration> recentRegistrations = registrationRepository.findTop5ByOrderByCreatedAtDesc();
+            for (Registration reg : recentRegistrations) {
+                activity.add(Map.of(
+                    "user", reg.getFirstName() + " " + reg.getLastName(),
+                    "action", "registered",
+                    "time", reg.getCreatedAt().toString(),
+                    "type", "registration"
+                ));
+            }
+            
+            // Get recent users
+            List<User> recentUsers = userRepository.findTop5ByOrderByCreatedAtDesc();
+            for (User user : recentUsers) {
+                activity.add(Map.of(
+                    "user", user.getFirstName() + " " + user.getLastName(),
+                    "action", "joined",
+                    "time", user.getCreatedAt().toString(),
+                    "type", "user"
+                ));
+            }
+            
+            // Sort by time (most recent first)
+            activity.sort((a, b) -> b.get("time").toString().compareTo(a.get("time").toString()));
+            
+            return activity.stream().limit(10).toList();
+        } catch (Exception e) {
+            logger.error("Error getting recent activity: {}", e.getMessage(), e);
+            return List.of(Map.of("user", "System", "action", "error getting activity", "time", "now"));
+        }
+    }
+
+    @Override
+    public Map<String, Object> getAdminDashboard() {
+        Map<String, Object> dashboard = new HashMap<>();
+        
+        try {
+            // User statistics
+            dashboard.put("totalUsers", userRepository.count());
+            dashboard.put("adminUsers", userRepository.countByUserType("ADMIN"));
+            dashboard.put("employeeUsers", userRepository.countByUserType("EMPLOYEE"));
+            dashboard.put("clientUsers", userRepository.countByUserType("CLIENT"));
+            
+            // Registration statistics
+            dashboard.put("totalRegistrations", registrationRepository.count());
+            dashboard.put("pendingRegistrations", registrationRepository.countByStatus(RegistrationStatus.PENDING));
+            dashboard.put("approvedRegistrations", registrationRepository.countByStatus(RegistrationStatus.APPROVED));
+            dashboard.put("rejectedRegistrations", registrationRepository.countByStatus(RegistrationStatus.REJECTED));
+            
+            // Recent activity
+            dashboard.put("recentActivity", getRecentActivity());
+            
+            dashboard.put("status", "success");
+        } catch (Exception e) {
+            logger.error("Error loading admin dashboard: {}", e.getMessage(), e);
+            dashboard.put("status", "error");
+            dashboard.put("error", e.getMessage());
+        }
+        
+        return dashboard;
+    }
+
+    @Override
+    public Map<String, Object> getEmployeeDashboard() {
+        Map<String, Object> dashboard = new HashMap<>();
+        
+        try {
+            // Employee-specific stats
+            dashboard.put("totalEmployees", userRepository.countByUserType("EMPLOYEE"));
+            dashboard.put("totalClients", userRepository.countByUserType("CLIENT"));
+            dashboard.put("pendingRegistrations", registrationRepository.countByStatus(RegistrationStatus.PENDING));
+            
+            // Recent activity (limited for employees)
+            List<Map<String, Object>> activity = getRecentActivity();
+            dashboard.put("recentActivity", activity.stream().limit(5).toList());
+            
+            dashboard.put("status", "success");
+            dashboard.put("userType", "EMPLOYEE");
+        } catch (Exception e) {
+            logger.error("Error loading employee dashboard: {}", e.getMessage(), e);
+            dashboard.put("status", "error");
+            dashboard.put("error", e.getMessage());
+        }
+        
+        return dashboard;
+    }
+
+    @Override
+    public Map<String, Object> getClientDashboard() {
+        Map<String, Object> dashboard = new HashMap<>();
+        
+        try {
+            // Client-specific stats (limited)
+            dashboard.put("totalClients", userRepository.countByUserType("CLIENT"));
+            dashboard.put("myRegistrationStatus", "Active");
+            
+            // Limited recent activity for clients
+            dashboard.put("recentUpdates", List.of(
+                Map.of("message", "Welcome to Z+ Admin Panel", "time", "Today"),
+                Map.of("message", "Your account is active", "time", "Today")
+            ));
+            
+            dashboard.put("status", "success");
+            dashboard.put("userType", "CLIENT");
+        } catch (Exception e) {
+            logger.error("Error loading client dashboard: {}", e.getMessage(), e);
+            dashboard.put("status", "error");
+            dashboard.put("error", e.getMessage());
+        }
+        
+        return dashboard;
     }
 }

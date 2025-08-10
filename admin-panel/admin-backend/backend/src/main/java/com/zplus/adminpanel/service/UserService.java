@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Map;
 
 public interface UserService {
@@ -22,4 +23,10 @@ public interface UserService {
     void deleteUser(Long userId);
     UserDTO getLatestRegistration();
     UserDTO getUserById(Long userId);
+    
+    // Dashboard methods
+    List<Map<String, Object>> getRecentActivity();
+    Map<String, Object> getAdminDashboard();
+    Map<String, Object> getEmployeeDashboard();
+    Map<String, Object> getClientDashboard();
 }
