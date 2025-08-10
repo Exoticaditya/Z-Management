@@ -30,20 +30,60 @@ public class NotificationService {
     public Map<String, Object> getAdminNotifications() {
         Map<String, Object> notifications = new HashMap<>();
         
-        // Get pending registrations count
-        List<Registration> pendingRegistrations = registrationRepository.findByStatus(RegistrationStatus.PENDING);
-        notifications.put("pendingRegistrations", pendingRegistrations.size());
-        notifications.put("pendingRegistrationsList", pendingRegistrations);
-        
-        // Get pending contact inquiries count
-        List<ContactInquiry> pendingContacts = contactInquiryRepository.findByStatus(
-            com.zplus.adminpanel.entity.ContactStatus.PENDING
-        );
-        notifications.put("pendingContacts", pendingContacts.size());
-        notifications.put("pendingContactsList", pendingContacts);
-        
-        // Calculate total pending items
-        notifications.put("totalPending", pendingRegistrations.size() + pendingContacts.size());
+        try {
+            // Get pending registrations count
+            List<Registration> pendingRegistrations = registrationRepository.findByStatus(RegistrationStatus.PENDING);
+            notifications.put("pendingRegistrations", pendingRegistrations.size());
+            
+            // Convert to DTOs to avoid lazy loading issues
+            List<Map<String, Object>> registrationDTOs = pendingRegistrations.stream()
+                .map(reg -> {
+                    Map<String, Object> dto = new HashMap<>();
+                    dto.put("id", reg.getId());
+                    dto.put("firstName", reg.getFirstName());
+                    dto.put("lastName", reg.getLastName());
+                    dto.put("email", reg.getEmail());
+                    dto.put("department", reg.getDepartment());
+                    dto.put("createdAt", reg.getCreatedAt());
+                    dto.put("status", reg.getStatus().name());
+                    return dto;
+                })
+                .toList();
+            notifications.put("pendingRegistrationsList", registrationDTOs);
+            
+            // Get pending contact inquiries count
+            List<ContactInquiry> pendingContacts = contactInquiryRepository.findByStatus(
+                com.zplus.adminpanel.entity.ContactStatus.PENDING
+            );
+            notifications.put("pendingContacts", pendingContacts.size());
+            
+            // Convert to DTOs to avoid lazy loading issues
+            List<Map<String, Object>> contactDTOs = pendingContacts.stream()
+                .map(contact -> {
+                    Map<String, Object> dto = new HashMap<>();
+                    dto.put("id", contact.getId());
+                    dto.put("fullName", contact.getFullName());
+                    dto.put("email", contact.getEmail());
+                    dto.put("phone", contact.getPhone());
+                    dto.put("organization", contact.getOrganization());
+                    dto.put("createdAt", contact.getCreatedAt());
+                    dto.put("status", contact.getStatus().name());
+                    dto.put("assignedTo", contact.getAssignedTo());
+                    return dto;
+                })
+                .toList();
+            notifications.put("pendingContactsList", contactDTOs);
+            
+            // Calculate total pending items
+            notifications.put("totalPending", pendingRegistrations.size() + pendingContacts.size());
+            
+        } catch (Exception e) {
+            // Fallback with basic counts
+            notifications.put("pendingRegistrations", 0);
+            notifications.put("pendingContacts", 0);
+            notifications.put("totalPending", 0);
+            notifications.put("error", e.getMessage());
+        }
         
         return notifications;
     }

@@ -135,10 +135,26 @@ public class ContactInquiryService {
      * Assign inquiry to a team member
      */
     public ContactInquiry assignInquiry(Long id, String assignedTo) {
-        ContactInquiry inquiry = getInquiryById(id);
-        inquiry.setAssignedTo(assignedTo);
-        inquiry.setUpdatedAt(LocalDateTime.now());
-        return contactInquiryRepository.save(inquiry);
+        try {
+            ContactInquiry inquiry = getInquiryById(id);
+            if (inquiry == null) {
+                logger.error("Contact inquiry not found with id: {}", id);
+                return null;
+            }
+            
+            logger.info("Assigning inquiry {} to user: {}", id, assignedTo);
+            inquiry.setAssignedTo(assignedTo);
+            inquiry.setStatus(ContactStatus.IN_PROGRESS); // Update status when assigned
+            inquiry.setUpdatedAt(LocalDateTime.now());
+            
+            ContactInquiry saved = contactInquiryRepository.save(inquiry);
+            logger.info("Successfully assigned inquiry {} to {}", id, assignedTo);
+            return saved;
+            
+        } catch (Exception e) {
+            logger.error("Error assigning inquiry {} to {}: {}", id, assignedTo, e.getMessage(), e);
+            throw new RuntimeException("Failed to assign inquiry: " + e.getMessage(), e);
+        }
     }
 
     /**
