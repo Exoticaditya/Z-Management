@@ -18,6 +18,265 @@ public class FixedMigrationController {
     @Autowired
     private DataSource dataSource;
 
+    @PostMapping("/check-all-tables")
+    public ResponseEntity<Map<String, Object>> checkAllTables(@RequestBody Map<String, String> oldDbConfig) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            String oldHost = oldDbConfig.get("host");
+            String oldPort = oldDbConfig.get("port");
+            String oldDatabase = oldDbConfig.get("database");
+            String oldUsername = oldDbConfig.get("username");
+            String oldPassword = oldDbConfig.get("password");
+            
+            String oldDbUrl = String.format("jdbc:postgresql://%s:%s/%s", oldHost, oldPort, oldDatabase);
+            
+            // Connect to both databases
+            Connection oldConn = DriverManager.getConnection(oldDbUrl, oldUsername, oldPassword);
+            Connection newConn = dataSource.getConnection();
+            
+            try {
+                // Get all tables from source database
+                List<String> sourceTables = getAllTables(oldConn);
+                List<String> targetTables = getAllTables(newConn);
+                
+                Map<String, Object> tableData = new HashMap<>();
+                
+                for (String tableName : sourceTables) {
+                    Map<String, Object> tableInfo = new HashMap<>();
+                    
+                    // Get row count
+                    Statement stmt = oldConn.createStatement();
+                    ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM " + tableName);
+                    rs.next();
+                    int rowCount = rs.getInt(1);
+                    
+                    // Get table structure
+                    Map<String, Object> structure = getTableStructure(oldConn, tableName);
+                    
+                    tableInfo.put("rowCount", rowCount);
+                    tableInfo.put("structure", structure);
+                    tableInfo.put("existsInTarget", targetTables.contains(tableName));
+                    
+                    tableData.put(tableName, tableInfo);
+                }
+                
+                result.put("status", "success");
+                result.put("sourceTables", sourceTables);
+                result.put("targetTables", targetTables);
+                result.put("tableData", tableData);
+                
+            } finally {
+                oldConn.close();
+                newConn.close();
+            }
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/migrate-specific-tables")
+    public ResponseEntity<Map<String, Object>> migrateSpecificTables(@RequestBody Map<String, Object> request) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            @SuppressWarnings("unchecked")
+            Map<String, String> oldDbConfig = (Map<String, String>) request.get("dbConfig");
+            @SuppressWarnings("unchecked")
+            List<String> tablesToMigrate = (List<String>) request.get("tables");
+            Boolean clearTarget = (Boolean) request.getOrDefault("clearTarget", false);
+            
+            String oldHost = oldDbConfig.get("host");
+            String oldPort = oldDbConfig.get("port");
+            String oldDatabase = oldDbConfig.get("database");
+            String oldUsername = oldDbConfig.get("username");
+            String oldPassword = oldDbConfig.get("password");
+            
+            String oldDbUrl = String.format("jdbc:postgresql://%s:%s/%s", oldHost, oldPort, oldDatabase);
+            
+            // Connect to both databases
+            Connection oldConn = DriverManager.getConnection(oldDbUrl, oldUsername, oldPassword);
+            Connection newConn = dataSource.getConnection();
+            newConn.setAutoCommit(false);
+            
+            try {
+                Map<String, Object> migrationResults = new HashMap<>();
+                int totalMigrated = 0;
+                
+                for (String tableName : tablesToMigrate) {
+                    // Clear target table if requested
+                    if (clearTarget) {
+                        Statement clearStmt = newConn.createStatement();
+                        clearStmt.executeUpdate("TRUNCATE TABLE " + tableName + " RESTART IDENTITY CASCADE");
+                        migrationResults.put(tableName + "_table_cleared", true);
+                    }
+                    
+                    // Migrate data
+                    int rowsMigrated = migrateTableData(oldConn, newConn, tableName);
+                    migrationResults.put(tableName + "_rows_migrated", rowsMigrated);
+                    totalMigrated += rowsMigrated;
+                }
+                
+                newConn.commit();
+                
+                result.put("status", "success");
+                result.put("totalRowsMigrated", totalMigrated);
+                result.put("tablesProcessed", tablesToMigrate.size());
+                result.put("migrationResults", migrationResults);
+                
+            } catch (Exception e) {
+                newConn.rollback();
+                throw e;
+            } finally {
+                oldConn.close();
+                newConn.close();
+            }
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/migrate-all-tables")
+    public ResponseEntity<Map<String, Object>> migrateAllTables(@RequestBody Map<String, String> oldDbConfig) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            String oldHost = oldDbConfig.get("host");
+            String oldPort = oldDbConfig.get("port");
+            String oldDatabase = oldDbConfig.get("database");
+            String oldUsername = oldDbConfig.get("username");
+            String oldPassword = oldDbConfig.get("password");
+            
+            String oldDbUrl = String.format("jdbc:postgresql://%s:%s/%s", oldHost, oldPort, oldDatabase);
+            
+            // Connect to both databases
+            Connection oldConn = DriverManager.getConnection(oldDbUrl, oldUsername, oldPassword);
+            Connection newConn = dataSource.getConnection();
+            newConn.setAutoCommit(false);
+            
+            try {
+                // Get all tables from source database
+                List<String> sourceTables = getAllTables(oldConn);
+                List<String> targetTables = getAllTables(newConn);
+                
+                Map<String, Object> migrationResults = new HashMap<>();
+                int totalMigrated = 0;
+                
+                for (String tableName : sourceTables) {
+                    // Clear target table first to avoid duplicates
+                    Statement clearStmt = newConn.createStatement();
+                    clearStmt.executeUpdate("DELETE FROM " + tableName);
+                    System.out.println("✅ Cleared existing data from table: " + tableName);
+                    
+                    if (!targetTables.contains(tableName)) {
+                        // Create table if it doesn't exist
+                        createTableFromSource(oldConn, newConn, tableName);
+                        migrationResults.put(tableName + "_table_created", true);
+                    }
+                    
+                    // Migrate data
+                    int rowsMigrated = migrateTableData(oldConn, newConn, tableName);
+                    migrationResults.put(tableName + "_rows_migrated", rowsMigrated);
+                    totalMigrated += rowsMigrated;
+                }
+                
+                newConn.commit();
+                
+                result.put("status", "success");
+                result.put("totalRowsMigrated", totalMigrated);
+                result.put("tablesProcessed", sourceTables.size());
+                result.put("migrationResults", migrationResults);
+                
+            } catch (Exception e) {
+                newConn.rollback();
+                throw e;
+            } finally {
+                oldConn.close();
+                newConn.close();
+            }
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(result);
+    }
+
+    @PostMapping("/migrate-non-user-tables")
+    public ResponseEntity<Map<String, Object>> migrateNonUserTables(@RequestBody Map<String, String> oldDbConfig) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            String oldHost = oldDbConfig.get("host");
+            String oldPort = oldDbConfig.get("port");
+            String oldDatabase = oldDbConfig.get("database");
+            String oldUsername = oldDbConfig.get("username");
+            String oldPassword = oldDbConfig.get("password");
+            
+            String oldDbUrl = String.format("jdbc:postgresql://%s:%s/%s", oldHost, oldPort, oldDatabase);
+            
+            // Connect to both databases
+            Connection oldConn = DriverManager.getConnection(oldDbUrl, oldUsername, oldPassword);
+            Connection newConn = dataSource.getConnection();
+            newConn.setAutoCommit(false);
+            
+            try {
+                // Get all tables from source database, excluding users
+                List<String> sourceTables = getAllTables(oldConn);
+                sourceTables.remove("users"); // Skip users table as it's already migrated
+                
+                Map<String, Object> migrationResults = new HashMap<>();
+                int totalMigrated = 0;
+                
+                for (String tableName : sourceTables) {
+                    // Clear target table first to avoid duplicates
+                    Statement clearStmt = newConn.createStatement();
+                    clearStmt.executeUpdate("DELETE FROM " + tableName);
+                    System.out.println("✅ Cleared existing data from table: " + tableName);
+                    
+                    // Migrate data
+                    int rowsMigrated = migrateTableData(oldConn, newConn, tableName);
+                    migrationResults.put(tableName + "_rows_migrated", rowsMigrated);
+                    totalMigrated += rowsMigrated;
+                }
+                
+                newConn.commit();
+                
+                result.put("status", "success");
+                result.put("totalRowsMigrated", totalMigrated);
+                result.put("tablesProcessed", sourceTables.size());
+                result.put("migrationResults", migrationResults);
+                result.put("skippedTables", "users (already migrated)");
+                
+            } catch (Exception e) {
+                newConn.rollback();
+                throw e;
+            } finally {
+                oldConn.close();
+                newConn.close();
+            }
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(result);
+    }
+
     @PostMapping("/direct-migrate-users")
     public ResponseEntity<Map<String, Object>> directMigrateUsers(@RequestBody Map<String, String> oldDbConfig) {
         Map<String, Object> result = new HashMap<>();
@@ -229,5 +488,163 @@ public class FixedMigrationController {
         
         structure.put("columns", columns);
         return structure;
+    }
+    
+    private List<String> getAllTables(Connection conn) throws SQLException {
+        List<String> tables = new ArrayList<>();
+        DatabaseMetaData metaData = conn.getMetaData();
+        ResultSet rs = metaData.getTables(null, "public", "%", new String[]{"TABLE"});
+        
+        while (rs.next()) {
+            String tableName = rs.getString("TABLE_NAME");
+            // Skip system tables
+            if (!tableName.startsWith("pg_") && !tableName.startsWith("information_schema")) {
+                tables.add(tableName);
+            }
+        }
+        
+        return tables;
+    }
+    
+    private void createTableFromSource(Connection sourceConn, Connection targetConn, String tableName) throws SQLException {
+        // Get CREATE TABLE statement from source
+        PreparedStatement stmt = sourceConn.prepareStatement("""
+            SELECT 
+                'CREATE TABLE ' || table_name || ' (' ||
+                string_agg(
+                    column_name || ' ' || 
+                    CASE 
+                        WHEN data_type = 'character varying' THEN 'VARCHAR(' || character_maximum_length || ')'
+                        WHEN data_type = 'character' THEN 'CHAR(' || character_maximum_length || ')'
+                        WHEN data_type = 'numeric' THEN 'NUMERIC(' || numeric_precision || ',' || numeric_scale || ')'
+                        WHEN data_type = 'integer' THEN 'INTEGER'
+                        WHEN data_type = 'bigint' THEN 'BIGINT'
+                        WHEN data_type = 'boolean' THEN 'BOOLEAN'
+                        WHEN data_type = 'timestamp without time zone' THEN 'TIMESTAMP'
+                        WHEN data_type = 'timestamp with time zone' THEN 'TIMESTAMPTZ'
+                        WHEN data_type = 'date' THEN 'DATE'
+                        WHEN data_type = 'text' THEN 'TEXT'
+                        ELSE UPPER(data_type)
+                    END ||
+                    CASE WHEN is_nullable = 'NO' THEN ' NOT NULL' ELSE '' END ||
+                    CASE WHEN column_default IS NOT NULL THEN ' DEFAULT ' || column_default ELSE '' END,
+                    ', '
+                ) || ');' as create_statement
+            FROM information_schema.columns
+            WHERE table_name = ?
+            GROUP BY table_name
+            """);
+        stmt.setString(1, tableName);
+        ResultSet rs = stmt.executeQuery();
+        
+        if (rs.next()) {
+            String createStatement = rs.getString("create_statement");
+            Statement targetStmt = targetConn.createStatement();
+            targetStmt.executeUpdate(createStatement);
+            System.out.println("✅ Created table: " + tableName);
+        }
+    }
+    
+    private int migrateTableData(Connection sourceConn, Connection targetConn, String tableName) throws SQLException {
+        // Get all data from source table
+        Statement sourceStmt = sourceConn.createStatement();
+        ResultSet rs = sourceStmt.executeQuery("SELECT * FROM " + tableName);
+        
+        // Get column metadata
+        ResultSetMetaData metaData = rs.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        
+        // Build INSERT statement with special handling for enum types
+        StringBuilder insertSQL = new StringBuilder("INSERT INTO " + tableName + " (");
+        StringBuilder valuesSQL = new StringBuilder(" VALUES (");
+        
+        for (int i = 1; i <= columnCount; i++) {
+            if (i > 1) {
+                insertSQL.append(", ");
+                valuesSQL.append(", ");
+            }
+            insertSQL.append(metaData.getColumnName(i));
+            
+            // Special handling for enum columns
+            String columnTypeName = metaData.getColumnTypeName(i);
+            if ("user_type".equals(columnTypeName) || "status".equals(columnTypeName)) {
+                valuesSQL.append("CAST(? AS ").append(columnTypeName).append(")");
+            } else {
+                valuesSQL.append("?");
+            }
+        }
+        insertSQL.append(")").append(valuesSQL).append(")");
+        
+        PreparedStatement insertStmt = targetConn.prepareStatement(insertSQL.toString());
+        
+        int rowCount = 0;
+        while (rs.next()) {
+            for (int i = 1; i <= columnCount; i++) {
+                Object value = rs.getObject(i);
+                if (value == null) {
+                    insertStmt.setNull(i, metaData.getColumnType(i));
+                } else {
+                    insertStmt.setObject(i, value);
+                }
+            }
+            insertStmt.executeUpdate();
+            rowCount++;
+        }
+        
+        System.out.println("✅ Migrated " + rowCount + " rows from table: " + tableName);
+        return rowCount;
+    }
+    
+    @PostMapping("/create-enum-types")
+    public ResponseEntity<Map<String, Object>> createEnumTypes(@RequestBody Map<String, String> oldDbConfig) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            String oldHost = oldDbConfig.get("host");
+            String oldPort = oldDbConfig.get("port");
+            String oldDatabase = oldDbConfig.get("database");
+            String oldUsername = oldDbConfig.get("username");
+            String oldPassword = oldDbConfig.get("password");
+            
+            String oldDbUrl = String.format("jdbc:postgresql://%s:%s/%s", oldHost, oldPort, oldDatabase);
+            
+            // Connect to both databases
+            Connection oldConn = DriverManager.getConnection(oldDbUrl, oldUsername, oldPassword);
+            Connection newConn = dataSource.getConnection();
+            
+            try {
+                // Create enum types in target database
+                Statement stmt = newConn.createStatement();
+                
+                // Create user_type enum
+                stmt.executeUpdate("CREATE TYPE user_type AS ENUM ('admin', 'employee', 'client')");
+                System.out.println("✅ Created user_type enum");
+                
+                // Create status enum  
+                stmt.executeUpdate("CREATE TYPE status AS ENUM ('active', 'inactive', 'pending', 'approved', 'rejected')");
+                System.out.println("✅ Created status enum");
+                
+                result.put("status", "success");
+                result.put("message", "Enum types created successfully");
+                
+            } catch (SQLException e) {
+                if (e.getMessage().contains("already exists")) {
+                    result.put("status", "info");
+                    result.put("message", "Enum types already exist");
+                } else {
+                    throw e;
+                }
+            } finally {
+                oldConn.close();
+                newConn.close();
+            }
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("error", e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(result);
     }
 }
