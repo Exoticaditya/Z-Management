@@ -1,56 +1,8 @@
 package com.zplus.adminpanel.controller;
 
 import com.zplus.adminpanel.dto.ContactInquiryDTO;
-import com.zplus.adminpanel.dto.ContactInquiryRequest    /**
-     * Assign inquiry to user
-     */
-    @PutMapping("/{id}/assign")
-    public ResponseEntity<ContactInquiry> assignInquiry(
-            @PathVariable Long id,
-            @RequestParam String assignedTo) {
-        
-        logger.info("Assigning contact inquiry {} to: {}", id, assignedTo);
-        
-        ContactInquiry updatedInquiry = contactInquiryService.assignInquiry(id, assignedTo);
-        if (updatedInquiry != null) {
-            return ResponseEntity.ok(updatedInquiry);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    /**
-     * Assign inquiry to user - public endpoint for testing
-     */
-    @PutMapping("/{id}/assign/public")
-    public ResponseEntity<Map<String, Object>> assignInquiryPublic(
-            @PathVariable Long id,
-            @RequestParam String assignedTo) {
-        
-        logger.info("Public: Assigning contact inquiry {} to: {}", id, assignedTo);
-        
-        try {
-            ContactInquiry updatedInquiry = contactInquiryService.assignInquiry(id, assignedTo);
-            if (updatedInquiry != null) {
-                Map<String, Object> response = new HashMap<>();
-                response.put("success", true);
-                response.put("message", "Contact inquiry assigned successfully");
-                response.put("inquiryId", updatedInquiry.getId());
-                response.put("assignedTo", updatedInquiry.getAssignedTo());
-                response.put("status", updatedInquiry.getStatus().name());
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (Exception e) {
-            logger.error("Error assigning inquiry: {}", e.getMessage(), e);
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("message", "Failed to assign inquiry");
-            error.put("error", e.getMessage());
-            return ResponseEntity.internalServerError().body(error);
-        }
-    }s.adminpanel.entity.ContactInquiry;
+import com.zplus.adminpanel.dto.ContactInquiryRequest;
+import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;
 import com.zplus.adminpanel.entity.Registration;
 import com.zplus.adminpanel.service.ContactInquiryService;
