@@ -151,4 +151,158 @@ public class DatabaseConnectionDebugController {
         
         return ResponseEntity.ok(result);
     }
+
+    @GetMapping("/insert-test-user")
+    public ResponseEntity<Map<String, Object>> insertTestUser() {
+        Map<String, Object> result = new HashMap<>();
+        
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(true);
+            
+            // First, let's check the table structure
+            String checkStructureSQL = """
+                SELECT column_name, data_type, is_nullable, column_default
+                FROM information_schema.columns 
+                WHERE table_name = 'users' 
+                ORDER BY ordinal_position
+                """;
+            
+            Statement stmt = connection.createStatement();
+            ResultSet structureRs = stmt.executeQuery(checkStructureSQL);
+            List<Map<String, Object>> structure = new ArrayList<>();
+            
+            while (structureRs.next()) {
+                Map<String, Object> column = new HashMap<>();
+                column.put("columnName", structureRs.getString("column_name"));
+                column.put("dataType", structureRs.getString("data_type"));
+                column.put("isNullable", structureRs.getString("is_nullable"));
+                column.put("columnDefault", structureRs.getString("column_default"));
+                structure.add(column);
+            }
+            result.put("tableStructure", structure);
+            
+            // Insert user with proper handling of all required fields
+            String insertSQL = """
+                INSERT INTO users (
+                    self_id, username, first_name, last_name, email, 
+                    password_hash, user_type, is_active, status,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT (self_id) DO UPDATE SET
+                    username = EXCLUDED.username,
+                    updated_at = CURRENT_TIMESTAMP
+                """;
+            
+            var preparedStmt = connection.prepareStatement(insertSQL);
+            preparedStmt.setString(1, "admin");
+            preparedStmt.setString(2, "admin");
+            preparedStmt.setString(3, "Admin");
+            preparedStmt.setString(4, "User");
+            preparedStmt.setString(5, "admin@zplus.com");
+            preparedStmt.setString(6, "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.");
+            preparedStmt.setString(7, "ADMIN");
+            preparedStmt.setBoolean(8, true);
+            preparedStmt.setString(9, "ACTIVE");
+            
+            int rowsAffected = preparedStmt.executeUpdate();
+            
+            result.put("status", "success");
+            result.put("message", "Admin user inserted/updated successfully");
+            result.put("rowsAffected", rowsAffected);
+            
+            // Verify the user was inserted
+            String verifySQL = "SELECT self_id, email, first_name, last_name, user_type FROM users WHERE self_id = 'admin'";
+            ResultSet verifyRs = stmt.executeQuery(verifySQL);
+            if (verifyRs.next()) {
+                Map<String, Object> insertedUser = new HashMap<>();
+                insertedUser.put("selfId", verifyRs.getString("self_id"));
+                insertedUser.put("email", verifyRs.getString("email"));
+                insertedUser.put("firstName", verifyRs.getString("first_name"));
+                insertedUser.put("lastName", verifyRs.getString("last_name"));
+                insertedUser.put("userType", verifyRs.getString("user_type"));
+                result.put("insertedUser", insertedUser);
+            }
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("message", e.getMessage());
+            result.put("error", e.getClass().getSimpleName());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/insert-multiple-users")
+    public ResponseEntity<Map<String, Object>> insertMultipleUsers() {
+        Map<String, Object> result = new HashMap<>();
+        
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(true);
+            
+            String insertSQL = """
+                INSERT INTO users (
+                    self_id, username, first_name, last_name, email, 
+                    password_hash, user_type, is_active, status,
+                    created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                ON CONFLICT (self_id) DO UPDATE SET
+                    username = EXCLUDED.username,
+                    updated_at = CURRENT_TIMESTAMP
+                """;
+            
+            var preparedStmt = connection.prepareStatement(insertSQL);
+            
+            // Admin user
+            preparedStmt.setString(1, "admin");
+            preparedStmt.setString(2, "admin");
+            preparedStmt.setString(3, "Admin");
+            preparedStmt.setString(4, "User");
+            preparedStmt.setString(5, "admin@zplus.com");
+            preparedStmt.setString(6, "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.");
+            preparedStmt.setString(7, "ADMIN");
+            preparedStmt.setBoolean(8, true);
+            preparedStmt.setString(9, "ACTIVE");
+            preparedStmt.addBatch();
+            
+            // Employee user  
+            preparedStmt.setString(1, "john");
+            preparedStmt.setString(2, "john.employee");
+            preparedStmt.setString(3, "John");
+            preparedStmt.setString(4, "Employee");
+            preparedStmt.setString(5, "john.employee@zplus.com");
+            preparedStmt.setString(6, "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.");
+            preparedStmt.setString(7, "EMPLOYEE");
+            preparedStmt.setBoolean(8, true);
+            preparedStmt.setString(9, "ACTIVE");
+            preparedStmt.addBatch();
+            
+            // Client user
+            preparedStmt.setString(1, "mike");
+            preparedStmt.setString(2, "mike.client");
+            preparedStmt.setString(3, "Mike");
+            preparedStmt.setString(4, "Client");
+            preparedStmt.setString(5, "mike.client@example.com");
+            preparedStmt.setString(6, "$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.");
+            preparedStmt.setString(7, "CLIENT");
+            preparedStmt.setBoolean(8, true);
+            preparedStmt.setString(9, "ACTIVE");
+            preparedStmt.addBatch();
+            
+            int[] rowsAffected = preparedStmt.executeBatch();
+            
+            result.put("status", "success");
+            result.put("message", "Multiple users inserted successfully");
+            result.put("usersCreated", rowsAffected.length);
+            result.put("rowsAffected", rowsAffected);
+            
+        } catch (Exception e) {
+            result.put("status", "error");
+            result.put("message", e.getMessage());
+            result.put("error", e.getClass().getSimpleName());
+            e.printStackTrace();
+        }
+        
+        return ResponseEntity.ok(result);
+    }
 }
