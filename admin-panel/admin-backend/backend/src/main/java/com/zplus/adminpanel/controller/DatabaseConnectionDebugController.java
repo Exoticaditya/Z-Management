@@ -95,13 +95,13 @@ public class DatabaseConnectionDebugController {
             }
             
             // Check current schema
-            String currentSchemaRs = stmt.executeQuery("SELECT current_schema()");
+            ResultSet currentSchemaRs = stmt.executeQuery("SELECT current_schema()");
             if (currentSchemaRs.next()) {
                 result.put("currentSchema", currentSchemaRs.getString(1));
             }
             
             // Check search path
-            String searchPathRs = stmt.executeQuery("SHOW search_path");
+            ResultSet searchPathRs = stmt.executeQuery("SHOW search_path");
             if (searchPathRs.next()) {
                 result.put("searchPath", searchPathRs.getString(1));
             }
