@@ -42,11 +42,16 @@ public class AuthController {
         try {
             logger.info("Login attempt for user: {}", loginRequest.getSelfId());
             LoginResponse response = authService.authenticate(loginRequest);
+            logger.info("Login successful for user: {}", loginRequest.getSelfId());
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            logger.warn("Login failed for user: {}", loginRequest.getSelfId());
+            logger.warn("Authentication failed for user: {} - {}", loginRequest.getSelfId(), e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new LoginResponse(false, e.getMessage(), null, null, null, null));
+        } catch (Exception e) {
+            logger.error("Unexpected error during login for user: {} - {}", loginRequest.getSelfId(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new LoginResponse(false, "Internal server error during authentication", null, null, null, null));
         }
     }
 

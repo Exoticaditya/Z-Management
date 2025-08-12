@@ -97,6 +97,31 @@ public class RegistrationController {
         return ResponseEntity.ok(registrationService.approveRegistration(id));
     }
 
+    /**
+     * Public endpoint for testing registration approval
+     */
+    @PostMapping("/{id}/approve/public")
+    public ResponseEntity<Map<String, Object>> approveRegistrationPublic(@PathVariable Long id) {
+        try {
+            Registration approved = registrationService.approveRegistration(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Registration approved successfully and user account created");
+            response.put("registrationId", approved.getId());
+            response.put("userSelfId", approved.getSelfId());
+            response.put("email", approved.getEmail());
+            response.put("status", approved.getStatus().name());
+            response.put("approvedAt", approved.getApprovedAt().toString());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Failed to approve registration");
+            error.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
+        }
+    }
+
     @PostMapping("/{id}/reject")
     public ResponseEntity<Registration> rejectRegistration(
             @PathVariable Long id, 

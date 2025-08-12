@@ -115,19 +115,49 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        
         try {
-            const response = await fetch(`${API_BASE_URL}/auth/token`, {
+            const response = await fetch(`${API_BASE_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ 
+                    selfId: username, // Changed from username to selfId to match backend
+                    password: password 
+                })
             });
-            if (!response.ok) throw new Error('Login failed. Please check your credentials.');
-            const token = await response.text();
-            localStorage.setItem('token', token); // Changed from 'jwtToken' to 'token'
-            loginFormContainer.innerHTML = '';
-            loadDashboard();
+            
+            if (!response.ok) {
+                throw new Error('Login failed. Please check your credentials.');
+            }
+            
+            const loginData = await response.json();
+            console.log('[ADMIN DEBUG] Login response:', loginData);
+            
+            if (loginData.success && loginData.token) {
+                // Store authentication data
+                localStorage.setItem('token', loginData.token);
+                localStorage.setItem('zplusUser', JSON.stringify({
+                    selfId: loginData.selfId,
+                    name: loginData.name,
+                    userType: loginData.userType
+                }));
+                
+                console.log('[ADMIN DEBUG] Auth data stored, checking user type:', loginData.userType);
+                
+                // Check if user is admin
+                if (loginData.userType === 'ADMIN' || loginData.userType === 'admin') {
+                    loginFormContainer.innerHTML = '';
+                    loadDashboard();
+                } else {
+                    throw new Error('Access denied. Admin privileges required.');
+                }
+            } else {
+                throw new Error(loginData.message || 'Login failed');
+            }
+            
         } catch (error) {
-            alert(error.message);
+            console.error('[ADMIN DEBUG] Login error:', error);
+            showErrorMessage(error.message);
         }
     }
 
