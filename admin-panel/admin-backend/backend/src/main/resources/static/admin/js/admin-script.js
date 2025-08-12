@@ -161,15 +161,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function loadDashboard() {
-        adminDashboard.style.display = 'grid';
-        setupDashboardEventListeners();
-        // Initialize navigation history and load dashboard content
-        navigationHistory = ['dashboard'];
-        loadContent('dashboard', true);
-        
-        // Start auto-refresh for notifications
-        startAutoRefresh();
+    function setupDashboardEventListeners() {
+        // Set up dashboard-specific event listeners
+        setupEventListeners();
     }
 
     // Auto-refresh functionality for new registrations and contacts
@@ -304,17 +298,31 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ...existing code for dashboard event listeners, content loading, etc...
+    // =================================================================
+    // 3. DASHBOARD SETUP AND EVENT LISTENERS  
+    // =================================================================
+    function loadDashboard() {
+        // Show dashboard main content by default
+        showDashboard();
+        
+        // Set up event listeners after dashboard is loaded
+        setupEventListeners();
+    }
 
-    checkAuth();
-});
+    function setupEventListeners() {
+        // Set up dropdown toggles
+        document.addEventListener('click', function(e) {
+            // Handle dropdown functionality
+            const dropdowns = document.querySelectorAll('.dropdown-menu');
+            dropdowns.forEach(menu => {
+                if (!menu.contains(e.target)) {
                     const button = document.querySelector(`[data-target="${menu.id}"]`);
-                    if(button && !button.contains(link)) {
+                    if(button && !button.contains(e.target)) {
                         menu.classList.remove('show');
                         button.classList.remove('active');
                     }
-                });
-            }
+                }
+            });
         });
 
         backButton.addEventListener('click', () => {
@@ -341,8 +349,66 @@ document.addEventListener('DOMContentLoaded', function() {
         'pending-registrations': createRegistrationLoader('pending'),
         'approved-registrations': createRegistrationLoader('approved'),
         'rejected-registrations': createRegistrationLoader('rejected'),
-        'registration-approval': createRegistrationLoader('all'), // Add this missing one
+        'registration-approval': createRegistrationLoader('all'),
+        'all-contacts': createContactLoader('all'),
+        'pending-contacts': createContactLoader('pending'),
+        'resolved-contacts': createContactLoader('resolved'),
+        'contact-statistics': loadContactStatistics,
+        'games-overview': loadGamesOverview,
+        'tic-tac-toe': loadTicTacToe,
+        'memory-game': loadMemoryGame,
+        'snake-game': loadSnakeGame
     };
+
+    // Main content loader function
+    function loadContent(section, skipHistory = false) {
+        if (!skipHistory) {
+            navigationHistory.push(section);
+        }
+        
+        // Update active navigation state
+        updateActiveNavigation(section);
+        
+        // Update title and show back button if needed
+        contentTitle.textContent = getSectionDisplayName(section);
+        backButton.style.display = navigationHistory.length > 1 ? 'block' : 'none';
+        
+        // Load the section content
+        const loader = sectionLoaders[section] || loadGenericContent;
+        if (typeof loader === 'function') {
+            try {
+                if (loader.constructor.name === 'AsyncFunction') {
+                    loader(contentBody);
+                } else {
+                    loader(contentBody, section);
+                }
+            } catch (error) {
+                console.error(`[ADMIN DEBUG] Error loading section ${section}:`, error);
+                contentBody.innerHTML = `
+                    <div class="error-container">
+                        <h3>Error Loading Content</h3>
+                        <p>Failed to load ${getSectionDisplayName(section)}</p>
+                        <button onclick="loadContent('dashboard')" class="btn btn-primary">Back to Dashboard</button>
+                    </div>
+                `;
+            }
+        } else {
+            loadGenericContent(contentBody, section);
+        }
+    }
+
+    function updateActiveNavigation(section) {
+        // Remove active class from all navigation items
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add active class to current section
+        const activeNav = document.querySelector(`[data-section="${section}"]`);
+        if (activeNav) {
+            activeNav.classList.add('active');
+        }
+    }
     
     async function loadDashboardOverview(container) {
         console.log('[ADMIN DEBUG] Loading dashboard overview...');
