@@ -23,7 +23,7 @@ public class ContactService {
         ContactSubmission submission = new ContactSubmission();
         submission.setName(request.getName());
         submission.setEmail(request.getEmail());
-        submission.setMessage(request.getBusinessChallenge()); // Use businessChallenge as message
+        submission.setMessage(request.getMessage());
         submission.setStatus(ContactStatus.NEW);
         submission.setCreatedAt(LocalDateTime.now());
         

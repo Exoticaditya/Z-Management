@@ -82,9 +82,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Additional query methods needed
     User findTopByOrderByCreatedAtDesc();
     
-    // Get top 5 recent users
-    List<User> findTop5ByOrderByCreatedAtDesc();
-    
     @Query("SELECT u FROM User u WHERE " +
            "(:status IS NULL OR u.status = :status) AND " +
            "(:userType IS NULL OR u.userType = :userType) AND " +

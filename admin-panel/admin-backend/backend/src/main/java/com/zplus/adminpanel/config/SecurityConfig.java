@@ -26,36 +26,19 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
-    private final CustomerUserDetailsService customerUserDetailsService;
+    @Autowired
+    private JwtAuthFilter jwtAuthFilter;
 
-    public SecurityConfig(JwtAuthFilter jwtAuthFilter, CustomerUserDetailsService customerUserDetailsService) {
-        this.jwtAuthFilter = jwtAuthFilter;
-        this.customerUserDetailsService = customerUserDetailsService;
-    }
+    @Autowired
+    private CustomerUserDetailsService customerUserDetailsService;
 
     @Bean
-    @org.springframework.core.annotation.Order(1)
-    public SecurityFilterChain publicSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .securityMatcher("/api/contact/**", "/api/registrations/**", "/api/debug/**", "/api/migration/**", "/api/fix-migration/**")
-            .cors(withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .anonymous(withDefaults()); // Explicitly enable anonymous access
-        return http.build();
-    }
-
-    @Bean
-    @org.springframework.core.annotation.Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .cors(withDefaults())
@@ -66,6 +49,10 @@ public class SecurityConfig {
                 .requestMatchers("/", "/*.html", "/*.ico", "/*.png", "/css/**", "/js/**", "/asset/**").permitAll() // Allow static assets
                 .requestMatchers("/admin/**", "/client/**", "/employee/**", "/index/**").permitAll() // Allow access to all dashboard and login static files
                 .requestMatchers("/employee-dashboard/**", "/client-dashboard/**").permitAll() // Allow access to dashboard folders
+                // Allow contact form submissions and retrievals
+                .requestMatchers(HttpMethod.POST, "/api/contact", "/api/contact/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/contact", "/api/contact/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/registrations").permitAll() // Allow registration submissions
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Allow preflight requests
 
                 // --- PROTECTED ENDPOINTS ---
@@ -111,14 +98,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         source.registerCorsConfiguration("/api/**", configuration);
         return source;
-    }
-
-    /**
-     * Completely bypass Spring Security for contact endpoints
-     */
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring()
-            .requestMatchers("/", "/api/health", "/health/**", "/api/contact", "/api/contact/**", "/api/registrations", "/api/registrations/**", "/api/debug/**", "/api/migration/**", "/api/fix-migration/**", "/public/**");
     }
 }

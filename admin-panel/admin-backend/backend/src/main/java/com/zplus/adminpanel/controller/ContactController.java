@@ -1,6 +1,5 @@
 package com.zplus.adminpanel.controller;
 
-import com.zplus.adminpanel.dto.ContactInquiryDTO;
 import com.zplus.adminpanel.dto.ContactInquiryRequest;
 import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -39,18 +39,6 @@ public class ContactController {
 
     @Autowired
     private RegistrationService registrationService;
-
-    /**
-     * Simple test endpoint to verify public access
-     */
-    @GetMapping("/test")
-    public ResponseEntity<Map<String, Object>> testEndpoint() {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("message", "Contact endpoint is working");
-        response.put("timestamp", LocalDateTime.now());
-        return ResponseEntity.ok(response);
-    }
 
     /**
      * Submit a new contact inquiry
@@ -85,6 +73,7 @@ public class ContactController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+    @PreAuthorize("permitAll()")
 
     /**
      * Get all contact inquiries with pagination
@@ -109,6 +98,7 @@ public class ContactController {
         
         return ResponseEntity.ok(inquiries);
     }
+    @PreAuthorize("permitAll()")
 
     /**
      * Get a specific contact inquiry by ID
@@ -148,17 +138,36 @@ public class ContactController {
      * Assign inquiry to a team member
      */
     @PutMapping("/{id}/assign")
-    public ResponseEntity<ContactInquiry> assignInquiry(
+    public ResponseEntity<Map<String, Object>> assignInquiry(
             @PathVariable Long id,
             @RequestParam String assignedTo) {
         
         logger.info("Assigning contact inquiry {} to: {}", id, assignedTo);
         
-        ContactInquiry updatedInquiry = contactInquiryService.assignInquiry(id, assignedTo);
-        if (updatedInquiry != null) {
-            return ResponseEntity.ok(updatedInquiry);
-        } else {
-            return ResponseEntity.notFound().build();
+        try {
+            ContactInquiry updatedInquiry = contactInquiryService.assignInquiry(id, assignedTo);
+            if (updatedInquiry != null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", true);
+                response.put("message", "Contact inquiry assigned successfully");
+                response.put("inquiryId", updatedInquiry.getId());
+                response.put("assignedTo", updatedInquiry.getAssignedTo());
+                response.put("status", updatedInquiry.getStatus().name());
+                response.put("updatedAt", updatedInquiry.getUpdatedAt().toString());
+                return ResponseEntity.ok(response);
+            } else {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Contact inquiry not found");
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            logger.error("Error assigning inquiry: {}", e.getMessage(), e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", "Failed to assign inquiry");
+            error.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
         }
     }
 
@@ -181,8 +190,12 @@ public class ContactController {
                 response.put("inquiryId", updatedInquiry.getId());
                 response.put("assignedTo", updatedInquiry.getAssignedTo());
                 response.put("status", updatedInquiry.getStatus().name());
+                response.put("updatedAt", updatedInquiry.getUpdatedAt().toString());
                 return ResponseEntity.ok(response);
             } else {
+                Map<String, Object> error = new HashMap<>();
+                error.put("success", false);
+                error.put("message", "Contact inquiry not found");
                 return ResponseEntity.notFound().build();
             }
         } catch (Exception e) {
@@ -394,9 +407,9 @@ public class ContactController {
      * Get all contact inquiries
      */
     @GetMapping("/inquiries")
-    public ResponseEntity<List<ContactInquiryDTO>> getAllContactInquiries() {
-        List<ContactInquiryDTO> dtos = contactInquiryService.getAllContactInquiryDTOs();
-        return ResponseEntity.ok(dtos);
+    public ResponseEntity<List<ContactInquiry>> getAllContactInquiries() {
+        List<ContactInquiry> inquiries = contactInquiryService.getAllContactInquiries();
+        return ResponseEntity.ok(inquiries);
     }
 
     /**

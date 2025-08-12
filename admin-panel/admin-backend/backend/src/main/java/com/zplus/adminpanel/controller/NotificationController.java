@@ -37,23 +37,6 @@ public class NotificationController {
     }
 
     /**
-     * Get admin notifications - public endpoint for testing
-     */
-    @GetMapping("/admin/public")
-    public ResponseEntity<Map<String, Object>> getAdminNotificationsPublic() {
-        try {
-            Map<String, Object> notifications = notificationService.getAdminNotifications();
-            return ResponseEntity.ok(notifications);
-        } catch (Exception e) {
-            Map<String, Object> error = Map.of(
-                "error", e.getMessage(),
-                "message", "Failed to load notifications"
-            );
-            return ResponseEntity.internalServerError().body(error);
-        }
-    }
-
-    /**
      * Get dashboard statistics
      */
     @GetMapping("/dashboard/stats")
@@ -61,23 +44,6 @@ public class NotificationController {
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
         Map<String, Object> stats = notificationService.getDashboardStats();
         return ResponseEntity.ok(stats);
-    }
-
-    /**
-     * Get dashboard statistics - public endpoint for testing
-     */
-    @GetMapping("/dashboard/stats/public")
-    public ResponseEntity<Map<String, Object>> getDashboardStatsPublic() {
-        try {
-            Map<String, Object> stats = notificationService.getDashboardStats();
-            return ResponseEntity.ok(stats);
-        } catch (Exception e) {
-            Map<String, Object> error = Map.of(
-                "error", e.getMessage(),
-                "message", "Failed to load dashboard stats"
-            );
-            return ResponseEntity.internalServerError().body(error);
-        }
     }
 
     /**

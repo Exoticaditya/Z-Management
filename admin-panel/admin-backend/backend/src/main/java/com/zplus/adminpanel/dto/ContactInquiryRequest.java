@@ -41,6 +41,8 @@ public class ContactInquiryRequest {
     @NotBlank(message = "Business challenge is required")
     private String businessChallenge;
 
+    private String message;
+
     @NotBlank(message = "Contact method is required")
     private String contactMethod;
 
@@ -75,6 +77,8 @@ public class ContactInquiryRequest {
     public void setServiceInterests(List<String> serviceInterests) { this.serviceInterests = serviceInterests; }
     public String getBusinessChallenge() { return businessChallenge; }
     public void setBusinessChallenge(String businessChallenge) { this.businessChallenge = businessChallenge; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
     public String getContactMethod() { return contactMethod; }
     public void setContactMethod(String contactMethod) { this.contactMethod = contactMethod; }
     public String getPreferredTime() { return preferredTime; }
@@ -91,7 +95,7 @@ public class ContactInquiryRequest {
         return "ContactInquiryRequest{" +
                 "fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
-                ", businessChallenge='" + businessChallenge + '\'' +
+                ", message='" + message + '\'' +
                 '}';
     }
 }

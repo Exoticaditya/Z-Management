@@ -11,24 +11,23 @@ spring:
     name: zplus-admin-panel
   
   datasource:
-    # Use individual properties to avoid DATABASE_URL parsing issues
-    url: jdbc:postgresql://gondola.proxy.rlwy.net:51397/railway?currentSchema=public
-    username: postgres
-    password: ocHfgptFatbBzfKxgNMmBMGQgZqIyGYc
+    # Railway DATABASE_URL will be converted programmatically
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://gondola.proxy.rlwy.net:51397/zplus_admin_panel}
     driver-class-name: org.postgresql.Driver
+    # Username and password will be extracted from DATABASE_URL
     hikari:
-      maximum-pool-size: 5
-      minimum-idle: 2
-      connection-timeout: 30000
+      maximum-pool-size: 3
+      minimum-idle: 1
+      connection-timeout: 20000
       validation-timeout: 5000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+      idle-timeout: 300000
+      max-lifetime: 600000
       leak-detection-threshold: 60000
   
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
@@ -37,25 +36,8 @@ spring:
           time_zone: UTC
         connection:
           provider_disables_autocommit: false
-        temp:
-          use_jdbc_metadata_defaults: false
     open-in-view: false
-    defer-datasource-initialization: false
-  
-  sql:
-    init:
-      mode: always
-
-# Enable logging for debugging
-logging:
-  level:
-    root: INFO
-    '[com.zplus.adminpanel]': DEBUG
-    '[org.springframework.security]': INFO
-    '[org.hibernate.SQL]': DEBUG
-    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
-    '[org.springframework.jdbc]': DEBUG
-    '[org.springframework.transaction]': DEBUG
+    defer-datasource-initialization: true
 
 # Simplified management endpoints
 management:
@@ -66,3 +48,8 @@ management:
   endpoint:
     health:
       show-details: always
+
+logging:
+  level:
+    root: INFO
+    com.zplus: DEBUG

@@ -468,7 +468,7 @@
                     console.log('Submitting to:', apiUrl);
                     console.log('Form data:', formData);
                     
-                    let response = await fetch(apiUrl, {
+                    const response = await fetch(apiUrl, {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -476,20 +476,6 @@
                         },
                         body: JSON.stringify(formData)
                     });
-                    
-                    // If main endpoint fails, try public endpoint
-                    if (!response.ok && response.status === 403) {
-                        console.log('Main endpoint failed with 403, trying public endpoint...');
-                        const publicUrl = 'https://z-management-production.up.railway.app/public/contact';
-                        response = await fetch(publicUrl, {
-                            method: 'POST',
-                            headers: { 
-                                'Content-Type': 'application/json',
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(formData)
-                        });
-                    }
                     
                     console.log('Response status:', response.status);
                     console.log('Response headers:', response.headers);

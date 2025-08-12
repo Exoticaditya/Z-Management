@@ -1,7 +1,6 @@
 package com.zplus.adminpanel.service;
 
 import com.zplus.adminpanel.dto.ContactInquiryRequest;
-import com.zplus.adminpanel.dto.ContactInquiryDTO;
 import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;
 import com.zplus.adminpanel.repository.ContactInquiryRepository;
@@ -26,30 +25,6 @@ import java.util.NoSuchElementException;
 public class ContactInquiryService {
     
     private static final Logger logger = LoggerFactory.getLogger(ContactInquiryService.class);
-    /**
-     * Get all contact inquiries as DTOs with initialized serviceInterests
-     */
-    public List<ContactInquiryDTO> getAllContactInquiryDTOs() {
-        List<ContactInquiry> inquiries = getAllContactInquiries();
-        return inquiries.stream().map(inquiry -> {
-            ContactInquiryDTO dto = new ContactInquiryDTO();
-            dto.setId(inquiry.getId());
-            dto.setFullName(inquiry.getFullName());
-            dto.setEmail(inquiry.getEmail());
-            dto.setMessage(inquiry.getMessage());
-            dto.setCreatedAt(inquiry.getCreatedAt());
-            dto.setStatus(inquiry.getStatus() != null ? inquiry.getStatus().name() : null);
-            // Initialize serviceInterests safely
-            if (inquiry.getServiceInterests() != null) {
-                dto.setServiceInterests(
-                    new java.util.ArrayList<>(inquiry.getServiceInterests().stream().map(Object::toString).toList())
-                );
-            } else {
-                dto.setServiceInterests(java.util.Collections.emptyList());
-            }
-            return dto;
-        }).toList();
-    }
 
     private final ContactInquiryRepository contactInquiryRepository;
 
@@ -61,8 +36,6 @@ public class ContactInquiryService {
      * Save a new contact inquiry
      */
     public ContactInquiry saveContactInquiry(ContactInquiryRequest request) {
-        logger.info("Starting to save contact inquiry for email: {}", request.getEmail());
-        
         ContactInquiry inquiry = new ContactInquiry();
         inquiry.setFullName(request.getFullName());
         inquiry.setEmail(request.getEmail());
@@ -76,6 +49,7 @@ public class ContactInquiryService {
         inquiry.setProjectTimeline(request.getProjectTimeline());
         inquiry.setServiceInterests(request.getServiceInterests());
         inquiry.setBusinessChallenge(request.getBusinessChallenge());
+        inquiry.setMessage(request.getMessage());
         inquiry.setContactMethod(request.getContactMethod());
         inquiry.setPreferredTime(request.getPreferredTime());
         inquiry.setHearAbout(request.getHowHeard());
@@ -83,24 +57,7 @@ public class ContactInquiryService {
         inquiry.setCreatedAt(LocalDateTime.now());
         inquiry.setUpdatedAt(LocalDateTime.now());
         
-        logger.info("About to save inquiry to database for: {}", inquiry.getEmail());
-        
-        try {
-            ContactInquiry savedInquiry = contactInquiryRepository.save(inquiry);
-            logger.info("Successfully saved contact inquiry with ID: {} for email: {}", 
-                       savedInquiry.getId(), savedInquiry.getEmail());
-            return savedInquiry;
-        } catch (Exception e) {
-            logger.error("Failed to save contact inquiry for email: {}", request.getEmail(), e);
-            throw e;
-        }
-    }
-
-    /**
-     * Count all contact inquiries for testing
-     */
-    public long countAllInquiries() {
-        return contactInquiryRepository.count();
+        return contactInquiryRepository.save(inquiry);
     }
 
     /**
@@ -146,6 +103,11 @@ public class ContactInquiryService {
             inquiry.setAssignedTo(assignedTo);
             inquiry.setStatus(ContactStatus.IN_PROGRESS); // Update status when assigned
             inquiry.setUpdatedAt(LocalDateTime.now());
+            
+            // Force initialization of serviceInterests to avoid lazy loading issues
+            if (inquiry.getServiceInterests() != null) {
+                inquiry.getServiceInterests().size(); // This triggers initialization
+            }
             
             ContactInquiry saved = contactInquiryRepository.save(inquiry);
             logger.info("Successfully assigned inquiry {} to {}", id, assignedTo);
