@@ -240,21 +240,68 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2. API & CORE LOGIC
     // =================================================================
     async function apiFetch(endpoint, options = {}) {
-        const token = localStorage.getItem('token'); // Changed from 'jwtToken' to 'token'
-        const headers = { 'Content-Type': 'application/json', ...options.headers };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+        const token = localStorage.getItem('token');
+        console.log('[ADMIN DEBUG] API request:', {
+            endpoint: endpoint,
+            url: `${API_BASE_URL}${endpoint}`,
+            hasToken: !!token
+        });
+        
+        if (token) {
+            console.log('[ADMIN DEBUG] Token found:', token.substring(0, 20) + '...');
+        } else {
+            console.log('[ADMIN DEBUG] No token found in localStorage');
+        }
+        
+        const headers = { 
+            'Content-Type': 'application/json',
+            ...options.headers 
+        };
+        
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+            console.log('[ADMIN DEBUG] Authorization header added');
+        }
+        
+        console.log('[ADMIN DEBUG] Request headers:', headers);
+        
         const url = `${API_BASE_URL}${endpoint}`;
-        const response = await fetch(url, { ...options, headers });
+        const fetchOptions = { 
+            ...options, 
+            headers 
+        };
+        
+        console.log('[ADMIN DEBUG] Making fetch request to:', url);
+        const response = await fetch(url, fetchOptions);
+        
+        console.log('[ADMIN DEBUG] Response received:', {
+            status: response.status,
+            statusText: response.statusText,
+            headers: Object.fromEntries(response.headers.entries())
+        });
+        
         if (response.status === 401 || response.status === 403) {
+            console.log('[ADMIN DEBUG] Authentication failed, logging out');
             logout();
             throw new Error('Session expired. Please log in again.');
         }
+        
         if (!response.ok) {
             const errorText = await response.text();
+            console.log('[ADMIN DEBUG] Error response:', errorText);
             throw new Error(errorText || `HTTP error! Status: ${response.status}`);
         }
+        
         const contentType = response.headers.get("content-type");
-        return (contentType && contentType.includes("application/json")) ? await response.json() : null;
+        if (contentType && contentType.includes("application/json")) {
+            const result = await response.json();
+            console.log('[ADMIN DEBUG] JSON response:', result);
+            return result;
+        } else {
+            const text = await response.text();
+            console.log('[ADMIN DEBUG] Text response:', text);
+            return text;
+        }
     }
 
     // ...existing code for dashboard event listeners, content loading, etc...
