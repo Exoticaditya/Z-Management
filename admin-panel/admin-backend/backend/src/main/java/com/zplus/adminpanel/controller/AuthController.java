@@ -78,4 +78,28 @@ public class AuthController {
                     .body(ApiResponse.<String>error("Invalid token", null));
         }
     }
+    
+    @GetMapping("/debug/users")
+    public ResponseEntity<ApiResponse<?>> debugUsers() {
+        try {
+            // Get all users for debugging
+            var users = userService.getAllUsers();
+            logger.info("Debug: Found {} users in system", users.size());
+            
+            java.util.Map<String, Object> debugInfo = new java.util.HashMap<>();
+            debugInfo.put("totalUsers", users.size());
+            debugInfo.put("userSelfIds", users.stream()
+                .map(user -> user.getSelfId())
+                .collect(java.util.stream.Collectors.toList()));
+            debugInfo.put("userEmails", users.stream()
+                .map(user -> user.getEmail())
+                .collect(java.util.stream.Collectors.toList()));
+            
+            return ResponseEntity.ok(ApiResponse.success("User debug info", debugInfo));
+        } catch (Exception e) {
+            logger.error("Error in user debug: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.error("Debug failed: " + e.getMessage(), null));
+        }
+    }
 }

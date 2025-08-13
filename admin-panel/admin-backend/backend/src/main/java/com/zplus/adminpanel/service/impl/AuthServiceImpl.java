@@ -31,16 +31,38 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse authenticate(LoginRequest loginRequest) {
-        log.debug("Attempting to authenticate with selfId: {}", loginRequest.getSelfId());
+        log.info("Attempting to authenticate with selfId: {}", loginRequest.getSelfId());
 
-        User user = userRepository.findBySelfId(loginRequest.getSelfId())
-                .orElseThrow(() -> new AuthenticationException("Invalid credentials"));
+        try {
+            Optional<User> userOptional = userRepository.findBySelfId(loginRequest.getSelfId());
+            if (userOptional.isEmpty()) {
+                log.warn("No user found with selfId: {}", loginRequest.getSelfId());
+                throw new AuthenticationException("Invalid credentials");
+            }
+            
+            User user = userOptional.get();
+            log.debug("Found user: {} with userType: {}", user.getSelfId(), user.getUserType());
+            
+            if (user.getPasswordHash() == null) {
+                log.error("User {} has null password hash", user.getSelfId());
+                throw new AuthenticationException("Account configuration error");
+            }
+            
+            log.debug("Checking password for user: {}", user.getSelfId());
+            if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
+                log.warn("Password mismatch for user: {}", user.getSelfId());
+                throw new AuthenticationException("Invalid credentials");
+            }
 
-        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPasswordHash())) {
-            throw new AuthenticationException("Invalid credentials");
+            log.info("Authentication successful for user: {}", user.getSelfId());
+            String token = jwtUtil.generateToken(user);
+            return new LoginResponse(true, "Login successful", token, user.getUserType().toString(), user.getSelfId(), user.getFirstName() + " " + user.getLastName());
+        } catch (AuthenticationException e) {
+            log.warn("Authentication failed: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Unexpected error during authentication for user {}: {}", loginRequest.getSelfId(), e.getMessage(), e);
+            throw new AuthenticationException("Authentication system error");
         }
-
-        String token = jwtUtil.generateToken(user);
-        return new LoginResponse(true, "Login successful", token, user.getUserType().toString(), user.getSelfId(), user.getFirstName() + " " + user.getLastName());
     }
 }

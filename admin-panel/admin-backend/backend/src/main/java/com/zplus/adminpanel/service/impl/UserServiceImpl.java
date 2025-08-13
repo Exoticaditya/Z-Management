@@ -261,4 +261,9 @@ public class UserServiceImpl implements UserService {
         
         return new UserDTO(tempUser);
     }
+    
+    @Override
+    public java.util.List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
 }

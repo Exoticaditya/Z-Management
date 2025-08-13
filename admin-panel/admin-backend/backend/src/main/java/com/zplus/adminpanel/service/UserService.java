@@ -22,4 +22,7 @@ public interface UserService {
     void deleteUser(Long userId);
     UserDTO getLatestRegistration();
     UserDTO getUserById(Long userId);
+    
+    // Debug method to get all users
+    java.util.List<com.zplus.adminpanel.entity.User> getAllUsers();
 }
