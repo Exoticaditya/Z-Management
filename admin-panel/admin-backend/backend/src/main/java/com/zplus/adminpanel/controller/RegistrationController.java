@@ -135,4 +135,41 @@ public class RegistrationController {
             @RequestParam String sharedWith) {
         return ResponseEntity.ok(registrationService.shareRegistration(id, sharedWith));
     }
+    
+    /**
+     * Debug endpoint to check registration status distribution
+     */
+    @GetMapping("/debug/status-count")
+    public ResponseEntity<Map<String, Object>> getRegistrationStatusCount() {
+        try {
+            List<Registration> allRegistrations = registrationService.getAllRegistrations();
+            Map<String, Long> statusCounts = new HashMap<>();
+            
+            for (Registration reg : allRegistrations) {
+                String status = reg.getStatus() != null ? reg.getStatus().toString() : "NULL";
+                statusCounts.put(status, statusCounts.getOrDefault(status, 0L) + 1);
+            }
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("totalRegistrations", allRegistrations.size());
+            result.put("statusCounts", statusCounts);
+            result.put("timestamp", LocalDateTime.now());
+            
+            // Also include detailed list for debugging
+            Map<Long, String> registrationDetails = new HashMap<>();
+            for (Registration reg : allRegistrations) {
+                registrationDetails.put(reg.getId(), reg.getStatus() != null ? reg.getStatus().toString() : "NULL");
+            }
+            result.put("registrationDetails", registrationDetails);
+            
+            logger.info("Registration status debug: {}", result);
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Error in registration status debug: ", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
+        }
+    }
 }
