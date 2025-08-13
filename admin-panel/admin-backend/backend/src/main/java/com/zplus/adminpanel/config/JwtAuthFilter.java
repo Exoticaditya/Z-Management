@@ -37,8 +37,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String method = request.getMethod();
         // Skip auth filter for login and public endpoints
         if (path.equals("/api/auth/login") || 
-            path.startsWith("/api/contact") || 
-            (path.startsWith("/api/registrations") && "POST".equals(method))) {
+            (path.startsWith("/api/contact") && "POST".equals(method)) || // Allow contact form submissions
+            (path.startsWith("/api/registrations") && "POST".equals(method))) { // Allow registration submissions
             filterChain.doFilter(request, response);
             return;
         }

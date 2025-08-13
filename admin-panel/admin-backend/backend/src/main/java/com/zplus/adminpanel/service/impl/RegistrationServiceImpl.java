@@ -55,7 +55,7 @@ public class RegistrationServiceImpl implements RegistrationService {
         // Set required fields with defaults or from request
         registration.setProjectId("DEFAULT_PROJECT"); // You may want to make this configurable
         registration.setSelfId(request.getSelfId());
-        registration.setPassword(request.getPassword()); // Note: This should be hashed in production
+        registration.setPassword(passwordEncoder.encode(request.getPassword())); // Encode password for security
         registration.setReason("New user registration via website");
         registration.setSupervisor("System Administrator");
         
