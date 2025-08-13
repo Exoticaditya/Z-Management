@@ -215,4 +215,41 @@ public class RegistrationController {
             return ResponseEntity.internalServerError().body(error);
         }
     }
+    
+    /**
+     * Public endpoint to fix user accounts for existing approved registrations
+     */
+    @PostMapping("/debug/fix-users")
+    public ResponseEntity<Map<String, Object>> fixExistingUsers() {
+        try {
+            List<Registration> approvedRegistrations = registrationService.getApprovedRegistrations();
+            int fixedUsers = 0;
+            
+            for (Registration reg : approvedRegistrations) {
+                try {
+                    // Re-approve the registration to trigger proper user creation/update
+                    registrationService.approveRegistration(reg.getId());
+                    fixedUsers++;
+                    logger.info("Fixed user account for registration: {}", reg.getSelfId());
+                } catch (Exception e) {
+                    logger.warn("Failed to fix user for registration {}: {}", reg.getSelfId(), e.getMessage());
+                }
+            }
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "User accounts fixed");
+            result.put("totalApprovedRegistrations", approvedRegistrations.size());
+            result.put("fixedUsers", fixedUsers);
+            result.put("timestamp", LocalDateTime.now());
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Error fixing user accounts: ", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
+        }
+    }
 }
