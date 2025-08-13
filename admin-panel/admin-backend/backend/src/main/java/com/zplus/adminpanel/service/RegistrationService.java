@@ -20,4 +20,9 @@ public interface RegistrationService {
     Registration rejectRegistration(Long id, String reason);
     
     Registration shareRegistration(Long id, String sharedWith);
+    
+    // Helper methods for password migration
+    String encodePassword(String plainPassword);
+    
+    Registration updateRegistration(Registration registration);
 }

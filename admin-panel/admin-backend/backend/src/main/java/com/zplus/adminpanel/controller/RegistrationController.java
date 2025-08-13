@@ -172,4 +172,47 @@ public class RegistrationController {
             return ResponseEntity.internalServerError().body(error);
         }
     }
+    
+    /**
+     * Migration endpoint to re-encode existing plain text passwords
+     * This should be called once to fix existing registration passwords
+     */
+    @PostMapping("/debug/migrate-passwords")
+    public ResponseEntity<Map<String, Object>> migratePasswordsToEncoded() {
+        try {
+            List<Registration> allRegistrations = registrationService.getAllRegistrations();
+            int updatedCount = 0;
+            
+            for (Registration reg : allRegistrations) {
+                // Check if password is already encoded (BCrypt hashes start with $2a$, $2b$, or $2y$)
+                String currentPassword = reg.getPassword();
+                if (currentPassword != null && !currentPassword.startsWith("$2")) {
+                    // Password is plain text, needs encoding
+                    String encodedPassword = registrationService.encodePassword(currentPassword);
+                    reg.setPassword(encodedPassword);
+                    registrationService.updateRegistration(reg);
+                    updatedCount++;
+                    logger.info("Updated password for registration ID: {}", reg.getId());
+                }
+            }
+            
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("message", "Password migration completed");
+            result.put("totalRegistrations", allRegistrations.size());
+            result.put("updatedPasswords", updatedCount);
+            result.put("timestamp", LocalDateTime.now());
+            
+            logger.info("Password migration completed: {} out of {} registrations updated", 
+                       updatedCount, allRegistrations.size());
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Error in password migration: ", e);
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("error", e.getMessage());
+            return ResponseEntity.internalServerError().body(error);
+        }
+    }
 }

@@ -192,4 +192,14 @@ public class RegistrationServiceImpl implements RegistrationService {
         registration.setUpdatedAt(LocalDateTime.now());
         return registrationRepository.save(registration);
     }
+    
+    @Override
+    public String encodePassword(String plainPassword) {
+        return passwordEncoder.encode(plainPassword);
+    }
+    
+    @Override
+    public Registration updateRegistration(Registration registration) {
+        return registrationRepository.save(registration);
+    }
 }
