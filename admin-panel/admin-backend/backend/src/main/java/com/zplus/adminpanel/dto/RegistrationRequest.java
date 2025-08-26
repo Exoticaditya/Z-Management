@@ -36,7 +36,7 @@ public class RegistrationRequest {
     @NotBlank(message = "Self ID is required")
     private String selfId;
     
-    @NotBlank(message = "Username is required")
+    // Username is optional - will use selfId if not provided
     private String username;
     
     // This field will be sent from the frontend form (e.g., "CLIENT" or "EMPLOYEE")

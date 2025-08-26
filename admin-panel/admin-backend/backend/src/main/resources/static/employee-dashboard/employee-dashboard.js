@@ -207,31 +207,194 @@ function changePassword() {
 
 // Task management functions
 function updateTaskStatus(taskId, status) {
-    const taskElement = document.querySelector(`[data-task-id="${taskId}"]`);
-    if (taskElement) {
-        const statusBadge = taskElement.querySelector('.status-badge');
-        const progressBar = taskElement.querySelector('.progress');
-        
-        // Update status badge
-        statusBadge.className = `status-badge status-${status.toLowerCase()}`;
-        statusBadge.textContent = status;
-        
-        // Update progress based on status
-        let progress = 0;
-        switch(status.toLowerCase()) {
-            case 'pending': progress = 0; break;
-            case 'in progress': progress = 50; break;
-            case 'review': progress = 80; break;
-            case 'completed': progress = 100; break;
+    fetch(`${API_BASE_URL}/tasks/${taskId}/status?status=${status}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
         }
-        
-        if (progressBar) {
-            progressBar.style.width = `${progress}%`;
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
-        // Show notification
+        return response.json();
+    })
+    .then(data => {
         showNotification(`Task status updated to ${status}`, 'success');
+        // Refresh the current tasks display
+        loadMyTasks();
+        // Update dashboard statistics
+        loadDashboardData();
+    })
+    .catch(error => {
+        console.error('Error updating task status:', error);
+        showNotification('Failed to update task status', 'error');
+    });
+}
+
+function addTaskNote(taskId) {
+    const note = prompt('Enter your note:');
+    if (!note || !note.trim()) return;
+    
+    fetch(`${API_BASE_URL}/tasks/${taskId}/notes?note=${encodeURIComponent(note)}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        showNotification('Note added successfully', 'success');
+        loadMyTasks(); // Refresh tasks
+    })
+    .catch(error => {
+        console.error('Error adding task note:', error);
+        showNotification('Failed to add note', 'error');
+    });
+}
+
+function updateTaskProgress(taskId) {
+    const hours = prompt('Enter actual hours worked:');
+    if (!hours || isNaN(hours)) return;
+    
+    fetch(`${API_BASE_URL}/tasks/${taskId}/progress?actualHours=${parseInt(hours)}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        showNotification('Task progress updated', 'success');
+        loadMyTasks(); // Refresh tasks
+    })
+    .catch(error => {
+        console.error('Error updating task progress:', error);
+        showNotification('Failed to update progress', 'error');
+    });
+}
+
+function viewTaskDetails(taskId) {
+    fetch(`${API_BASE_URL}/tasks/${taskId}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(task => {
+        displayTaskDetailModal(task);
+    })
+    .catch(error => {
+        console.error('Error loading task details:', error);
+        showNotification('Failed to load task details', 'error');
+    });
+}
+
+function displayTaskDetailModal(task) {
+    const modal = document.getElementById('taskDetailModal');
+    const modalBody = document.getElementById('taskDetailBody');
+    
+    if (!modal || !modalBody) {
+        console.error('Task detail modal not found');
+        return;
     }
+    
+    modalBody.innerHTML = `
+        <div class="task-detail-content">
+            <h3>${task.title}</h3>
+            <div class="task-detail-row">
+                <label>Status:</label>
+                <span class="status-badge status-${task.status.toLowerCase().replace('_', '-')}">${task.status}</span>
+            </div>
+            <div class="task-detail-row">
+                <label>Priority:</label>
+                <span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
+            </div>
+            <div class="task-detail-row">
+                <label>Description:</label>
+                <p>${task.description || 'No description provided'}</p>
+            </div>
+            ${task.projectId ? `
+                <div class="task-detail-row">
+                    <label>Project:</label>
+                    <span>${task.projectId}</span>
+                </div>
+            ` : ''}
+            ${task.dueDate ? `
+                <div class="task-detail-row">
+                    <label>Due Date:</label>
+                    <span>${formatDate(task.dueDate)}</span>
+                </div>
+            ` : ''}
+            ${task.estimatedHours ? `
+                <div class="task-detail-row">
+                    <label>Estimated Hours:</label>
+                    <span>${task.estimatedHours}h</span>
+                </div>
+            ` : ''}
+            ${task.actualHours ? `
+                <div class="task-detail-row">
+                    <label>Actual Hours:</label>
+                    <span>${task.actualHours}h</span>
+                </div>
+            ` : ''}
+            ${task.notes ? `
+                <div class="task-detail-row">
+                    <label>Notes:</label>
+                    <div class="task-notes">${task.notes.replace(/\n/g, '<br>')}</div>
+                </div>
+            ` : ''}
+            <div class="task-detail-row">
+                <label>Created:</label>
+                <span>${formatDate(task.createdAt)}</span>
+            </div>
+            <div class="task-detail-row">
+                <label>Last Updated:</label>
+                <span>${formatDate(task.updatedAt)}</span>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'block';
+}
+
+function updateTaskStats(tasks) {
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter(task => task.status === 'COMPLETED').length;
+    const inProgressTasks = tasks.filter(task => task.status === 'IN_PROGRESS').length;
+    const overdueTasks = tasks.filter(task => task.overdue).length;
+    
+    // Update dashboard stats
+    const elements = {
+        totalTasks: document.getElementById('totalTasks'),
+        completedTasks: document.getElementById('completedTasks'),
+        inProgressTasks: document.getElementById('inProgressTasks'),
+        overdueTasks: document.getElementById('overdueTasks')
+    };
+    
+    if (elements.totalTasks) elements.totalTasks.textContent = totalTasks;
+    if (elements.completedTasks) elements.completedTasks.textContent = completedTasks;
+    if (elements.inProgressTasks) elements.inProgressTasks.textContent = inProgressTasks;
+    if (elements.overdueTasks) elements.overdueTasks.textContent = overdueTasks;
 }
 
 function addTask() {
@@ -723,8 +886,8 @@ function loadMyTasks() {
         return;
     }
     
-    // Get assigned contact inquiries for this employee
-    fetch(`${API_BASE_URL}/contact/assigned/${currentEmployee.selfId}`, {
+    // Get tasks assigned to this employee using the new Task API
+    fetch(`${API_BASE_URL}/tasks/my-tasks`, {
         headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'application/json'
@@ -737,25 +900,12 @@ function loadMyTasks() {
             return response.json();
         })
         .then(data => {
-            console.log('Loaded assigned contact inquiries:', data);
-            // Convert contact inquiries to task format
-            const tasks = data.map(inquiry => ({
-                id: inquiry.id,
-                title: `Contact Inquiry #${inquiry.id} - ${inquiry.fullName}`,
-                description: `${inquiry.businessChallenge || inquiry.message || 'Contact from ' + inquiry.organization}`,
-                status: mapContactStatusToTaskStatus(inquiry.status),
-                priority: 'High', // Default priority
-                dueDate: new Date(Date.now() + 7*24*60*60*1000).toISOString(), // 7 days from now
-                progress: getProgressFromStatus(inquiry.status),
-                type: 'Contact Inquiry',
-                email: inquiry.email,
-                phone: inquiry.phone,
-                organization: inquiry.organization
-            }));
-            displayTasks(tasks);
+            console.log('Loaded my tasks:', data);
+            displayTasks(data);
+            updateTaskStats(data);
         })
         .catch(error => {
-            console.error('Error loading assigned contact inquiries:', error);
+            console.error('Error loading my tasks:', error);
             displayTasks([]);
         });
 }
@@ -785,36 +935,100 @@ function getProgressFromStatus(status) {
 // Display tasks
 function displayTasks(tasks) {
     const container = document.querySelector('.task-list');
-    if (!container) return;
+    const tasksContainer = document.getElementById('tasksContainer');
+    const currentTasksContainer = document.getElementById('currentTasks');
     
-    if (tasks.length === 0) {
-        container.innerHTML = '<p>No tasks found.</p>';
+    // Target container for the tasks section
+    const targetContainer = tasksContainer || container || currentTasksContainer;
+    
+    if (!targetContainer) {
+        console.error('No task container found');
         return;
     }
     
-    container.innerHTML = tasks.map(task => `
-        <div class="task-item" data-task-id="${task.id}">
+    if (tasks.length === 0) {
+        targetContainer.innerHTML = '<div class="no-tasks-message"><p>No tasks assigned yet.</p></div>';
+        return;
+    }
+    
+    targetContainer.innerHTML = tasks.map(task => `
+        <div class="task-card" data-task-id="${task.id}">
             <div class="task-header">
                 <h4>${task.title}</h4>
-                <span class="status-badge status-${task.status.toLowerCase()}">${task.status}</span>
-            </div>
-            <p>${task.description}</p>
-            <div class="task-meta">
-                <span class="priority-${task.priority.toLowerCase()}">${task.priority} Priority</span>
-                <span class="due-date">Due: ${new Date(task.dueDate).toLocaleDateString()}</span>
-            </div>
-            <div class="task-progress">
-                <div class="progress-bar">
-                    <div class="progress" style="width: ${task.progress}%"></div>
+                <div class="task-badges">
+                    <span class="status-badge status-${task.status.toLowerCase().replace('_', '-')}">${task.status}</span>
+                    <span class="priority-badge priority-${task.priority.toLowerCase()}">${task.priority}</span>
                 </div>
             </div>
+            <div class="task-content">
+                <p class="task-description">${task.description || 'No description provided'}</p>
+                ${task.projectId ? `<div class="task-project">Project: ${task.projectId}</div>` : ''}
+                <div class="task-meta">
+                    ${task.dueDate ? `<span class="due-date ${isOverdue(task.dueDate) ? 'overdue' : ''}">
+                        <i class="fas fa-calendar"></i> Due: ${formatDate(task.dueDate)}
+                    </span>` : ''}
+                    ${task.estimatedHours ? `<span class="estimated-hours">
+                        <i class="fas fa-clock"></i> Est: ${task.estimatedHours}h
+                    </span>` : ''}
+                    ${task.actualHours ? `<span class="actual-hours">
+                        <i class="fas fa-stopwatch"></i> Actual: ${task.actualHours}h
+                    </span>` : ''}
+                </div>
+                ${task.progressPercentage !== undefined ? `
+                    <div class="task-progress">
+                        <div class="progress-bar">
+                            <div class="progress" style="width: ${task.progressPercentage}%"></div>
+                        </div>
+                        <span class="progress-text">${task.progressPercentage}% Complete</span>
+                    </div>
+                ` : ''}
+            </div>
             <div class="task-actions">
-                <button class="btn-small btn-primary" onclick="updateTaskStatus('${task.id}', 'In Progress')">Start</button>
-                <button class="btn-small btn-secondary" onclick="updateTaskStatus('${task.id}', 'Completed')">Complete</button>
-                <button class="btn-small btn-success" onclick="startTimeTracking('${task.title}')">Track Time</button>
+                ${getTaskActionButtons(task)}
             </div>
         </div>
     `).join('');
+}
+
+// Get action buttons based on task status
+function getTaskActionButtons(task) {
+    const buttons = [];
+    
+    switch(task.status) {
+        case 'TODO':
+            buttons.push(`<button class="btn-small btn-primary" onclick="updateTaskStatus(${task.id}, 'IN_PROGRESS')">Start Task</button>`);
+            break;
+        case 'IN_PROGRESS':
+            buttons.push(`<button class="btn-small btn-success" onclick="updateTaskStatus(${task.id}, 'COMPLETED')">Mark Complete</button>`);
+            buttons.push(`<button class="btn-small btn-warning" onclick="updateTaskStatus(${task.id}, 'IN_REVIEW')">Submit for Review</button>`);
+            break;
+        case 'IN_REVIEW':
+            buttons.push(`<button class="btn-small btn-secondary" onclick="updateTaskStatus(${task.id}, 'IN_PROGRESS')">Continue Work</button>`);
+            break;
+        case 'COMPLETED':
+            buttons.push(`<button class="btn-small btn-info" onclick="viewTaskDetails(${task.id})">View Details</button>`);
+            break;
+    }
+    
+    // Common actions for all tasks
+    buttons.push(`<button class="btn-small btn-outline" onclick="addTaskNote(${task.id})">Add Note</button>`);
+    buttons.push(`<button class="btn-small btn-outline" onclick="updateTaskProgress(${task.id})">Update Progress</button>`);
+    
+    return buttons.join('');
+}
+
+// Helper functions
+function isOverdue(dueDate) {
+    return new Date(dueDate) < new Date();
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined 
+    });
 }
 
 // Load assigned projects
@@ -1426,4 +1640,199 @@ function loadRecentTasks() {
 
 function loadRecentActivity() {
     // Implementation for loading recent activity
+}
+
+// Navigation functions for sidebar menu
+function showDashboard() {
+    showSection('dashboardContent');
+}
+
+function showTasks() {
+    showSection('tasksContent');
+}
+
+function showProjects() {
+    showSection('projectsContent');
+}
+
+function showTimeTracking() {
+    showSection('timeTrackingContent');
+}
+
+function showReports() {
+    showSection('reportsContent');
+}
+
+function showDocuments() {
+    showSection('documentsContent');
+}
+
+function showTeam() {
+    showSection('teamContent');
+}
+
+function showCalendar() {
+    showSection('calendarContent');
+}
+
+// Task filtering functions
+function filterTasks() {
+    const statusFilter = document.getElementById('taskStatusFilter');
+    const priorityFilter = document.getElementById('taskPriorityFilter');
+    const projectFilter = document.getElementById('taskProjectFilter');
+    
+    const status = statusFilter ? statusFilter.value : '';
+    const priority = priorityFilter ? priorityFilter.value : '';
+    const projectId = projectFilter ? projectFilter.value : '';
+    
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (status) params.append('status', status.toUpperCase());
+    if (priority) params.append('priority', priority.toUpperCase());
+    if (projectId) params.append('projectId', projectId);
+    
+    // Fetch filtered tasks
+    fetch(`${API_BASE_URL}/tasks/filter?${params.toString()}`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Filter to only show tasks assigned to current user
+        const myTasks = data.filter(task => task.assignedTo === currentEmployee.selfId);
+        displayTasks(myTasks);
+    })
+    .catch(error => {
+        console.error('Error filtering tasks:', error);
+        loadMyTasks(); // Fallback to showing all my tasks
+    });
+}
+
+// Create/Save task functions
+function createTask() {
+    const modal = document.getElementById('createTaskModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+function saveTask() {
+    const title = document.getElementById('taskTitle');
+    const description = document.getElementById('taskDescription');
+    const project = document.getElementById('taskProject');
+    const priority = document.getElementById('taskPriority');
+    const dueDate = document.getElementById('taskDueDate');
+    
+    if (!title || !title.value.trim()) {
+        showNotification('Task title is required', 'error');
+        return;
+    }
+    
+    const taskData = {
+        title: title.value.trim(),
+        description: description ? description.value : '',
+        projectId: project ? project.value : null,
+        priority: priority ? priority.value.toUpperCase() : 'MEDIUM',
+        dueDate: dueDate ? dueDate.value : null,
+        status: 'TODO'
+    };
+    
+    fetch(`${API_BASE_URL}/tasks`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(taskData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        showNotification('Task created successfully', 'success');
+        closeModal('createTaskModal');
+        loadMyTasks(); // Refresh tasks
+        // Clear form
+        if (title) title.value = '';
+        if (description) description.value = '';
+        if (project) project.value = '';
+        if (priority) priority.value = 'medium';
+        if (dueDate) dueDate.value = '';
+    })
+    .catch(error => {
+        console.error('Error creating task:', error);
+        showNotification('Failed to create task', 'error');
+    });
+}
+
+// Modal functions
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Export tasks function
+function exportTasks() {
+    fetch(`${API_BASE_URL}/tasks/my-tasks`, {
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(tasks => {
+        const csvContent = convertTasksToCSV(tasks);
+        downloadCSV(csvContent, 'my-tasks.csv');
+        showNotification('Tasks exported successfully', 'success');
+    })
+    .catch(error => {
+        console.error('Error exporting tasks:', error);
+        showNotification('Failed to export tasks', 'error');
+    });
+}
+
+function convertTasksToCSV(tasks) {
+    const headers = ['ID', 'Title', 'Description', 'Status', 'Priority', 'Project', 'Due Date', 'Progress', 'Created'];
+    const rows = tasks.map(task => [
+        task.id,
+        `"${task.title}"`,
+        `"${task.description || ''}"`,
+        task.status,
+        task.priority,
+        task.projectId || '',
+        task.dueDate ? formatDate(task.dueDate) : '',
+        `${task.progressPercentage || 0}%`,
+        formatDate(task.createdAt)
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+}
+
+function downloadCSV(content, filename) {
+    const blob = new Blob([content], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
 }

@@ -12,12 +12,15 @@ import com.zplus.adminpanel.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -36,6 +39,17 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public Registration saveRegistration(RegistrationRequest request) {
+        logger.info("Processing registration request for email: {}", request.getEmail());
+        
+        // Check if email already exists
+        if (registrationRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists in registration system");
+        }
+        
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists in user system");
+        }
+        
         Registration registration = new Registration();
         
         // Set basic information
@@ -45,17 +59,18 @@ public class RegistrationServiceImpl implements RegistrationService {
         registration.setPhone(request.getPhone());
         registration.setDepartment(request.getDepartment());
         
-        // Convert string userType to enum
+        // Convert string userType to enum with better error handling
         try {
-            registration.setUserType(com.zplus.adminpanel.entity.UserType.valueOf(request.getUserType().toUpperCase()));
+            registration.setUserType(UserType.valueOf(request.getUserType().toUpperCase()));
         } catch (IllegalArgumentException e) {
-            registration.setUserType(com.zplus.adminpanel.entity.UserType.CLIENT); // Default fallback
+            logger.warn("Invalid userType provided: {}, defaulting to CLIENT", request.getUserType());
+            registration.setUserType(UserType.CLIENT);
         }
         
-        // Set required fields with defaults or from request
-        registration.setProjectId("DEFAULT_PROJECT"); // You may want to make this configurable
+        // Set required fields
+        registration.setProjectId(generateProjectId());
         registration.setSelfId(request.getSelfId());
-        registration.setPassword(passwordEncoder.encode(request.getPassword())); // Encode password for security
+        registration.setPassword(passwordEncoder.encode(request.getPassword()));
         registration.setReason("New user registration via website");
         registration.setSupervisor("System Administrator");
         
@@ -65,12 +80,25 @@ public class RegistrationServiceImpl implements RegistrationService {
         registration.setUpdatedAt(LocalDateTime.now());
         registration.setIsActive(true);
         
-        return registrationRepository.save(registration);
+        Registration savedRegistration = registrationRepository.save(registration);
+        logger.info("Registration created successfully with ID: {}", savedRegistration.getId());
+        
+        return savedRegistration;
+    }
+    
+    private String generateProjectId() {
+        return "ZP-" + LocalDateTime.now().getYear() + "-" + 
+               String.format("%03d", System.currentTimeMillis() % 1000);
     }
     
     @Override
     public List<Registration> getAllRegistrations() {
         return registrationRepository.findAll();
+    }
+    
+    @Override
+    public Page<Registration> getAllRegistrations(Pageable pageable) {
+        return registrationRepository.findAll(pageable);
     }
     
     @Override
@@ -89,9 +117,19 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
+    public Registration getRegistrationById(Long id) {
+        return registrationRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Registration not found with ID: " + id));
+    }
+
+    @Override
+    @Transactional
     public Registration approveRegistration(Long id) {
-        Registration registration = registrationRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+        Registration registration = getRegistrationById(id);
+        
+        if (registration.getStatus() != RegistrationStatus.PENDING) {
+            throw new IllegalStateException("Only pending registrations can be approved");
+        }
             
         logger.info("Approving registration for user: {} with selfId: {}", registration.getEmail(), registration.getSelfId());
         
@@ -120,7 +158,12 @@ public class RegistrationServiceImpl implements RegistrationService {
             logger.info("Successfully created user account for registration: {}", savedRegistration.getSelfId());
         } catch (Exception e) {
             logger.error("Failed to create user account for registration {}: {}", savedRegistration.getSelfId(), e.getMessage(), e);
-            // Don't fail the approval if user creation fails, but log it
+            // Rollback the registration approval if user creation fails
+            registration.setStatus(RegistrationStatus.PENDING);
+            registration.setApprovedAt(null);
+            registration.setApprovedBy(null);
+            registrationRepository.save(registration);
+            throw new RuntimeException("Failed to create user account: " + e.getMessage(), e);
         }
         
         return savedRegistration;
@@ -131,12 +174,14 @@ public class RegistrationServiceImpl implements RegistrationService {
      */
     private void createUserFromRegistration(Registration registration) {
         // Check if user already exists
-        if (userRepository.findBySelfId(registration.getSelfId()).isPresent()) {
+        Optional<User> existingUserBySelfId = userRepository.findBySelfId(registration.getSelfId());
+        if (existingUserBySelfId.isPresent()) {
             logger.warn("User with selfId {} already exists, skipping user creation", registration.getSelfId());
             return;
         }
         
-        if (userRepository.findByEmail(registration.getEmail()).isPresent()) {
+        Optional<User> existingUserByEmail = userRepository.findByEmail(registration.getEmail());
+        if (existingUserByEmail.isPresent()) {
             logger.warn("User with email {} already exists, skipping user creation", registration.getEmail());
             return;
         }
@@ -167,30 +212,40 @@ public class RegistrationServiceImpl implements RegistrationService {
         user.setUpdatedAt(LocalDateTime.now());
         
         // Save the user
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
         
-        logger.info("Created user account for {} with selfId: {}", user.getEmail(), user.getSelfId());
+        logger.info("Created user account for {} with selfId: {}", savedUser.getEmail(), savedUser.getSelfId());
     }
 
     @Override
     public Registration rejectRegistration(Long id, String reason) {
-        Registration registration = registrationRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+        Registration registration = getRegistrationById(id);
+        
+        if (registration.getStatus() != RegistrationStatus.PENDING) {
+            throw new IllegalStateException("Only pending registrations can be rejected");
+        }
             
         registration.setStatus(RegistrationStatus.REJECTED);
         registration.setRejectionReason(reason);
         registration.setUpdatedAt(LocalDateTime.now());
-        return registrationRepository.save(registration);
+        
+        Registration savedRegistration = registrationRepository.save(registration);
+        logger.info("Registration rejected for user: {} with reason: {}", registration.getEmail(), reason);
+        
+        return savedRegistration;
     }
 
     @Override
     public Registration shareRegistration(Long id, String sharedWith) {
-        Registration registration = registrationRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("Registration not found"));
+        Registration registration = getRegistrationById(id);
             
         registration.setSharedWith(sharedWith);
         registration.setUpdatedAt(LocalDateTime.now());
-        return registrationRepository.save(registration);
+        
+        Registration savedRegistration = registrationRepository.save(registration);
+        logger.info("Registration shared for user: {} with: {}", registration.getEmail(), sharedWith);
+        
+        return savedRegistration;
     }
     
     @Override
@@ -200,6 +255,14 @@ public class RegistrationServiceImpl implements RegistrationService {
     
     @Override
     public Registration updateRegistration(Registration registration) {
+        registration.setUpdatedAt(LocalDateTime.now());
         return registrationRepository.save(registration);
+    }
+
+    @Override
+    public void deleteRegistration(Long id) {
+        Registration registration = getRegistrationById(id);
+        registrationRepository.delete(registration);
+        logger.info("Registration deleted for ID: {}", id);
     }
 }
