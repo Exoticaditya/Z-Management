@@ -3,9 +3,7 @@ package com.zplus.adminpanel.controller;
 import com.zplus.adminpanel.dto.ContactInquiryRequest;
 import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;
-import com.zplus.adminpanel.entity.Registration;
 import com.zplus.adminpanel.service.ContactInquiryService;
-import com.zplus.adminpanel.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,9 +33,6 @@ public class ContactController {
 
     @Autowired
     private ContactInquiryService contactInquiryService;
-
-    @Autowired
-    private RegistrationService registrationService;
 
     /**
      * Submit a new contact inquiry
@@ -124,12 +118,13 @@ public class ContactController {
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
     public ResponseEntity<ContactInquiry> updateInquiryStatus(
             @PathVariable Long id,
-            @RequestParam ContactStatus status) {
+            @RequestParam ContactStatus status,
+            @RequestParam(required = false) String notes) {
         
         logger.info("Updating contact inquiry {} status to: {}", id, status);
         
         try {
-            ContactInquiry updatedInquiry = contactInquiryService.updateInquiryStatus(id, status);
+            ContactInquiry updatedInquiry = contactInquiryService.updateInquiryStatus(id, status, notes);
             return ResponseEntity.ok(updatedInquiry);
         } catch (Exception e) {
             logger.error("Error updating contact inquiry status: {}", e.getMessage());
