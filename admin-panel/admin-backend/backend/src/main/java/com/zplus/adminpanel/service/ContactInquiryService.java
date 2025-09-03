@@ -68,6 +68,20 @@ public class ContactInquiryService {
     }
 
     /**
+     * Get all contact inquiries (without pagination)
+     */
+    public List<ContactInquiry> getAllInquiriesSimple() {
+        return contactInquiryRepository.findAll();
+    }
+
+    /**
+     * Get contact inquiries by status (without pagination)
+     */
+    public List<ContactInquiry> getInquiriesByStatus(ContactStatus status) {
+        return contactInquiryRepository.findByStatus(status);
+    }
+
+    /**
      * Get a contact inquiry by ID
      */
     public ContactInquiry getInquiryById(Long id) {
@@ -160,13 +174,6 @@ public class ContactInquiryService {
         inquiry.setSharedBy("admin"); // This should ideally come from the authenticated user
         
         return contactInquiryRepository.save(inquiry);
-    }
-
-    /**
-     * Get inquiries by status
-     */
-    public List<ContactInquiry> getInquiriesByStatus(ContactStatus status) {
-        return contactInquiryRepository.findByStatus(status);
     }
 
     /**

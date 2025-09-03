@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,6 +67,40 @@ public class ContactController {
             response.put("error", e.getMessage());
             
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
+    /**
+     * Get all contact inquiries (simplified endpoint for 'all')
+     */
+    @GetMapping("/inquiries")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<List<ContactInquiry>> getAllInquiriesSimple() {
+        logger.info("Fetching all contact inquiries");
+        
+        try {
+            List<ContactInquiry> inquiries = contactInquiryService.getAllInquiriesSimple();
+            return ResponseEntity.ok(inquiries);
+        } catch (Exception e) {
+            logger.error("Error fetching all contact inquiries: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    /**
+     * Get contact inquiries by status (simplified endpoint)
+     */
+    @GetMapping("/status/{status}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<List<ContactInquiry>> getInquiriesByStatus(@PathVariable ContactStatus status) {
+        logger.info("Fetching contact inquiries with status: {}", status);
+        
+        try {
+            List<ContactInquiry> inquiries = contactInquiryService.getInquiriesByStatus(status);
+            return ResponseEntity.ok(inquiries);
+        } catch (Exception e) {
+            logger.error("Error fetching contact inquiries by status {}: {}", status, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -128,6 +163,43 @@ public class ContactController {
             return ResponseEntity.ok(updatedInquiry);
         } catch (Exception e) {
             logger.error("Error updating contact inquiry status: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Resolve a contact inquiry
+     */
+    @PostMapping("/{id}/resolve")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<ContactInquiry> resolveInquiry(@PathVariable Long id) {
+        logger.info("Resolving contact inquiry with ID: {}", id);
+        
+        try {
+            ContactInquiry resolvedInquiry = contactInquiryService.updateInquiryStatus(id, ContactStatus.RESOLVED, "Inquiry resolved");
+            return ResponseEntity.ok(resolvedInquiry);
+        } catch (Exception e) {
+            logger.error("Error resolving contact inquiry: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Assign a contact inquiry to a team member
+     */
+    @PutMapping("/{id}/assign")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<ContactInquiry> assignInquiry(
+            @PathVariable Long id,
+            @RequestParam String assignedTo) {
+        
+        logger.info("Assigning contact inquiry {} to: {}", id, assignedTo);
+        
+        try {
+            ContactInquiry assignedInquiry = contactInquiryService.assignInquiry(id, assignedTo);
+            return ResponseEntity.ok(assignedInquiry);
+        } catch (Exception e) {
+            logger.error("Error assigning contact inquiry: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
