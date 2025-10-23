@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z+ Management - Business Management</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-content">
+            <div class="menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="logo">
+                <a href="index.html">
+                    <img src="/asset/company_logo5.png" alt="Z+ Management Logo" class="company-logo-img">
+                     <span class="logo-accent">We rise by lifting others</span>
+                </a>
+            </div>
+            <nav class="main-nav" id="mainNav">
+                <ul class="nav-list">
+                    <li><a href="index.html">HOME</a></li>
+                    <li><a href="about.html">ABOUT US</a></li>
+                    <li><a href="policy.html">COMPANY POLICY</a></li>
+                    <li><a href="news.html">NEWS</a></li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">SECTOR <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="polity.html">Polity</a><a href="economic.html">Economic</a><a href="technology.html">Technology</a>
+                            <a href="defence.html">Defence</a><a href="education.html">Education</a><a href="culture.html">Culture</a>
+                            <a href="religious.html">Religious</a><a href="spiritual.html">Spiritual</a><a href="geography.html">Geography</a>
+                            <a href="environmental.html">Environmental</a><a href="agriculture.html">Agriculture</a><a href="health-medicine.html">Health & Medicine</a>
+                            <a href="sports.html">Sports</a><a href="quantum-computing.html">Quantum Computing</a><a href="media.html">Media</a>
+                            <a href="food-cuisine.html">Food & Cuisine</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">CLIENT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="client.html#jdc">JDC</a><a href="client.html">Meera Choudhary</a><a href="client.html#srgc">SRGC</a>
+                            <a href="client.html#other-clients">Other</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">HR <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="hr.html#hr-recruitment">Recruitment</a><a href="hr.html">Training & Development</a>
+                            <a href="hr.html#hr-compliance">Compliance</a><a href="hr.html">Employee Relations</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">RESEARCH <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="research.html#business-search">Business Search</a><a href="research.html#info-gathering">Information Gathering</a>
+                            <a href="research.html#data-gathering">Data Gathering</a><a href="research.html#data-analysis">Data Analysis</a>
+                            <a href="research.html#data-interpretation">Data Interpretation</a><a href="research.html#trend-analysis">Trend Analysis</a>
+                            <a href="research.html#new-business-opportunities">New Business Opportunities</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">FINANCE MANAGEMENT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="finance-management.html#financial-planning">Financial Planning</a><a href="finance-management.html#financial-management">Financial Management</a>
+                            <a href="finance-management.html#asset-management">Asset Management</a><a href="finance-management.html#loss-management">Loss Management</a>
+                            <a href="finance-management.html#fund-raising">Fund Raising</a><a href="finance-management.html#billing">Billing</a>
+                            <a href="finance-management.html#gst-filing">GST Filing</a><a href="finance-management.html#finance-auditing">Finance Auditing</a>
+                            <a href="finance-management.html#corporate-financing">Corporate Financing</a><a href="finance-management.html#investing-capital">Investing of Capital</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">OPERATIONAL MANAGEMENT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="operational-management.html#supply-management">Supply Management</a><a href="operational-management.html#logistic-management">Logistic Management</a>
+                            <a href="operational-management.html#green-manufacturing">Green Manufacturing</a><a href="operational-management.html#waste-management">Waste Management</a>
+                            <a href="operational-management.html#resource-management">Resource Management</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">PRODUCTION MANAGEMENT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="production-management.html#prod-planning">Production Planning</a><a href="production-management.html#prod-control">Production Control</a>
+                            <a href="production-management.html#quality-control">Quality Control</a><a href="production-management.html#inventory-control">Inventory Control</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">MARKETING MANAGEMENT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="marketing-management.html#pricing-product">Pricing of Product</a><a href="marketing-management.html#marketing-position">Marketing Position</a>
+                            <a href="marketing-management.html#branding">Branding</a><a href="marketing-management.html#demand-analysis">Demand Analysis</a>
+                            <a href="marketing-management.html#selling-product">Selling of Product</a><a href="marketing-management.html#advertising-product">Advertising of Product</a>
+                            <a href="marketing-management.html#promotion">Promotion</a><a href="marketing-management.html#public-relations">Public Relations</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">CUSTOMER RELATIONS <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="customer-relations.html#public-feedback">Public Feedback</a><a href="customer-relations.html#product-review">Product Review</a>
+                            <a href="customer-relations.html#product-utilization">Product Utilization</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">RISK MANAGEMENT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="risk-management.html#risk-assessment">Risk Assessment</a><a href="risk-management.html#risk-mitigation">Risk Mitigation</a>
+                            <a href="risk-management.html#risk-prevention">Risk Prevention</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">DATABASE MANAGEMENT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                        <a href="database-management.html#database-management">Database Management</a><a href="database-management.html#network-security">Network Security</a>
+                            <a href="database-management.html#website-development">Website Development</a><a href="database-management.html#hosting">Hosting</a>
+                            <a href="database-management.html#application-development">Application Development</a><a href="database-management.html#cloud-computing">Cloud Computing</a>
+                            <a href="database-management.html#ai-integration">AI Integration</a><a href="database-management.html#machine-learning">Machine Learning</a>
+                        </div>
+                    </li>
+                    <li class="dropdown mobile-only-item">
+                        <a href="#">CONFLICT <i class="fas fa-caret-down"></i></a>
+                        <div class="dropdown-content">
+                            <a href="conflict.html#conflict-resolution">Conflict Resolution</a><a href="conflict.html#dispute-mediation">Dispute Mediation</a>
+                        </div>
+                    </li>
+                    <li class="mobile-only-item"><a href="startup.html">STARTUP</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <div class="search-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <div class="slidebar-toggle" id="slidebarToggle">
+                    <i class="fas fa-bars-staggered"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="slide-sidebar" id="slideSidebar">
+        <div class="sidebar-header">
+            <h3>More Services</h3>
+            <button class="sidebar-close-btn" id="sidebarCloseBtn"><i class="fas fa-times"></i></button>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="sidebar-nav-list">
+                <li class="dropdown">
+                    <a href="#">SECTOR <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="polity.html">Polity</a><a href="economic.html">Economic</a><a href="technology.html">Technology</a>
+                        <a href="defence.html">Defence</a><a href="education.html">Education</a><a href="culture.html">Culture</a>
+                        <a href="religious.html">Religious</a><a href="spiritual.html">Spiritual</a><a href="geography.html">Geography</a>
+                        <a href="environmental.html">Environmental</a><a href="agriculture.html">Agriculture</a><a href="health-medicine.html">Health & Medicine</a>
+                        <a href="sports.html">Sports</a><a href="quantum-computing.html">Quantum Computing</a><a href="media.html">Media</a>
+                        <a href="food-cuisine.html">Food & Cuisine</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">CLIENT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="client.html#jdc">JDC</a><a href="client.html#meera-choudhary">Meera Choudhary</a><a href="client.html#srgc">SRGC</a>
+                        <a href="client.html#other-clients">Other</a>
+                    </div>
+                </li>
+                 <li class="dropdown">
+                    <a href="#">HR <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="hr.html#hr-recruitment">Recruitment</a><a href="hr.html#hr-training">Training & Development</a>
+                        <a href="hr.html#hr-compliance">Compliance</a><a href="hr.html#hr-relations">Employee Relations</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">RESEARCH <i class="fas fa-caret-right"></i></a>a
+                    <div class="sidebar-dropdown-content">
+                        <a href="research.html#business-search">Business Search</a><a href="research.html#info-gathering">Information Gathering</a>
+                        <a href="research.html#data-gathering">Data Gathering</a><a href="research.html#data-analysis">Data Analysis</a>
+                        <a href="research.html#data-interpretation">Data Interpretation</a><a href="research.html#trend-analysis">Trend Analysis</a>
+                        <a href="research.html#new-business-opportunities">New Business Opportunities</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">FINANCE MANAGEMENT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="finance-management.html#financial-planning">Financial Planning</a><a href="finance-management.html#financial-management">Financial Management</a>
+                        <a href="finance-management.html#asset-management">Asset Management</a><a href="finance-management.html#loss-management">Loss Management</a>
+                        <a href="finance-management.html#fund-raising">Fund Raising</a><a href="finance-management.html#billing">Billing</a>
+                        <a href="finance-management.html#gst-filing">GST Filing</a><a href="finance-management.html#finance-auditing">Finance Auditing</a>
+                        <a href="finance-management.html#corporate-financing">Corporate Financing</a><a href="finance-management.html#investing-capital">Investing of Capital</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">OPERATIONAL MANAGEMENT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="operational-management.html#supply-management">Supply Management</a><a href="operational-management.html#logistic-management">Logistic Management</a>
+                        <a href="operational-management.html#green-manufacturing">Green Manufacturing</a><a href="operational-management.html#waste-management">Waste Management</a>
+                        <a href="operational-management.html#resource-management">Resource Management</a>
+                    </div>
+                </li>
+                 <li class="dropdown">
+                    <a href="#">PRODUCTION MANAGEMENT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="production-management.html#prod-planning">Production Planning</a><a href="production-management.html#prod-control">Production Control</a>
+                        <a href="production-management.html#quality-control">Quality Control</a><a href="production-management.html#inventory-control">Inventory Control</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">MARKETING MANAGEMENT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="marketing-management.html#pricing-product">Pricing of Product</a><a href="marketing-management.html#marketing-position">Marketing Position</a>
+                        <a href="marketing-management.html#branding">Branding</a><a href="marketing-management.html#demand-analysis">Demand Analysis</a>
+                        <a href="marketing-management.html#selling-product">Selling of Product</a><a href="marketing-management.html#advertising-product">Advertising of Product</a>
+                        <a href="marketing-management.html#promotion">Promotion</a><a href="marketing-management.html#public-relations">Public Relations</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">CUSTOMER RELATIONS <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="customer-relations.html#public-feedback">Public Feedback</a><a href="customer-relations.html#product-review">Product Review</a>
+                        <a href="customer-relations.html#product-utilization">Product Utilization</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">RISK MANAGEMENT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="risk-management.html#risk-assessment">Risk Assessment</a><a href="risk-management.html#risk-mitigation">Risk Mitigation</a>
+                        <a href="risk-management.html#risk-prevention">Risk Prevention</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">DATABASE MANAGEMENT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="database-management.html#database-management">Database Management</a><a href="database-management.html#network-security">Network Security</a>
+                        <a href="database-management.html#website-development">Website Development</a><a href="database-management.html#hosting">Hosting</a>
+                        <a href="database-management.html#application-development">Application Development</a><a href="database-management.html#cloud-computing">Cloud Computing</a>
+                        <a href="database-management.html#ai-integration">AI Integration</a><a href="database-management.html#machine-learning">Machine Learning</a>
+                    </div>
+                </li>
+                <li class="dropdown">
+                    <a href="#">CONFLICT <i class="fas fa-caret-right"></i></a>
+                    <div class="sidebar-dropdown-content">
+                        <a href="conflict.html#conflict-resolution">Conflict Resolution</a><a href="conflict.html#dispute-mediation">Dispute Mediation</a>
+                    </div>
+                </li>
+                <li><a href="startup.html">STARTUP</a></li>
+            </ul>
+        </nav>
+    </div>
+
+    <main>
+        <section class="hero-section">
+            <div class="container hero-content">
+                <h1>Empowering Businesses for Future Growth</h1>
+                <p>Your trusted partner for comprehensive business management solutions, data-driven insights, and strategic guidance across diverse sectors.</p>
+                <div class="hero-buttons">
+                    <a href="#" class="btn btn-primary">Explore Our Services <i class="fas fa-arrow-right"></i></a>
+                    <a href="#" class="btn btn-secondary">Get a Consultation <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section id="who-we-are" class="section-placeholder container">
+            <h2 class="section-title">ABOUT US</h2>
+            <p>At Z+ Management, we are driven by a passion for innovation and a commitment to helping businesses thrive in a dynamic global landscape. With years of expertise in research, finance, operations, and market strategies, we provide tailored solutions that deliver measurable results.</p>
+            <p>Our team of seasoned professionals combines deep industry knowledge with cutting-edge analytical tools to identify opportunities, mitigate risks, and optimize performance. We believe in building long-term partnerships based on trust, transparency, and a shared vision for success.</p>
+            <a href="#" class="btn btn-outline">Learn More About Us</a>
+        </section>
+
+        <section id="company-policy" class="section-placeholder container grey-bg">
+            <h2 class="section-title">COMPANY POLICY</h2>
+            <p>Our company is committed to upholding the highest standards of integrity, transparency, and ethical conduct in all our operations. We strive to create a fair and respectful environment for our employees, clients, and partners.</p>
+            <p>This policy outlines our commitments to data privacy, equal opportunity, environmental responsibility, and professional conduct. We believe that strong governance and clear policies are fundamental to building trust and ensuring sustainable business practices.</p>
+            <a href="#" class="btn btn-outline">Read Our Full Policy</a>
+        </section>
+
+        <section id="research" class="section-placeholder container">
+            <h2 class="section-title">OUR RESEARCH EXPERTISE</h2>
+            <p>Our research services dive deep into market trends, competitive landscapes, and data-driven insights to inform your strategic decisions.</p>
+            <div class="service-grid">
+                <a href="research.html#business-search" class="service-item">
+                    <i class="fas fa-chart-line service-icon"></i>
+                    <h3>Business Search</h3>
+                    <p>Identify and evaluate potential business opportunities with in-depth market analysis and strategic scouting.</p>
+                </a>
+                <a href="research.html#data-gathering" class="service-item">
+                    <i class="fas fa-database service-icon"></i>
+                    <h3>Data Gathering & Analysis</h3>
+                    <p>Collect, process, and interpret vast datasets to uncover hidden patterns and actionable insights.</p>
+                </a>
+                <a href="research.html#trend-analysis" class="service-item">
+                    <i class="fas fa-lightbulb service-icon"></i>
+                    <h3>Trend Analysis</h3>
+                    <p>Anticipate future market shifts and consumer behaviors to stay ahead of the competition.</p>
+                </a>
+                <a href="research.html#new-business-opportunities" class="service-item">
+                    <i class="fas fa-rocket service-icon"></i>
+                    <h3>New Business Opportunities</h3>
+                    <p>Discover uncharted territories and innovative models for expansion and diversification.</p>
+                </a>
+            </div>
+            <a href="research.html" class="btn btn-outline">View All Research Services</a>
+        </section>
+
+        <section id="finance-management" class="section-placeholder container grey-bg">
+            <h2 class="section-title">FINANCE MANAGEMENT SOLUTIONS</h2>
+            <p>From strategic financial planning to robust asset management, we provide comprehensive solutions to secure and grow your financial standing.</p>
+            <div class="service-grid">
+                <a href="finance-management.html#financial-planning" class="service-item">
+                    <i class="fas fa-money-check-alt service-icon"></i>
+                    <h3>Financial Planning</h3>
+                    <p>Strategic financial goal setting, budgeting, and long-term investment planning for sustainable growth.</p>
+                </a>
+                <a href="finance-management.html#asset-management" class="service-item">
+                    <i class="fas fa-piggy-bank service-icon"></i>
+                    <h3>Asset Management</h3>
+                    <p>Optimize your asset portfolio for maximum returns and minimized risks through expert guidance.</p>
+                </a>
+                <a href="finance-management.html#fund-raising" class="service-item">
+                    <i class="fas fa-hand-holding-usd service-icon"></i>
+                    <h3>Fund Raising</h3>
+                    <p>Navigate the complexities of capital acquisition, connecting you with suitable investors and funding sources.</p>
+                </a>
+                <a href="finance-management.html#gst-filing" class="service-item">
+                    <i class="fas fa-file-invoice-dollar service-icon"></i>
+                    <h3>GST Filing & Auditing</h3>
+                    <p>Ensure compliance and financial integrity with our precise GST filing and comprehensive auditing services.</p>
+                </a>
+            </div>
+            <a href="finance-management.html" class="btn btn-outline">Explore Finance Services</a>
+        </section>
+
+        <section id="operational-management" class="section-placeholder container">
+            <h2 class="section-title">OPERATIONAL MANAGEMENT</h2>
+            <p>Streamline your processes, enhance efficiency, and foster sustainable practices with our expert operational management services.</p>
+            <div class="service-grid">
+                <a href="operational-management.html#supply-management" class="service-item">
+                    <i class="fas fa-truck-moving service-icon"></i>
+                    <h3>Supply & Logistic Management</h3>
+                    <p>Optimize your supply chain and logistics for seamless operations and cost efficiency.</p>
+                </a>
+                <a href="operational-management.html#green-manufacturing" class="service-item">
+                    <i class="fas fa-leaf service-icon"></i>
+                    <h3>Green Manufacturing</h3>
+                    <p>Implement eco-friendly production methods to boost sustainability and corporate responsibility.</p>
+                </a>
+                <a href="operational-management.html#waste-management" class="service-item">
+                    <i class="fas fa-recycle service-icon"></i>
+                    <h3>Waste Management</h3>
+                    <p>Minimize waste and maximize resource utilization through strategic waste reduction initiatives.</p>
+                </a>
+                <a href="operational-management.html#resource-management" class="service-item">
+                    <i class="fas fa-users-cog service-icon"></i>
+                    <h3>Resource Management</h3>
+                    <p>Efficiently allocate and manage human, technological, and material resources for optimal performance.</p>
+                </a>
+            </div>
+            <a href="operational-management.html" class="btn btn-outline">Learn More about Operations</a>
+        </section>
+
+         <section id="production-management" class="section-placeholder container grey-bg">
+            <h2 class="section-title">PRODUCTION MANAGEMENT</h2>
+            <p>Optimize your production processes for maximum efficiency, quality, and timely delivery.</p>
+            <div class="service-grid">
+                <a href="production-management.html#prod-planning" class="service-item">
+                    <i class="fas fa-cogs service-icon"></i>
+                    <h3>Production Planning</h3>
+                    <p>Strategic planning to ensure efficient resource allocation and timely execution of production goals.</p>
+                </a>
+                <a href="production-management.html#prod-control" class="service-item">
+                    <i class="fas fa-chart-pie service-icon"></i>
+                    <h3>Production Control</h3>
+                    <p>Monitoring and controlling production activities to maintain schedules and quality standards.</p>
+                </a>
+                <a href="production-management.html#quality-control" class="service-item">
+                    <i class="fas fa-check-circle service-icon"></i>
+                    <h3>Quality Control</h3>
+                    <p>Implementing rigorous quality checks at every stage to ensure superior product standards.</p>
+                </a>
+                <a href="production-management.html#inventory-control" class="service-item">
+                    <i class="fas fa-boxes service-icon"></i>
+                    <h3>Inventory Control</h3>
+                    <p>Efficient management of raw materials and finished goods to minimize costs and prevent shortages.</p>
+                </a>
+            </div>
+            <a href="production-management.html" class="btn btn-outline">Explore Production Solutions</a>
+        </section>
+
+        <section id="marketing-management" class="section-placeholder container">
+            <h2 class="section-title">MARKETING MANAGEMENT</h2>
+            <p>Elevate your brand, penetrate new markets, and drive sales growth with our comprehensive marketing management strategies.</p>
+            <div class="service-grid">
+                <a href="marketing-management.html#pricing-product" class="service-item">
+                    <i class="fas fa-tags service-icon"></i>
+                    <h3>Pricing & Marketing Position</h3>
+                    <p>Develop competitive pricing models and define your unique market position for maximum impact.</p>
+                </a>
+                <a href="marketing-management.html#branding" class="service-item">
+                    <i class="fas fa-award service-icon"></i>
+                    <h3>Branding & Advertising</h3>
+                    <p>Build a strong brand identity and launch effective advertising campaigns that resonate with your audience.</p>
+                </a>
+                <a href="marketing-management.html#demand-analysis" class="service-item">
+                    <i class="fas fa-chart-bar service-icon"></i>
+                    <h3>Demand Analysis & Selling</h3>
+                    <p>Understand market demand and optimize your sales strategies for consistent revenue growth.</p>
+                </a>
+                <a href="marketing-management.html#promotion" class="service-item">
+                    <i class="fas fa-bullhorn service-icon"></i>
+                    <h3>Promotion & Public Relations</h3>
+                    <p>Craft compelling promotions and manage your public image to foster positive brand perception.</p>
+                </a>
+            </div>
+            <a href="marketing-management.html" class="btn btn-outline">Explore Market Strategies</a>
+        </section>
+
+        <section id="customer-relations" class="section-placeholder container grey-bg">
+            <h2 class="section-title">CUSTOMER RELATIONS</h2>
+            <p>Build lasting relationships with your customers by understanding their needs and enhancing their experience.</p>
+            <div class="service-grid">
+                <a href="customer-relations.html#public-feedback" class="service-item">
+                    <i class="fas fa-comments service-icon"></i>
+                    <h3>Public Feedback & Product Review</h3>
+                    <p>Gather valuable insights from customer feedback and product reviews to drive continuous improvement.</p>
+                </a>
+                <a href="customer-relations.html#product-utilization" class="service-item">
+                    <i class="fas fa-user-check service-icon"></i>
+                    <h3>Product Utilization</h3>
+                    <p>Analyze how customers use your products to identify opportunities for improved engagement and loyalty.</p>
+                </a>
+            </div>
+            <a href="customer-relations.html" class="btn btn-outline">Improve Customer Loyalty</a>
+        </section>
+
+        <section id="database-management" class="section-placeholder container">
+            <h2 class="section-title">DATABASE MANAGEMENT</h2>
+            <p>Harness the power of data with robust database solutions, secure networks, and cutting-edge application development.</p>
+            <div class="service-grid">
+                <a href="database-management.html#database-management" class="service-item">
+                    <i class="fas fa-server service-icon"></i>
+                    <h3>Database Management & Hosting</h3>
+                    <p>Ensure efficient data organization, accessibility, and secure hosting solutions for your digital assets.</p>
+                </a>
+                <a href="database-management.html#network-security" class="service-item">
+                    <i class="fas fa-shield-alt service-icon"></i>
+                    <h3>Network Security</h3>
+                    <p>Protect your critical data and infrastructure from cyber threats with advanced network security measures.</p>
+                </a>
+                <a href="database-management.html#website-development" class="service-item">
+                    <i class="fas fa-code service-icon"></i>
+                    <h3>Website & Application Development</h3>
+                    <p>Build responsive, scalable websites and custom applications tailored to your business needs.</p>
+                </a>
+                <a href="database-management.html#cloud-computing" class="service-item">
+                    <i class="fas fa-cloud service-icon"></i>
+                    <h3>Cloud Computing & AI Integration</h3>
+                    <p>Leverage cloud capabilities and integrate AI/Machine Learning for smarter, more agile operations.</p>
+                </a>
+            </div>
+            <a href="database-management.html" class="btn btn-outline">Discover Tech Solutions</a>
+        </section>
+
+        <section id="risk-management" class="section-placeholder container grey-bg">
+            <h2 class="section-title">RISK MANAGEMENT</h2>
+            <p>Identify, assess, and mitigate potential risks to safeguard your business operations and ensure continuity.</p>
+            <div class="service-grid">
+                <a href="risk-management.html#risk-assessment" class="service-item">
+                    <i class="fas fa-exclamation-triangle service-icon"></i>
+                    <h3>Risk Assessment</h3>
+                    <p>Comprehensive evaluation of potential threats and vulnerabilities facing your organization.</p>
+                </a>
+                <a href="risk-management.html#risk-mitigation" class="service-item">
+                    <i class="fas fa-shield-virus service-icon"></i>
+                    <h3>Risk Mitigation & Prevention</h3>
+                    <p>Develop and implement strategies to reduce the impact of risks and prevent their occurrence.</p>
+                </a>
+            </div>
+            <a href="risk-management.html" class="btn btn-outline">Manage Your Risks</a>
+        </section>
+
+        <section id="conflict" class="section-placeholder container">
+            <h2 class="section-title">CONFLICT RESOLUTION</h2>
+            <p>Navigate complex disputes and foster harmonious environments with our expert conflict resolution and mediation services.</p>
+            <div class="service-grid">
+                <a href="conflict.html#conflict-resolution" class="service-item">
+                    <i class="fas fa-gavel service-icon"></i>
+                    <h3>Conflict Resolution</h3>
+                    <p>Expert guidance and strategies to effectively resolve internal and external conflicts.</p>
+                </a>
+                <a href="conflict.html#dispute-mediation" class="service-item">
+                    <i class="fas fa-handshake service-icon"></i>
+                    <h3>Dispute Mediation</h3>
+                    <p>Neutral third-party mediation services to facilitate amicable resolutions between parties.</p>
+                </a>
+            </div>
+            <a href="conflict.html" class="btn btn-outline">Resolve Conflicts</a>
+        </section>
+
+        <section id="hr" class="section-placeholder container grey-bg">
+            <h2 class="section-title">HUMAN RESOURCES (HR)</h2>
+            <p>Optimize your human capital with comprehensive HR solutions, from talent acquisition to employee development and compliance.</p>
+            <div class="service-grid">
+                <a href="hr.html#hr-recruitment" class="service-item">
+                    <i class="fas fa-users service-icon"></i>
+                    <h3>Recruitment & Onboarding</h3>
+                    <p>Attract top talent and ensure a smooth integration process for new hires.</p>
+                </a>
+                <a href="hr.html#hr-training" class="service-item">
+                    <i class="fas fa-chalkboard-teacher service-icon"></i>
+                    <h3>Training & Development</h3>
+                    <p>Enhance employee skills and career growth through tailored training programs.</p>
+                </a>
+                <a href="hr.html#hr-compliance" class="service-item">
+                    <i class="fas fa-file-contract service-icon"></i>
+                    <h3>HR Compliance</h3>
+                    <p>Ensure adherence to labor laws and regulations, minimizing legal risks.</p>
+                </a>
+                <a href="hr.html#hr-relations" class="service-item">
+                    <i class="fas fa-heart service-icon"></i>
+                    <h3>Employee Relations</h3>
+                    <p>Foster a positive and productive workplace culture through effective employee communication and support.</p>
+                </a>
+            </div>
+            <a href="hr.html" class="btn btn-outline">Explore HR Services</a>
+        </section>
+
+
+        <section id="sector" class="section-placeholder container">
+            <h2 class="section-title">OUR SECTOR EXPERTISE</h2>
+            <p>We provide specialized insights and solutions across a diverse range of sectors, understanding the unique challenges and opportunities within each.</p>
+            <div class="service-grid">
+                <a href="polity.html" class="service-item"><i class="fas fa-gavel service-icon-small"></i><h3>Polity</h3></a>
+                <a href="economic.html" class="service-item"><i class="fas fa-coins service-icon-small"></i><h3>Economic</h3></a>
+                <a href="technology.html" class="service-item"><i class="fas fa-microchip service-icon-small"></i><h3>Technology</h3></a>
+                <a href="defence.html" class="service-item"><i class="fas fa-fighter-jet service-icon-small"></i><h3>Defence</h3></a>
+                <a href="education.html" class="service-item"><i class="fas fa-graduation-cap service-icon-small"></i><h3>Education</h3></a>
+                <a href="culture.html" class="service-item"><i class="fas fa-theater-masks service-icon-small"></i><h3>Culture</h3></a>
+                <a href="religious.html" class="service-item"><i class="fas fa-church service-icon-small"></i><h3>Religious</h3></a>
+                <a href="spiritual.html" class="service-item"><i class="fas fa-hands-praying service-icon-small"></i><h3>Spiritual</h3></a>
+                <a href="geography.html" class="service-item"><i class="fas fa-globe-americas service-icon-small"></i><h3>Geography</h3></a>
+                <a href="environmental.html" class="service-item"><i class="fas fa-tree service-icon-small"></i><h3>Environmental</h3></a>
+                <a href="agriculture.html" class="service-item"><i class="fas fa-seedling service-icon-small"></i><h3>Agriculture</h3></a>
+                <a href="health-medicine.html" class="service-item"><i class="fas fa-user-nurse service-icon-small"></i><h3>Health & Medicine</h3></a>
+                <a href="sports.html" class="service-item"><i class="fas fa-futbol service-icon-small"></i><h3>Sports</h3></a>
+                <a href="quantum-computing.html" class="service-item"><i class="fas fa-atom service-icon-small"></i><h3>Quantum Computing</h3></a>
+                <a href="media.html" class="service-item"><i class="fas fa-newspaper service-icon-small"></i><h3>Media</h3></a>
+                <a href="food-cuisine.html" class="service-item"><i class="fas fa-utensils service-icon-small"></i><h3>Food & Cuisine</h3></a>
+            </div>
+            <a href="#" class="btn btn-outline">View All Sectors</a>
+        </section>
+
+        <section id="client" class="section-placeholder container grey-bg">
+            <h2 class="section-title">OUR VALUED CLIENTS</h2>
+            <p>We are proud to partner with a diverse range of clients, helping them achieve their strategic objectives and fostering mutual growth.</p>
+            <div class="client-logo-grid">
+                <div class="client-logo-item">
+                    <img src="https://placehold.co/150x80/4CAF50/ffffff?text=JDC+Logo" alt="JDC Logo">
+                    <h4>JDC</h4>
+                </div>
+                <div class="client-logo-item">
+                    <img src="https://placehold.co/150x80/8BC34A/ffffff?text=Meera+Choudhary+Logo" alt="Meera Choudhary Logo">
+                    <h4>Meera Choudhary</h4>
+                </div>
+                <div class="client-logo-item">
+                    <img src="https://placehold.co/150x80/4CAF50/ffffff?text=SRGC+Logo" alt="SRGC Logo">
+                    <h4>SRGC</h4>
+                </div>
+                <div class="client-logo-item">
+                    <img src="https://placehold.co/150x80/8BC34A/ffffff?text=Partner+Co+Logo" alt="Partner Co Logo">
+                    <h4>Partner Co</h4>
+                </div>
+            </div>
+            <a href="#" class="btn btn-outline">See More Client Stories</a>
+        </section>
+
+        <section id="startup" class="section-placeholder container">
+            <h2 class="section-title">INNOVATIVE STARTUPS WE SUPPORT</h2>
+            <p>We actively support and collaborate with groundbreaking startups, fostering innovation and contributing to the next wave of industry leaders.</p>
+            <div class="startup-logo-grid">
+                <div class="startup-logo-item">
+                    <img src="https://placehold.co/150x80/4CAF50/ffffff?text=360+News" alt="360 News Logo">
+                    <h4>360 News</h4>
+                </div>
+                <div class="startup-logo-item">
+                    <img src="https://placehold.co/150x80/8BC34A/ffffff?text=360+Defence+Edu" alt="360 Defence Education Logo">
+                    <h4>360 Defence Education</h4>
+                </div>
+                <div class="startup-logo-item">
+                    <img src="https://placehold.co/150x80/4CAF50/ffffff?text=Z++Security" alt="Z++ Security Logo">
+                    <h4>Z++ Security</h4>
+                </div>
+                <div class="startup-logo-item">
+                    <img src="https://placehold.co/150x80/8BC34A/ffffff?text=Aradhya+Yoga" alt="Aradhya Yoga Logo">
+                    <h4>Aradhya Yoga</h4>
+                </div>
+            </div>
+            <a href="#" class="btn btn-outline">Discover More Startups</a>
+        </section>
+
+        <section id="news" class="section-placeholder container grey-bg">
+            <h2 class="section-title">LATEST NEWS & INSIGHTS</h2>
+            <p>Stay informed with our latest articles, market analyses, and thought leadership on business management and industry trends.</p>
+            <div class="news-grid">
+                <div class="news-item">
+                    <div class="news-image-wrapper">
+                        <img src="https://via.placeholder.com/400x250/4CAF50/ffffff?text=AI+in+Business" alt="AI in Business">
+                    </div>
+                    <div class="news-content-area">
+                        <h3>The Rise of AI in Modern Business Management</h3>
+                        <p class="news-date"><i class="fas fa-calendar-alt"></i> June 20, 2025</p>
+                        <p>Discover how artificial intelligence is revolutionizing operational efficiency and decision-making...</p>
+                        <a href="#" class="read-more">Read More <i class="fas fa-long-arrow-alt-right"></i></a>
+                    </div>
+                </div>
+                <div class="news-item">
+                    <div class="news-image-wrapper">
+                        <img src="https://via.placeholder.com/400x250/8BC34A/ffffff?text=Market+Trends" alt="Market Trends">
+                    </div>
+                    <div class="news-content-area">
+                        <h3>Navigating Volatile Market Trends in Q3</h3>
+                        <p class="news-date"><i class="fas fa-calendar-alt"></i> June 18, 2025</p>
+                        <p>Expert analysis on emerging market patterns and strategies for agile adaptation...</p>
+                        <a href="#" class="read-more">Read More <i class="fas fa-long-arrow-alt-right"></i></a>
+                    </div>
+                </div>
+                <div class="news-item">
+                    <div class="news-image-wrapper">
+                        <img src="https://via.placeholder.com/400x250/4CAF50/ffffff?text=Sustainable+Practices" alt="Sustainable Practices">
+                    </div>
+                    <div class="news-content-area">
+                        <h3>Embracing Sustainability: A Business Imperative</h3>
+                        <p class="news-date"><i class="fas fa-calendar-alt"></i> June 15, 2025</p>
+                        <p>How integrating green practices can boost your brand and bottom line...</p>
+                        <a href="#" class="read-more">Read More <i class="fas fa-long-arrow-alt-right"></i></a>
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="btn btn-primary-outline">View All News & Insights</a>
+        </section>
+    </main>
+
+    <footer class="main-footer">
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>About Us</h3>
+                <p>Z+ Management is a leading consultancy dedicated to empowering businesses with strategic insights and innovative solutions for sustainable growth.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Services</h3>
+                <ul>
+                    <li><a href="#research">Research & Analysis</a></li>
+                    <li><a href="#finance-management">Finance Management</a></li>
+                    <li><a href="#operational-management">Operational Efficiency</a></li>
+                    <li><a href="#marketing-management">Marketing Strategy</a></li>
+                    <li><a href="#database-management">Tech Solutions</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#who-we-are">About Us</a></li>
+                    <li><a href="#company-policy">Company Policy</a></li>
+                    <li><a href="#news">Latest News</a></li>
+                    <li><a href="#client">Our Clients</a></li>
+                    <li><a href="#startup">Our Startups</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h3>Contact Us</h3>
+                <p><i class="fas fa-map-marker-alt"></i> 123 Business Lane, City, State, Country</p>
+                <p><i class="fas fa-envelope"></i> zpluse47@gmail.com</p>
+                <p><i class="fas fa-phone-alt"></i> +91 7895155847</p>
+                <p><i class="fab fa-whatsapp"></i> WhatsApp: +91 7895155847</p>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/zpluseindia" target="_blank" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://twitter.com/Zpluseindia" target="_blank" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="https://www.linkedin.com/company/zplusemanagement" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="https://www.instagram.com/zpluseindia?igsh=MTllejQ2NnkzbmZvaA==" target="_blank" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.snapchat.com/add/zpluseindia" target="_blank" aria-label="Snapchat"><i class="fab fa-snapchat"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Z+ Management. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button id="registrationBtn" style="position:fixed;top:100px;right:32px;z-index:1200;background:#fff;color:#388E3C;font-family:'Montserrat',sans-serif;font-weight:700;padding:14px 32px;border:2px solid #4CAF50;border-radius:30px;box-shadow:0 2px 12px rgba(44,62,80,0.13);font-size:1.1rem;cursor:pointer;transition:background 0.2s,box-shadow 0.2s,border-color 0.2s;letter-spacing:0.5px;display:flex;align-items:center;gap:10px;"><span style="background:linear-gradient(90deg,#4CAF50 0%,#388E3C 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;"> <i class="fas fa-user-plus"></i> Registration </span></button>
+    <div id="contactModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(44,62,80,0.18);z-index:2000;align-items:center;justify-content:center;">
+      <div id="modalContent" style="background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(44,62,80,0.18);max-width:760px;width:96vw;max-height:92vh;overflow:auto;position:relative;animation:modalIn 0.4s cubic-bezier(.77,0,.18,1);">
+        <button id="closeModalBtn" style="position:absolute;top:18px;right:18px;background:rgba(76,175,80,0.12);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.3rem;color:#388E3C;z-index:10;"><i class="fas fa-times"></i></button>
+        <iframe src="contact.html" title="Registration Form" style="border:none;width:100%;min-height:700px;max-height:90vh;overflow:auto;border-radius:18px;"></iframe>
+      </div>
+    </div>
+    <style>
+      #registrationBtn:hover {
+        background:#f1f8e9;
+        border-color:#388E3C;
+        box-shadow:0 4px 20px rgba(56,142,60,0.13);
+      }
+      @media (max-width:600px){
+        #registrationBtn{right:8px;top:90px;padding:10px 18px;font-size:1rem;}
+        #modalContent{max-width:99vw;min-width:0;}
+      }
+      @keyframes modalIn{from{transform:translateY(60px) scale(0.98);opacity:0;}to{transform:translateY(0) scale(1);opacity:1;}}
+    </style>
+    <script>
+      // Registration modal logic
+      const regBtn = document.getElementById('registrationBtn');
+      const contactModal = document.getElementById('contactModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      regBtn.addEventListener('click',()=>{
+        contactModal.style.display='flex';
+        document.body.style.overflow='hidden';
+      });
+      closeModalBtn.addEventListener('click',()=>{
+        contactModal.style.display='none';
+        document.body.style.overflow='auto';
+      });
+      contactModal.addEventListener('click',function(e){
+        if(e.target===contactModal){
+          contactModal.style.display='none';
+          document.body.style.overflow='auto';
+        }
+      });
+
+      // Mobile menu toggle
+      const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+      const mainNav = document.getElementById('mainNav');
+      
+      mobileMenuToggle.addEventListener('click', () => {
+        mainNav.classList.toggle('active');
+      });
+
+      // Sidebar logic
+      const slidebarToggle = document.getElementById('slidebarToggle');
+      const slideSidebar = document.getElementById('slideSidebar');
+      const sidebarCloseBtn = document.getElementById('sidebarCloseBtn');
+      slidebarToggle.addEventListener('click', () => {
+        slideSidebar.classList.toggle('active');
+      });
+      sidebarCloseBtn.addEventListener('click', () => {
+        slideSidebar.classList.remove('active');
+      });
+      // Close sidebar if clicking outside
+      document.addEventListener('click', (event) => {
+        if (!slideSidebar.contains(event.target) && !slidebarToggle.contains(event.target)) {
+          slideSidebar.classList.remove('active');
+        }
+      });
+      
+      // Sidebar dropdown toggles
+      document.querySelectorAll('.sidebar-nav .dropdown > a').forEach(dropdownToggle => {
+        dropdownToggle.addEventListener('click', function(event) {
+          event.preventDefault();
+          const dropdownContent = this.nextElementSibling;
+          // Close other open dropdowns
+          document.querySelectorAll('.sidebar-nav .sidebar-dropdown-content').forEach(content => {
+            if (content !== dropdownContent) {
+              content.style.display = 'none';
+            }
+          });
+          // Toggle current dropdown
+          dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
+        });
+      });
+
+      // Main navigation dropdown functionality for mobile
+      document.querySelectorAll('.main-nav .dropdown > a').forEach(dropdownToggle => {
+        dropdownToggle.addEventListener('click', function(event) {
+          // Only prevent default on mobile to allow dropdown toggle
+          if (window.innerWidth <= 900) {
+            event.preventDefault();
+            const dropdownContent = this.nextElementSibling;
+            const caret = this.querySelector('.fa-caret-down');
+            
+            // Close other open dropdowns
+            document.querySelectorAll('.main-nav .dropdown-content').forEach(content => {
+              if (content !== dropdownContent) {
+                content.style.display = 'none';
+              }
+            });
+            
+            // Toggle current dropdown
+            if (dropdownContent.style.display === 'block') {
+              dropdownContent.style.display = 'none';
+              if (caret) caret.classList.remove('rotate-up');
+            } else {
+              dropdownContent.style.display = 'block';
+              if (caret) caret.classList.add('rotate-up');
+            }
+          }
+        });
+      });
+
+      // Close mobile menu when clicking outside
+      document.addEventListener('click', (event) => {
+        if (window.innerWidth <= 900) {
+          if (!mainNav.contains(event.target) && !mobileMenuToggle.contains(event.target)) {
+            mainNav.classList.remove('active');
+          }
+        }
+      });
+
+      // Prevent any auto-redirects from admin panel scripts
+      // Clear any existing user sessions that might cause redirects
+      if (typeof localStorage !== 'undefined') {
+        // Only clear admin panel related sessions, not contact form data
+        const keysToRemove = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('zplusUser') || key.includes('admin') || key.includes('dashboard'))) {
+            keysToRemove.push(key);
+          }
+        }
+        keysToRemove.forEach(key => localStorage.removeItem(key));
+      }
+    </script>
+</body>
+</html>

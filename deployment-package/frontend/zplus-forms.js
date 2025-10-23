@@ -168,7 +168,7 @@ class ContactFormHandler {
             businessChallenge: formData.get('businessChallenge'),
             contactMethod: formData.get('contactMethod'),
             preferredTime: formData.get('preferredTime') || '',
-            howHeard: formData.get('hearAbout') || ''
+            hearAbout: formData.get('hearAbout') || ''
         };
 
         console.log('Submitting contact inquiry:', contactData);

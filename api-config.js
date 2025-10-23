@@ -18,7 +18,16 @@ const API_CONFIG = {
     },
     
     // Debug mode (set to false for production)
-    DEBUG: false
+    DEBUG: false,
+    
+    // Helper methods
+    getApiUrl: function() {
+        return this.BASE_URL;
+    },
+    
+    getBaseUrl: function() {
+        return this.BASE_URL;
+    }
 };
 
 // Global API base URL for backward compatibility

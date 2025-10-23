@@ -1,0 +1,44 @@
+﻿Z+ Management - Deployment Instructions
+======================================
+
+CHANGED FILES IN THIS PACKAGE:
+
+Frontend Files (Upload to public_html):
+- index.html (updated footer with social media links)
+- contact.html (enhanced form handling) 
+- zplus-forms.js (improved form validation)
+
+Backend Files (Upload to backend directory):
+- ContactController.java (added email notifications)
+- EmailService.java (added contact inquiry notifications)
+
+DEPLOYMENT STEPS:
+
+1. Frontend Deployment:
+   - Access cPanel File Manager
+   - Navigate to public_html
+   - Upload files from frontend folder
+   - Replace existing files
+
+2. Backend Deployment:
+   - Navigate to /home/omo4uo8j0tcl/repos/z-management
+   - Upload files from backend folder maintaining directory structure
+   - Run: mvn clean package
+   - Restart backend service
+
+3. Verification:
+   - Test contact form
+   - Verify emails to zpluse47@gmail.com
+   - Check social media links
+
+SOCIAL MEDIA LINKS ADDED:
+- Instagram: @zpluseindia
+- Facebook: Z pluse India  
+- LinkedIn: zplusemanagement
+- Twitter: @Zpluseindia
+- Snapchat: zpluseindia
+- WhatsApp: Click-to-chat
+
+UPDATED CONTACT INFO:
+- Email: zpluse47@gmail.com
+- Phone: +91 7895155847
