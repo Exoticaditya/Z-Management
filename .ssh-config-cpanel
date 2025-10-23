@@ -1,0 +1,6 @@
+Host cpanel-zplus
+    HostName server123.hostgator.com
+    User omo4uo8j0tcl
+    IdentityFile ~/.ssh/id_ed25519_cpanel
+    IdentitiesOnly yes
+    StrictHostKeyChecking no

@@ -257,4 +257,79 @@ public class EmailService {
             throw new RuntimeException("Failed to send test email", ex);
         }
     }
+
+    /**
+     * Send contact inquiry notification email to admin
+     */
+    public void sendContactInquiryNotification(com.zplus.adminpanel.entity.ContactInquiry inquiry) {
+        try {
+            logger.info("Sending contact inquiry notification for inquiry ID: {}", inquiry.getId());
+
+            SimpleMailMessage mailMessage = new SimpleMailMessage();
+            mailMessage.setFrom(fromEmail);
+            mailMessage.setTo("zpluse47@gmail.com"); // Send to Z+ email
+            mailMessage.setSubject("New Contact Inquiry - " + inquiry.getFullName());
+            
+            String serviceInterests = "";
+            if (inquiry.getServiceInterests() != null && !inquiry.getServiceInterests().isEmpty()) {
+                serviceInterests = String.join(", ", inquiry.getServiceInterests());
+            }
+            
+            String message = String.format(
+                "New Contact Inquiry Received!\n\n" +
+                "CONTACT DETAILS:\n" +
+                "Name: %s\n" +
+                "Organization: %s\n" +
+                "Email: %s\n" +
+                "Phone: %s\n\n" +
+                "LOCATION:\n" +
+                "Address: %s\n" +
+                "City: %s\n" +
+                "State: %s\n" +
+                "Country: %s\n\n" +
+                "BUSINESS DETAILS:\n" +
+                "Business Duration: %s\n" +
+                "Project Timeline: %s\n" +
+                "Service Interests: %s\n\n" +
+                "BUSINESS CHALLENGE/GOAL:\n" +
+                "%s\n\n" +
+                "CONTACT PREFERENCES:\n" +
+                "Preferred Method: %s\n" +
+                "Preferred Time: %s\n" +
+                "How They Heard About Us: %s\n\n" +
+                "Inquiry ID: %d\n" +
+                "Received: %s\n\n" +
+                "---\n" +
+                "Z+ Management System\n" +
+                "Please respond to this inquiry promptly.",
+                
+                inquiry.getFullName(),
+                inquiry.getOrganization() != null ? inquiry.getOrganization() : "Not specified",
+                inquiry.getEmail(),
+                inquiry.getPhone(),
+                inquiry.getAddress() != null ? inquiry.getAddress() : "Not provided",
+                inquiry.getCity(),
+                inquiry.getState(),
+                inquiry.getCountry(),
+                inquiry.getBusinessDuration() != null ? inquiry.getBusinessDuration() : "Not specified",
+                inquiry.getProjectTimeline() != null ? inquiry.getProjectTimeline() : "Not specified",
+                serviceInterests.isEmpty() ? "Not specified" : serviceInterests,
+                inquiry.getBusinessChallenge(),
+                inquiry.getContactMethod(),
+                inquiry.getPreferredTime() != null ? inquiry.getPreferredTime() : "Anytime",
+                inquiry.getHearAbout() != null ? inquiry.getHearAbout() : "Not specified",
+                inquiry.getId(),
+                inquiry.getCreatedAt() != null ? inquiry.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")) : "Unknown"
+            );
+
+            mailMessage.setText(message);
+            mailSender.send(mailMessage);
+            
+            logger.info("Contact inquiry notification sent successfully for inquiry ID: {}", inquiry.getId());
+
+        } catch (MailException ex) {
+            logger.error("Failed to send contact inquiry notification for inquiry ID: {}", inquiry.getId(), ex);
+            throw new RuntimeException("Failed to send contact inquiry notification", ex);
+        }
+    }
 }

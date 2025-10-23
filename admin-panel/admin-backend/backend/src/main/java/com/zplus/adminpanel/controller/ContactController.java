@@ -4,6 +4,7 @@ import com.zplus.adminpanel.dto.ContactInquiryRequest;
 import com.zplus.adminpanel.entity.ContactInquiry;
 import com.zplus.adminpanel.entity.ContactStatus;
 import com.zplus.adminpanel.service.ContactInquiryService;
+import com.zplus.adminpanel.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class ContactController {
 
     @Autowired
     private ContactInquiryService contactInquiryService;
+    
+    @Autowired
+    private EmailService emailService;
 
     /**
      * Submit a new contact inquiry
@@ -47,6 +51,15 @@ public class ContactController {
         
         try {
             ContactInquiry inquiry = contactInquiryService.saveContactInquiry(request);
+            
+            // Send email notification
+            try {
+                emailService.sendContactInquiryNotification(inquiry);
+                logger.info("Contact inquiry email sent successfully for inquiry ID: {}", inquiry.getId());
+            } catch (Exception emailError) {
+                logger.error("Failed to send contact inquiry email: {}", emailError.getMessage());
+                // Don't fail the whole request if email fails
+            }
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
