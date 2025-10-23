@@ -157,7 +157,7 @@ public class ContactInquiryService {
     /**
      * Share contact inquiry with project ID or email
      */
-    public ContactInquiry shareInquiry(Long id, String sharedWith, String shareNotes) {
+    public ContactInquiry shareInquiry(Long id, String sharedWith, String shareNotes, String sharedBy) {
         ContactInquiry inquiry = getInquiryById(id);
         if (inquiry == null) {
             throw new NoSuchElementException("Contact inquiry not found with id: " + id);
@@ -167,13 +167,17 @@ public class ContactInquiryService {
         inquiry.setSharedWith(sharedWith);
         inquiry.setSharedAt(LocalDateTime.now());
         inquiry.setShareNotes(shareNotes);
+        inquiry.setSharedBy(sharedBy != null ? sharedBy : "admin");
         inquiry.setUpdatedAt(LocalDateTime.now());
         
-        // You can add logic here to determine who is sharing based on authentication context
-        // For now, we'll set it as "system" or get it from security context
-        inquiry.setSharedBy("admin"); // This should ideally come from the authenticated user
-        
         return contactInquiryRepository.save(inquiry);
+    }
+
+    /**
+     * Share contact inquiry with project ID or email (backward compatibility)
+     */
+    public ContactInquiry shareInquiry(Long id, String sharedWith, String shareNotes) {
+        return shareInquiry(id, sharedWith, shareNotes, "admin");
     }
 
     /**

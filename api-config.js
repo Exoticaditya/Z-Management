@@ -1,56 +1,32 @@
 /**
  * API Configuration for Z+ Management Platform
- * Automatically detects environment and uses appropriate backend URL
+ * Simple, reliable configuration for production deployment
  */
 
 // Configuration object
 const API_CONFIG = {
-    // Railway Production URL (replace with your actual Railway URL)
-    PRODUCTION_URL: 'https://i1corir7.up.railway.app',
+    // Railway Production URL - always use this for zpluse.com
+    BASE_URL: 'https://z-management-production.up.railway.app/api',
     
-    // Local development URL
-    DEVELOPMENT_URL: 'http://localhost:8080',
+    // Request timeout
+    TIMEOUT: 15000,
     
-    // Auto-detect environment
-    getBaseUrl() {
-        // If running on zpluse.com (production), use Railway
-        if (window.location.hostname === 'zpluse.com' || 
-            window.location.hostname === 'www.zpluse.com') {
-            return this.PRODUCTION_URL;
-        }
-        
-        // If running locally, use localhost
-        if (window.location.hostname === 'localhost' || 
-            window.location.hostname === '127.0.0.1' ||
-            window.location.protocol === 'file:') {
-            return this.DEVELOPMENT_URL;
-        }
-        
-        // Default to production for any other domain
-        return this.PRODUCTION_URL;
+    // Default headers
+    HEADERS: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
     },
     
-    // Get full API URL
-    getApiUrl(endpoint = '') {
-        const baseUrl = this.getBaseUrl();
-        const apiPath = '/api';
-        
-        // Remove leading slash from endpoint if present
-        const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-        
-        if (cleanEndpoint) {
-            return `${baseUrl}${apiPath}/${cleanEndpoint}`;
-        }
-        return `${baseUrl}${apiPath}`;
-    }
+    // Debug mode (set to false for production)
+    DEBUG: false
 };
 
 // Global API base URL for backward compatibility
-const API_BASE_URL = API_CONFIG.getApiUrl();
+const API_BASE_URL = API_CONFIG.BASE_URL;
 
 // Helper function for making API calls
 async function makeApiCall(endpoint, options = {}) {
-    const url = API_CONFIG.getApiUrl(endpoint);
+    const url = `${API_CONFIG.BASE_URL}/${endpoint.startsWith('/') ? endpoint.slice(1) : endpoint}`;
     
     // Add default headers
     const defaultHeaders = {
@@ -67,7 +43,9 @@ async function makeApiCall(endpoint, options = {}) {
         }
     };
     
-    console.log(`[API] Making request to: ${url}`);
+    if (API_CONFIG.DEBUG) {
+        console.log(`[API] Making request to: ${url}`);
+    }
     
     try {
         const response = await fetch(url, config);
@@ -78,14 +56,15 @@ async function makeApiCall(endpoint, options = {}) {
     }
 }
 
-// Example usage for contact form submission
-// Old: fetch(url, options)
-// Now: makeApiCall('contact', { method: 'POST', body: JSON.stringify(data) })
+// Make API_CONFIG available globally
+if (typeof window !== 'undefined') {
+    window.API_CONFIG = API_CONFIG;
+    window.API_BASE_URL = API_BASE_URL;
+    window.makeApiCall = makeApiCall;
+}
 
-// Export makeApiCall if not already
+// Export for Node.js environments
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { API_CONFIG, API_BASE_URL, makeApiCall };
 }
-
-console.log(`[API CONFIG] Environment detected: ${window.location.hostname}`);
 console.log(`[API CONFIG] Using backend: ${API_CONFIG.getBaseUrl()}`);

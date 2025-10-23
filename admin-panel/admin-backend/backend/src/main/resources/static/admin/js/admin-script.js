@@ -205,8 +205,7 @@
             
             const contacts = await apiFetch('/contact/status/PENDING');
             lastContactCount = contacts ? contacts.length : 0;
-        } catch (error)
-        {
+        } catch (error) {
             console.error('Error initializing counts:', error);
         }
     }
@@ -702,36 +701,152 @@
                     <div class="empty-state-icon"><i class="fas fa-envelope-open"></i></div>
                     <h3>No Contact Inquiries</h3>
                     <p>There are currently no contact inquiries in this category.</p>
+                    <div class="empty-state-actions">
+                        <button onclick="refreshData()" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    </div>
                 </div>
             `;
         }
+        
         const rows = inquiries.map(inquiry => {
             const fullName = inquiry.fullName || `${inquiry.firstName || ''} ${inquiry.lastName || ''}`.trim();
             const status = inquiry.status || 'PENDING';
             const createdDate = inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleDateString() : '-';
             const assignedTo = inquiry.assignedTo || 'Unassigned';
+            const serviceInterests = Array.isArray(inquiry.serviceInterests) ? inquiry.serviceInterests.join(', ') : (inquiry.serviceInterests || '-');
+            const organization = inquiry.organization || '-';
+            const location = [inquiry.city, inquiry.state, inquiry.country].filter(Boolean).join(', ') || '-';
+            
             return `
-                <tr>
+                <tr onclick="showContactInquiryDetails(${inquiry.id})" style="cursor: pointer;" title="Click to view full details">
                     <td>${inquiry.id}</td>
-                    <td>${fullName}</td>
-                    <td>${inquiry.email || '-'}</td>
-                    <td>${inquiry.subject || '-'}</td>
-                    <td title="${inquiry.message || ''}">${inquiry.message ? inquiry.message.substring(0, 50) + '...' : '-'}</td>
-                    <td><span class="badge ${getContactStatusClass(status)}">${status}</span></td>
-                    <td>${createdDate}</td>
-                    <td>${assignedTo}</td>
                     <td>
+                        <div class="contact-name-info">
+                            <strong>${fullName}</strong>
+                            ${organization !== '-' ? `<br><small class="text-muted">${organization}</small>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-details">
+                            <div><i class="fas fa-envelope"></i> ${inquiry.email || '-'}</div>
+                            <div><i class="fas fa-phone"></i> ${inquiry.phone || '-'}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="location-info">
+                            <i class="fas fa-map-marker-alt"></i> ${location}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="service-interests" title="${serviceInterests}">
+                            ${serviceInterests.length > 30 ? serviceInterests.substring(0, 30) + '...' : serviceInterests}
+                        </div>
+                    </td>
+                    <td title="${inquiry.businessChallenge || ''}" class="business-challenge">
+                        ${inquiry.businessChallenge ? inquiry.businessChallenge.substring(0, 50) + '...' : '-'}
+                    </td>
+                    <td>
+                        <span class="badge ${getContactStatusClass(status)}">${status}</span>
+                        ${inquiry.contactMethod ? `<br><small><i class="fas fa-${inquiry.contactMethod === 'Email' ? 'envelope' : 'phone'}"></i> ${inquiry.contactMethod}</small>` : ''}
+                    </td>
+                    <td>
+                        <div class="date-info">
+                            ${createdDate}
+                            ${inquiry.businessDuration ? `<br><small class="text-muted">Duration: ${inquiry.businessDuration}</small>` : ''}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="assignment-info">
+                            ${assignedTo}
+                            ${inquiry.projectTimeline ? `<br><small class="text-muted">Timeline: ${inquiry.projectTimeline}</small>` : ''}
+                        </div>
+                    </td>
+                    <td onclick="event.stopPropagation();">
                         ${showActions ? `
-                            <button class="btn btn-sm btn-primary" onclick="viewContactInquiry(${inquiry.id})" title="View Details"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-secondary" onclick="assignContactInquiry(${inquiry.id})" title="Assign to Employee"><i class="fas fa-user-plus"></i></button>
-                            <button class="btn btn-sm btn-success" onclick="resolveContactInquiry(${inquiry.id})" title="Mark Resolved"><i class="fas fa-check"></i></button>
-                            <button class="btn btn-sm btn-info" onclick="replyToInquiry(${inquiry.id})" title="Reply"><i class="fas fa-reply"></i></button>
-                        ` : (inquiry.response ? `Response sent` : '-')}
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary" onclick="viewContactInquiry(${inquiry.id})" title="View Full Details"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-sm btn-secondary" onclick="assignContactInquiry(${inquiry.id})" title="Assign to Employee"><i class="fas fa-user-plus"></i></button>
+                                <button class="btn btn-sm btn-success" onclick="resolveContactInquiry(${inquiry.id})" title="Mark Resolved"><i class="fas fa-check"></i></button>
+                                <button class="btn btn-sm btn-info" onclick="replyToInquiry(${inquiry.id})" title="Reply"><i class="fas fa-reply"></i></button>
+                                <button class="btn btn-sm btn-warning" onclick="shareContactInquiry(${inquiry.id})" title="Share"><i class="fas fa-share"></i></button>
+                            </div>
+                        ` : (inquiry.responseNotes ? `<i class="fas fa-check-circle text-success" title="Response sent"></i> Response sent` : '-')}
                     </td>
                 </tr>
             `;
         }).join('');
-        return `<table class="data-table"><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Subject</th><th>Message Preview</th><th>Status</th><th>Date</th><th>Assigned To</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>`;
+        
+        return `
+            <div class="table-responsive">
+                <table class="data-table enhanced-contact-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name & Organization</th>
+                            <th>Contact Info</th>
+                            <th>Location</th>
+                            <th>Service Interests</th>
+                            <th>Business Challenge</th>
+                            <th>Status & Method</th>
+                            <th>Date & Duration</th>
+                            <th>Assignment</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+            <style>
+                .enhanced-contact-table {
+                    font-size: 0.9rem;
+                }
+                .enhanced-contact-table td {
+                    padding: 12px 8px;
+                    vertical-align: top;
+                }
+                .contact-name-info strong {
+                    color: #2c3e50;
+                }
+                .contact-details div, .location-info, .date-info, .assignment-info {
+                    margin: 2px 0;
+                    font-size: 0.85rem;
+                }
+                .contact-details i, .location-info i {
+                    width: 12px;
+                    margin-right: 4px;
+                    color: #7f8c8d;
+                }
+                .service-interests {
+                    font-size: 0.8rem;
+                    line-height: 1.3;
+                }
+                .business-challenge {
+                    max-width: 200px;
+                    font-size: 0.8rem;
+                    line-height: 1.3;
+                }
+                .action-buttons {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 2px;
+                }
+                .action-buttons .btn {
+                    padding: 4px 6px;
+                    margin: 1px;
+                }
+                .table-responsive {
+                    overflow-x: auto;
+                }
+                @media (max-width: 1200px) {
+                    .enhanced-contact-table {
+                        font-size: 0.8rem;
+                    }
+                    .enhanced-contact-table td {
+                        padding: 8px 4px;
+                    }
+                }
+            </style>
+        `;
     }
 
     // =================================================================
@@ -839,19 +954,251 @@
     window.viewContactInquiry = async (id) => {
         try {
             const inquiry = await apiFetch(`/contact/${id}`);
-            showDetailedNotification({
-                type: 'info',
-                title: `Inquiry #${id} Details`,
-                message: `From: ${inquiry.fullName} (${inquiry.email})`,
-                details: {
-                    'Subject': inquiry.subject,
-                    'Message': inquiry.message,
-                    'Status': inquiry.status,
-                    'Received': new Date(inquiry.createdAt).toLocaleString()
-                }
-            });
+            showDetailedContactModal(inquiry);
         } catch (error) {
-            showNotification(`Error fetching details for inquiry #${id}`, 'error');
+            showNotification(`Error fetching details for inquiry #${id}: ${error.message}`, 'error');
+        }
+    };
+
+    window.showContactInquiryDetails = async (id) => {
+        window.viewContactInquiry(id);
+    };
+
+    function showDetailedContactModal(inquiry) {
+        const serviceInterests = Array.isArray(inquiry.serviceInterests) ? inquiry.serviceInterests.join(', ') : (inquiry.serviceInterests || 'None specified');
+        const location = [inquiry.address, inquiry.city, inquiry.state, inquiry.country].filter(Boolean).join(', ');
+        
+        const modalHtml = `
+            <div class="modal-overlay" id="contactModal" onclick="closeContactModal()">
+                <div class="modal-content contact-modal" onclick="event.stopPropagation();">
+                    <div class="modal-header">
+                        <h2><i class="fas fa-envelope"></i> Contact Inquiry #${inquiry.id}</h2>
+                        <button class="modal-close" onclick="closeContactModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="inquiry-details-grid">
+                            <div class="detail-section">
+                                <h3><i class="fas fa-user"></i> Personal Information</h3>
+                                <div class="detail-item"><strong>Name:</strong> ${inquiry.fullName || '-'}</div>
+                                <div class="detail-item"><strong>Organization:</strong> ${inquiry.organization || 'Not specified'}</div>
+                                <div class="detail-item"><strong>Email:</strong> <a href="mailto:${inquiry.email}">${inquiry.email}</a></div>
+                                <div class="detail-item"><strong>Phone:</strong> <a href="tel:${inquiry.phone}">${inquiry.phone}</a></div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
+                                <div class="detail-item"><strong>Full Address:</strong> ${location || 'Not provided'}</div>
+                                <div class="detail-item"><strong>City:</strong> ${inquiry.city || '-'}</div>
+                                <div class="detail-item"><strong>State:</strong> ${inquiry.state || '-'}</div>
+                                <div class="detail-item"><strong>Country:</strong> ${inquiry.country || '-'}</div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3><i class="fas fa-briefcase"></i> Business Details</h3>
+                                <div class="detail-item"><strong>Business Duration:</strong> ${inquiry.businessDuration || 'Not specified'}</div>
+                                <div class="detail-item"><strong>Project Timeline:</strong> ${inquiry.projectTimeline || 'Not specified'}</div>
+                                <div class="detail-item"><strong>How They Heard About Us:</strong> ${inquiry.hearAbout || 'Not specified'}</div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3><i class="fas fa-cogs"></i> Service Interests</h3>
+                                <div class="service-interests-list">
+                                    ${serviceInterests.split(', ').map(service => `<span class="service-tag">${service}</span>`).join('')}
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section full-width">
+                                <h3><i class="fas fa-comment-dots"></i> Business Challenge / Goal</h3>
+                                <div class="business-challenge-full">
+                                    ${inquiry.businessChallenge || 'Not provided'}
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3><i class="fas fa-phone-alt"></i> Contact Preferences</h3>
+                                <div class="detail-item"><strong>Preferred Method:</strong> ${inquiry.contactMethod || 'Not specified'}</div>
+                                <div class="detail-item"><strong>Preferred Time:</strong> ${inquiry.preferredTime || 'Anytime'}</div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3><i class="fas fa-info-circle"></i> Status & Assignment</h3>
+                                <div class="detail-item">
+                                    <strong>Status:</strong> 
+                                    <span class="badge ${getContactStatusClass(inquiry.status)}">${inquiry.status}</span>
+                                </div>
+                                <div class="detail-item"><strong>Assigned To:</strong> ${inquiry.assignedTo || 'Unassigned'}</div>
+                                <div class="detail-item"><strong>Received:</strong> ${inquiry.createdAt ? new Date(inquiry.createdAt).toLocaleString() : '-'}</div>
+                                <div class="detail-item"><strong>Last Updated:</strong> ${inquiry.updatedAt ? new Date(inquiry.updatedAt).toLocaleString() : 'Never'}</div>
+                            </div>
+                            
+                            ${inquiry.responseNotes ? `
+                            <div class="detail-section full-width">
+                                <h3><i class="fas fa-reply"></i> Response Notes</h3>
+                                <div class="response-notes">
+                                    ${inquiry.responseNotes}
+                                </div>
+                                <div class="detail-item"><strong>Responded At:</strong> ${inquiry.respondedAt ? new Date(inquiry.respondedAt).toLocaleString() : '-'}</div>
+                            </div>
+                            ` : ''}
+                            
+                            ${inquiry.sharedWith ? `
+                            <div class="detail-section full-width">
+                                <h3><i class="fas fa-share"></i> Sharing Information</h3>
+                                <div class="detail-item"><strong>Shared With:</strong> ${inquiry.sharedWith}</div>
+                                <div class="detail-item"><strong>Shared By:</strong> ${inquiry.sharedBy || '-'}</div>
+                                <div class="detail-item"><strong>Shared At:</strong> ${inquiry.sharedAt ? new Date(inquiry.sharedAt).toLocaleString() : '-'}</div>
+                                ${inquiry.shareNotes ? `<div class="detail-item"><strong>Share Notes:</strong> ${inquiry.shareNotes}</div>` : ''}
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="modal-actions">
+                            <button class="btn btn-secondary" onclick="assignContactInquiry(${inquiry.id}); closeContactModal();"><i class="fas fa-user-plus"></i> Assign</button>
+                            <button class="btn btn-success" onclick="resolveContactInquiry(${inquiry.id}); closeContactModal();"><i class="fas fa-check"></i> Resolve</button>
+                            <button class="btn btn-info" onclick="replyToInquiry(${inquiry.id}); closeContactModal();"><i class="fas fa-reply"></i> Reply</button>
+                            <button class="btn btn-warning" onclick="shareContactInquiry(${inquiry.id}); closeContactModal();"><i class="fas fa-share"></i> Share</button>
+                            <button class="btn btn-primary" onclick="closeContactModal()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .modal-overlay {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.7);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
+                    padding: 20px;
+                }
+                .contact-modal {
+                    background: white;
+                    border-radius: 12px;
+                    max-width: 900px;
+                    width: 100%;
+                    max-height: 90vh;
+                    overflow-y: auto;
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                }
+                .modal-header {
+                    display: flex;
+                    justify-content: between;
+                    align-items: center;
+                    padding: 20px;
+                    border-bottom: 1px solid #eee;
+                    background: #f8f9fa;
+                    border-radius: 12px 12px 0 0;
+                }
+                .modal-header h2 {
+                    margin: 0;
+                    color: #2c3e50;
+                }
+                .modal-close {
+                    background: none;
+                    border: none;
+                    font-size: 1.5rem;
+                    cursor: pointer;
+                    color: #7f8c8d;
+                    margin-left: auto;
+                }
+                .modal-close:hover {
+                    color: #e74c3c;
+                }
+                .modal-body {
+                    padding: 20px;
+                }
+                .inquiry-details-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                }
+                .detail-section {
+                    background: #f8f9fa;
+                    padding: 15px;
+                    border-radius: 8px;
+                    border-left: 4px solid #3498db;
+                }
+                .detail-section.full-width {
+                    grid-column: span 2;
+                }
+                .detail-section h3 {
+                    margin: 0 0 10px 0;
+                    color: #2c3e50;
+                    font-size: 1.1rem;
+                }
+                .detail-item {
+                    margin: 8px 0;
+                    line-height: 1.4;
+                }
+                .service-interests-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 5px;
+                }
+                .service-tag {
+                    background: #3498db;
+                    color: white;
+                    padding: 4px 8px;
+                    border-radius: 12px;
+                    font-size: 0.85rem;
+                }
+                .business-challenge-full {
+                    background: white;
+                    padding: 12px;
+                    border-radius: 4px;
+                    border: 1px solid #ddd;
+                    line-height: 1.5;
+                    white-space: pre-wrap;
+                }
+                .response-notes {
+                    background: #e8f5e9;
+                    padding: 12px;
+                    border-radius: 4px;
+                    border-left: 4px solid #4caf50;
+                    line-height: 1.5;
+                }
+                .modal-footer {
+                    padding: 20px;
+                    border-top: 1px solid #eee;
+                    background: #f8f9fa;
+                    border-radius: 0 0 12px 12px;
+                }
+                .modal-actions {
+                    display: flex;
+                    gap: 10px;
+                    justify-content: flex-end;
+                    flex-wrap: wrap;
+                }
+                .modal-actions .btn {
+                    padding: 8px 16px;
+                }
+                @media (max-width: 768px) {
+                    .inquiry-details-grid {
+                        grid-template-columns: 1fr;
+                    }
+                    .detail-section.full-width {
+                        grid-column: span 1;
+                    }
+                    .modal-actions {
+                        justify-content: center;
+                    }
+                }
+            </style>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    window.closeContactModal = () => {
+        const modal = document.getElementById('contactModal');
+        if (modal) {
+            modal.remove();
         }
     };
 
@@ -883,6 +1230,77 @@
             } catch (error) {
                 showNotification(`Error assigning inquiry: ${error.message}`, 'error');
             }
+        }
+    };
+
+    window.resolveContactInquiry = async (id) => {
+        try {
+            const notes = prompt("Resolution notes (optional):");
+            
+            await apiFetch(`/contact/${id}/resolve`, {
+                method: 'PUT',
+                body: JSON.stringify({ 
+                    status: 'RESOLVED',
+                    responseNotes: notes || "Resolved by admin"
+                }),
+            });
+            
+            showNotification(`Inquiry #${id} resolved successfully`, 'success');
+            refreshData(); // Refresh the list
+        } catch (error) {
+            showNotification(`Error resolving inquiry: ${error.message}`, 'error');
+        }
+    };
+
+    window.replyToInquiry = async (id) => {
+        try {
+            const inquiry = await apiFetch(`/contact/${id}`);
+            const replyMessage = prompt(`Reply to ${inquiry.fullName} (${inquiry.email}):\n\nOriginal inquiry: "${inquiry.businessChallenge || 'No specific challenge mentioned'}"\n\nYour reply:`);
+            
+            if (!replyMessage) return;
+            
+            // Create mailto link for now, later can be integrated with email service
+            const subject = `Re: Your inquiry about ${inquiry.serviceInterests || 'our services'}`;
+            const body = `Dear ${inquiry.fullName},\n\n${replyMessage}\n\nBest regards,\nZ+ Management Team`;
+            const mailtoLink = `mailto:${inquiry.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            
+            window.open(mailtoLink);
+            
+            // Update the inquiry with response notes
+            await apiFetch(`/contact/${id}/resolve`, {
+                method: 'PUT',
+                body: JSON.stringify({ 
+                    responseNotes: `Reply sent: ${replyMessage}`,
+                    respondedAt: new Date().toISOString()
+                }),
+            });
+            
+            showNotification(`Reply window opened for ${inquiry.fullName}`, 'info');
+        } catch (error) {
+            showNotification(`Error preparing reply: ${error.message}`, 'error');
+        }
+    };
+
+    window.shareContactInquiry = async (id) => {
+        try {
+            const shareWith = prompt("Share this inquiry with (email or department):");
+            if (!shareWith) return;
+            
+            const shareNotes = prompt("Share notes (optional):");
+            
+            await apiFetch(`/contact/${id}/share`, {
+                method: 'PUT',
+                body: JSON.stringify({ 
+                    sharedWith: shareWith,
+                    shareNotes: shareNotes || "Shared for collaboration",
+                    sharedBy: "admin", // currentUser.username,
+                    sharedAt: new Date().toISOString()
+                }),
+            });
+            
+            showNotification(`Inquiry #${id} shared with ${shareWith}`, 'success');
+        } catch (error) {
+            showNotification(`Error sharing inquiry: ${error.message}`, 'error');
         }
     };
 

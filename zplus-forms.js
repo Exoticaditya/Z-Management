@@ -3,7 +3,7 @@
 
 class RegistrationFormHandler {
     constructor() {
-        this.API_BASE_URL = 'https://z-management-production.up.railway.app/api'; // Replace with your Railway URL
+        this.API_BASE_URL = API_CONFIG.getApiUrl(); // Use API config
         this.initializeForm();
     }
 
@@ -128,7 +128,7 @@ class RegistrationFormHandler {
 // Contact form handler
 class ContactFormHandler {
     constructor() {
-        this.API_BASE_URL = 'https://z-management-production.up.railway.app/api'; // Replace with your Railway URL
+        this.API_BASE_URL = API_CONFIG.getApiUrl(); // Use API config
         this.initializeForm();
     }
 
@@ -145,7 +145,14 @@ class ContactFormHandler {
         const form = event.target;
         const formData = new FormData(form);
         
-        // Create contact request object
+        // Handle multiple checkboxes for service interests
+        const serviceInterests = [];
+        const checkboxes = form.querySelectorAll('input[name="serviceInterests"]:checked');
+        checkboxes.forEach(checkbox => {
+            serviceInterests.push(checkbox.value);
+        });
+        
+        // Create contact request object matching the backend ContactInquiry entity
         const contactData = {
             fullName: formData.get('fullName'),
             organization: formData.get('organization') || '',
@@ -154,10 +161,14 @@ class ContactFormHandler {
             country: formData.get('country'),
             state: formData.get('state'),
             city: formData.get('city'),
-            subject: formData.get('subject'),
-            message: formData.get('message'),
-            serviceType: formData.get('serviceType') || 'GENERAL',
-            priority: formData.get('priority') || 'MEDIUM'
+            address: formData.get('address') || '',
+            businessDuration: formData.get('businessDuration') || '',
+            projectTimeline: formData.get('projectTimeline') || '',
+            serviceInterests: serviceInterests,
+            businessChallenge: formData.get('businessChallenge'),
+            contactMethod: formData.get('contactMethod'),
+            preferredTime: formData.get('preferredTime') || '',
+            hearAbout: formData.get('hearAbout') || ''
         };
 
         console.log('Submitting contact inquiry:', contactData);
@@ -179,6 +190,14 @@ class ContactFormHandler {
             if (response.ok && result.success) {
                 this.showSuccess('Thank you for your inquiry! We\'ll get back to you soon.');
                 form.reset();
+                // Show confirmation box
+                const confirmationBox = document.getElementById('confirmationBox');
+                if (confirmationBox) {
+                    confirmationBox.style.display = 'flex';
+                    setTimeout(() => {
+                        confirmationBox.style.display = 'none';
+                    }, 5000);
+                }
             } else {
                 this.showError(result.message || 'Failed to submit inquiry. Please try again.');
             }

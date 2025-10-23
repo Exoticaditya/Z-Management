@@ -168,7 +168,38 @@ public class ContactController {
     }
 
     /**
-     * Resolve a contact inquiry
+     * Resolve a contact inquiry with detailed response
+     */
+    @PutMapping("/{id}/resolve")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<ContactInquiry> resolveInquiryDetailed(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> requestBody) {
+        
+        logger.info("Resolving contact inquiry with ID: {} with detailed response", id);
+        
+        try {
+            String responseNotes = (String) requestBody.get("responseNotes");
+            String status = (String) requestBody.get("status");
+            
+            ContactInquiry resolvedInquiry = contactInquiryService.updateInquiryStatus(
+                id, 
+                ContactStatus.valueOf(status != null ? status : "RESOLVED"), 
+                responseNotes != null ? responseNotes : "Inquiry resolved"
+            );
+            
+            // Set response timestamp
+            resolvedInquiry.setRespondedAt(LocalDateTime.now());
+            
+            return ResponseEntity.ok(resolvedInquiry);
+        } catch (Exception e) {
+            logger.error("Error resolving contact inquiry with details: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Resolve a contact inquiry (simple version for backward compatibility)
      */
     @PostMapping("/{id}/resolve")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
@@ -180,6 +211,30 @@ public class ContactController {
             return ResponseEntity.ok(resolvedInquiry);
         } catch (Exception e) {
             logger.error("Error resolving contact inquiry: {}", e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Share a contact inquiry with team members
+     */
+    @PutMapping("/{id}/share")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MANAGER')")
+    public ResponseEntity<ContactInquiry> shareInquiry(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> requestBody) {
+        
+        logger.info("Sharing contact inquiry with ID: {}", id);
+        
+        try {
+            String sharedWith = (String) requestBody.get("sharedWith");
+            String shareNotes = (String) requestBody.get("shareNotes");
+            String sharedBy = (String) requestBody.get("sharedBy");
+            
+            ContactInquiry sharedInquiry = contactInquiryService.shareInquiry(id, sharedWith, shareNotes, sharedBy);
+            return ResponseEntity.ok(sharedInquiry);
+        } catch (Exception e) {
+            logger.error("Error sharing contact inquiry: {}", e.getMessage());
             return ResponseEntity.badRequest().build();
         }
     }
